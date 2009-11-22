@@ -1,5 +1,7 @@
 package org.yellcorp.color
 {
+import flash.display.BitmapData;
+import flash.display.BitmapDataChannel;
 import flash.geom.ColorTransform;
 
 
@@ -174,21 +176,108 @@ public class ColorMatrixUtil
         return out;
     }
 
-/*
-        //debug
-        private static function copyMatRGBToGeo(c:Array, m:Matrix4x3):void
+    public static function setChannelToAlpha(inChannelMask:uint, out:ColorMatrix = null):ColorMatrix
+    {
+        if (!out) out = new ColorMatrix();
+
+        out[15] = inChannelMask & BitmapDataChannel.RED ? 1 : 0;
+        out[16] = inChannelMask & BitmapDataChannel.GREEN ? 1 : 0;
+        out[17] = inChannelMask & BitmapDataChannel.BLUE ? 1 : 0;
+        out[18] = inChannelMask & BitmapDataChannel.ALPHA ? 1 : 0;
+
+        return out;
+    }
+
+    public static function setChannelUnion(inChannelMask:uint, outChannel:uint, out:ColorMatrix = null):ColorMatrix
+    {
+        if (!out) out = new ColorMatrix();
+
+        setChannelLogicOp(inChannelMask, outChannel, 0, out);
+
+        return out;
+    }
+
+    public static function setChannelIntersection(inChannelMask:uint, outChannel:uint, out:ColorMatrix = null):ColorMatrix
+    {
+        var offset:Number;
+        var countBits:uint = inChannelMask;
+
+        if (!out) out = new ColorMatrix();
+
+        // count the bits in inChannelMask, this tells us how many source
+        // channels are being used.  the offset result is
+        // ((number of channels used) - 1) * -255
+        offset = 255;
+        while (countBits > 0)
         {
-            m.m00 = c[0];   m.m10 = c[1];   m.m20 = c[2];   m.m30 = c[4];
-            m.m01 = c[5];   m.m11 = c[6];   m.m21 = c[7];   m.m31 = c[9];
-            m.m02 = c[10];  m.m12 = c[11];  m.m22 = c[12];  m.m32 = c[14];
+            if (countBits & 1) offset -= 255;
+            countBits >>>= 1;
         }
 
-        private static function copyMatGeoToRGB(m:Matrix4x3, c:Array):void
+        setChannelLogicOp(inChannelMask, outChannel, offset, out);
+
+        return out;
+    }
+
+    private static function setChannelLogicOp(inChannelMask:uint, outChannel:uint, offset:Number, out:ColorMatrix):void
+    {
+        var outRow:int;
+
+        switch (outChannel)
         {
-            c[0]  = m.m00;  c[1]  = m.m10;  c[2]  = m.m20;  c[4]  = m.m30;
-            c[5]  = m.m01;  c[6]  = m.m11;  c[7]  = m.m21;  c[9]  = m.m31;
-            c[10] = m.m02;  c[11] = m.m12;  c[12] = m.m22;  c[14] = m.m32;
+            case BitmapDataChannel.RED :
+                outRow = 0;
+                break;
+
+            case BitmapDataChannel.GREEN :
+                outRow = 5;
+                break;
+
+            case BitmapDataChannel.BLUE :
+                outRow = 10;
+                break;
+
+            case BitmapDataChannel.ALPHA :
+                outRow = 15;
+                break;
+
+            default :
+                throw new ArgumentError("Must specify exactly one output channel");
+                break;
         }
+
+        out[outRow++] = inChannelMask & BitmapDataChannel.RED ? 1 : 0;
+        out[outRow++] = inChannelMask & BitmapDataChannel.GREEN ? 1 : 0;
+        out[outRow++] = inChannelMask & BitmapDataChannel.BLUE ? 1 : 0;
+        out[outRow++] = inChannelMask & BitmapDataChannel.ALPHA ? 1 : 0;
+        out[outRow++] = offset;
+
+        // probably don't need to set the rest to identity.  if you only want the
+        // result of outChannel then it doesn't matter.  if you do want the
+        // other channels, you can set the matrix up before calling i guess
+        /*
+        if (outRow !=  0) { out[ 0] = 1; out[ 1] = 0; out[ 2] = 0; out[ 3] = 0; out[ 4] = 0; };
+        if (outRow !=  5) { out[ 5] = 0; out[ 6] = 1; out[ 7] = 0; out[ 8] = 0; out[ 9] = 0; };
+        if (outRow != 10) { out[10] = 0; out[11] = 0; out[12] = 1; out[13] = 0; out[14] = 0; };
+        if (outRow != 15) { out[15] = 0; out[16] = 0; out[17] = 0; out[18] = 1; out[19] = 0; };
+         */
+    }
+
+    /*
+    //debug
+    private static function copyMatRGBToGeo(c:Array, m:Matrix4x3):void
+    {
+        m.m00 = c[0];   m.m10 = c[1];   m.m20 = c[2];   m.m30 = c[4];
+        m.m01 = c[5];   m.m11 = c[6];   m.m21 = c[7];   m.m31 = c[9];
+        m.m02 = c[10];  m.m12 = c[11];  m.m22 = c[12];  m.m32 = c[14];
+    }
+
+    private static function copyMatGeoToRGB(m:Matrix4x3, c:Array):void
+    {
+        c[0]  = m.m00;  c[1]  = m.m10;  c[2]  = m.m20;  c[4]  = m.m30;
+        c[5]  = m.m01;  c[6]  = m.m11;  c[7]  = m.m21;  c[9]  = m.m31;
+        c[10] = m.m02;  c[11] = m.m12;  c[12] = m.m22;  c[14] = m.m32;
+    }
  */
 
         // FACTORY METHODS: These produce invariant ColorMatrix objects

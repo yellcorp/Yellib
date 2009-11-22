@@ -8,7 +8,7 @@ dynamic public class ColorMatrix extends Array
     {
         super();
 
-        if (initValues === null)
+        if (!initValues)
         {
             identity();
         }
