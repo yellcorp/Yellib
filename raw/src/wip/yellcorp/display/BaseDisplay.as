@@ -13,15 +13,15 @@ public class BaseDisplay extends Sprite
 
     protected var destroyed:Boolean;
 
-    public function BaseDisplay()
+    public function BaseDisplay(initialWidth:Number = Number.NaN, initialHeight:Number = Number.NaN)
     {
         addEventListener(Event.ADDED_TO_STAGE, callAddedToStage, false, 0, true);
         addEventListener(Event.REMOVED_FROM_STAGE, callRemovedFromStage, false, 0, true);
 
         super();
 
-        _width = getInitialViewWidth();
-        _height = getInitialViewHeight();
+        _width = isFinite(initialWidth) ? initialWidth : super.width;
+        _height = isFinite(initialHeight) ? initialHeight : super.height;
     }
 
     public override function get width():Number
@@ -91,21 +91,6 @@ public class BaseDisplay extends Sprite
     protected final function getDisplayHeight():Number
     {
         return super.height;
-    }
-
-    /**
-     * Override getInitialViewWidth/Height to set an
-     * initial size.  Default is to just return the
-     * height/width on DisplayObject
-     */
-    protected function getInitialViewWidth():Number
-    {
-        return getDisplayWidth();
-    }
-
-    protected function getInitialViewHeight():Number
-    {
-        return getDisplayHeight();
     }
 
     protected function onRender():void
