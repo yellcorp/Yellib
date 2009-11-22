@@ -22,3 +22,22 @@ public class CFormat
     }
 }
 }
+
+/*
+                      '      0        -          [SPACE] or +  #
+                      group  zeroPad  alignLeft  positiveSign  alternateForm  width  precision  caps
+d  TYPE_DECIMAL_INT   y      y        y          y                            y      IGNORE 0
+I  TYPE_DECIMAL_INT   y      y        y          y                            y      IGNORE 0
+o  TYPE_OCTAL_INT            y        y                        y              y      IGNORE 0
+u  TYPE_UNSIGNED_INT  y      y        y                                       y      IGNORE 0
+x  TYPE_HEX_INT              y        y                        y              y      IGNORE 0   y
+f  TYPE_FIX_FLOAT     y      y        y          y             y              y                 y
+e  TYPE_EXP_FLOAT            y        y          y             y              y                 y
+g  TYPE_VAR_FLOAT     y      y        y          y             y              y                 y
+a  TYPE_HEX_FLOAT            y        y          y             y              y                 y
+c  TYPE_CHAR                          y                                       y
+s  TYPE_STRING                        y                                       y      y
+p  TYPE_POINTER                       y                                       y
+n  TYPE_NUMCHARS                      y                                       y
+                                      IGNORE 0
+*/

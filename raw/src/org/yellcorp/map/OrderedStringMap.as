@@ -1,6 +1,6 @@
 package org.yellcorp.map
 {
-import org.yellcorp.debug.AssertError;
+import org.yellcorp.error.AssertError;
 import org.yellcorp.format.Template;
 
 
