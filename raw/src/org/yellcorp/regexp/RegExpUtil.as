@@ -1,13 +1,27 @@
 package org.yellcorp.regexp
 {
 
+import org.yellcorp.array.ArrayUtil;
+
+
 public class RegExpUtil
 {
     public static const REGEX_CHARS:RegExp = /(\^|\$|\\|\.|\*|\+|\?|\(|\)|\[|\]|\{|\}|\|)/g;
 
-    public static function createLiteralRegExp(literalString:String, options:String = ""):RegExp
+    public static function createLiteralRegExp(literalString:String, flags:String = ""):RegExp
     {
-        return new RegExp(escapeRegExp(literalString), options);
+        return new RegExp(escapeRegExp(literalString), flags);
+    }
+
+    public static function createCapturingAlternates(literalAlternates:Array, flags:String = ""):RegExp
+    {
+        var escapedAlternates:Array;
+        var expression:String;
+
+        escapedAlternates = literalAlternates.map(ArrayUtil.simpleCallback(escapeRegExp));
+        expression = "(" + escapedAlternates.join("|") + ")";
+
+        return new RegExp(expression, flags);
     }
 
     public static function escapeRegExp(literalString:String):String

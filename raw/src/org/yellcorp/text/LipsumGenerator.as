@@ -16,7 +16,7 @@ public class LipsumGenerator
 
         for (i = 1; i <= n; i++)
         {
-            words.push(EnglishUtil.renderInteger(i));
+            words.push(EnglishUtil.spellInteger(i));
         }
         return words.join(" ");
     }
