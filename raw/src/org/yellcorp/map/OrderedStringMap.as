@@ -67,6 +67,11 @@ public class OrderedStringMap
         return keyOrder.length;
     }
 
+    public function getAllKeys():Array
+    {
+        return keyOrder.slice();
+    }
+
     public function getIndexOfKey(key:String):int
     {
         if (hasKey(key))
