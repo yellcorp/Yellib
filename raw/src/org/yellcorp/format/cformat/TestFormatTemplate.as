@@ -1,5 +1,7 @@
 package org.yellcorp.format.cformat
 {
+import org.yellcorp.format.NumberFormatUtil;
+
 
 public class TestFormatTemplate
 {
@@ -21,16 +23,16 @@ public class TestFormatTemplate
 
     private static function testGroupNumberString():void
     {
-        testString(CFormatTemplate.groupNumberString(""), "");
-        testString(CFormatTemplate.groupNumberString("1"), "1");
-        testString(CFormatTemplate.groupNumberString("1.0"), "1.0");
-        testString(CFormatTemplate.groupNumberString("1.0000"), "1.0000");
-        testString(CFormatTemplate.groupNumberString("123"), "123");
-        testString(CFormatTemplate.groupNumberString("123.0000"), "123.0000");
-        testString(CFormatTemplate.groupNumberString("1234"), "1,234");
-        testString(CFormatTemplate.groupNumberString("1234.0000"), "1,234.0000");
-        testString(CFormatTemplate.groupNumberString("12345678"), "12,345,678");
-        testString(CFormatTemplate.groupNumberString("12345678.0000"), "12,345,678.0000");
+        testString(NumberFormatUtil.groupNumberStr(""), "");
+        testString(NumberFormatUtil.groupNumberStr("1"), "1");
+        testString(NumberFormatUtil.groupNumberStr("1.0"), "1.0");
+        testString(NumberFormatUtil.groupNumberStr("1.0000"), "1.0000");
+        testString(NumberFormatUtil.groupNumberStr("123"), "123");
+        testString(NumberFormatUtil.groupNumberStr("123.0000"), "123.0000");
+        testString(NumberFormatUtil.groupNumberStr("1234"), "1,234");
+        testString(NumberFormatUtil.groupNumberStr("1234.0000"), "1,234.0000");
+        testString(NumberFormatUtil.groupNumberStr("12345678"), "12,345,678");
+        testString(NumberFormatUtil.groupNumberStr("12345678.0000"), "12,345,678.0000");
     }
 
     private static function testLeadingZeros():void

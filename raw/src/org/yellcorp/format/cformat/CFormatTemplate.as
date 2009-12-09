@@ -1,5 +1,6 @@
 package org.yellcorp.format.cformat
 {
+import org.yellcorp.format.NumberFormatUtil;
 import org.yellcorp.string.StringUtil;
 
 
@@ -323,7 +324,7 @@ public class CFormatTemplate
 
         if (group)
         {
-            result = localizeSeparators(groupNumberString(result));
+            result = NumberFormatUtil.groupNumberStr(result, localeRadixSymbol, localeGroupingSymbol, localeGroupingSize);
         }
 
         if (minDigits >= 0)
@@ -400,9 +401,9 @@ public class CFormatTemplate
         }
 
         if (group)
-            result = groupNumberString(result);
+            result = NumberFormatUtil.groupNumberStr(result, ".", ",", localeGroupingSize);
 
-        return localizeSeparators(result);
+        return NumberFormatUtil.localizeNumberSeparatorsStr(result);
     }
 
     internal static function forceMinPrecision(numString:String, precision:int):String
@@ -421,57 +422,7 @@ public class CFormatTemplate
         }
     }
 
-    internal static function groupNumberString(numString:String):String
-    {
-        var intPart:String;
-        var point:int;
-        var intResult:String = "";
-        var fracPart:String;
 
-        var groupSize:int = localeGroupingSize;
-        var i:int;
-
-        if (numString == "") return "";
-
-        point = numString.indexOf(".");
-
-        if (point >= 0)
-        {
-            intPart = numString.substr(0, point);
-            fracPart = numString.substr(point + 1);
-        }
-        else
-        {
-            intPart = numString;
-        }
-
-        if (intPart.length > groupSize)
-        {
-            i = intPart.length % groupSize;
-            if (i > 0)
-            {
-                intResult = intPart.substr(0, i);
-            }
-            while (i < intPart.length)
-            {
-                intResult += (intResult == "" ? "" : ",") +
-                             intPart.substr(i, groupSize);
-
-                i += groupSize;
-            }
-        }
-        else
-        {
-            intResult = intPart;
-        }
-
-        if (point >= 0)
-        {
-            intResult += "." + fracPart;
-        }
-
-        return intResult;
-    }
 
     internal static function addLeadingZeros(numString:String, minWidth:int):String
     {
@@ -485,28 +436,7 @@ public class CFormatTemplate
         }
     }
 
-    internal static function localizeSeparators(floatStr:String):String
-    {
-        var intPart:String;
-        var fracPart:String;
-        var intSep:int;
 
-        if (localeGroupingSymbol == "," && localeRadixSymbol == ".") return floatStr;
-
-        intSep = floatStr.indexOf(".");
-
-        if (intSep < 0)
-        {
-            return floatStr.replace(",", localeGroupingSymbol);
-        }
-        else
-        {
-            intPart = floatStr.substr(0, intSep);
-            fracPart = floatStr.substr(intSep + 1);
-
-            return intPart.replace(",", localeGroupingSymbol) + localeRadixSymbol + fracPart;
-        }
-    }
 }
 }
 

@@ -42,7 +42,7 @@ public class StateChanger extends MovieClip
         super();
         labelToFrame = new Dictionary();
         collectLabels();
-        goToState('default');
+        goToState('default', true);
     }
 
     public function get state():String
@@ -61,12 +61,12 @@ public class StateChanger extends MovieClip
         {
             if (!transitionBackward(_state, whichState))
             {
-                goToState(whichState);
+                goToState(whichState, true);
             }
         }
     }
 
-    private function goToState(whichState:String):void
+    private function goToState(whichState:String, dispatchEvents:Boolean):void
     {
         var queryLabel:String;
         queryLabel = getStateName(whichState);
@@ -74,14 +74,17 @@ public class StateChanger extends MovieClip
         {
             if (playing)
             {
-                stopFrameListener();
+                stopFrameListener(true);
             }
+            if (dispatchEvents) dispatchStart(whichState);
             gotoAndStop(labelToFrame[queryLabel]);
+            if (dispatchEvents) dispatchEnd(whichState);
             _state = whichState;
         }
         else
         {
             trace(this.name + ":StateChanger WARNING: No label for state " + whichState);
+            dispatchEvent(new StateChangeEvent(StateChangeEvent.STATE_NOT_FOUND, whichState, true, false));
         }
     }
 
@@ -115,10 +118,11 @@ public class StateChanger extends MovieClip
         stopFrameNumber = direction > 0 ? getLabelAfter(startFrameNum) : getLabelBefore(startFrameNum);
         if (playing)
         {
-            stopFrameListener();
+            stopFrameListener(true);
         }
         gotoAndStop(startFrameNum);
         startFrameListener();
+        dispatchStart(targetState);
     }
 
     private function startFrameListener():void
@@ -127,24 +131,34 @@ public class StateChanger extends MovieClip
         addEventListener(Event.ENTER_FRAME, onFrame);
     }
 
-    private function stopFrameListener():void
+    private function stopFrameListener(cancelled:Boolean):void
     {
         playing = false;
         removeEventListener(Event.ENTER_FRAME, onFrame);
-        goToState(targetState);
+        goToState(targetState, false);
+        if (cancelled)
+        {
+            dispatchEvent(new StateChangeEvent(StateChangeEvent.STATE_CHANGE_CANCEL, targetState, true, false));
+        }
+        else
+        {
+            dispatchEnd(targetState);
+        }
     }
 
     private function onFrame(event:Event):void
     {
         if (frameStep > 0 && (currentFrame >= stopFrameNumber || currentFrame >= totalFrames))
         {
-            stopFrameListener();
-        } else if (frameStep < 0 && (currentFrame <= stopFrameNumber || currentFrame <= 1))
+            stopFrameListener(false);
+        }
+        else if (frameStep < 0 && (currentFrame <= stopFrameNumber || currentFrame <= 1))
         {
-            stopFrameListener();
-        } else if (frameStep == 0)
+            stopFrameListener(false);
+        }
+        else if (frameStep == 0)
         {
-            stopFrameListener();
+            stopFrameListener(false);
             trace("WARNING: stopFrameNumber was 0");
         }
         else
@@ -234,6 +248,16 @@ public class StateChanger extends MovieClip
     private function labelToString(label:FrameLabel):String
     {
         return "Label '" + label.name + "' at frame " + label.frame;
+    }
+
+    private function dispatchStart(stateName:String):void
+    {
+        dispatchEvent(new StateChangeEvent(StateChangeEvent.STATE_CHANGE_START, stateName, true, false));
+    }
+
+    private function dispatchEnd(stateName:String):void
+    {
+        dispatchEvent(new StateChangeEvent(StateChangeEvent.STATE_CHANGE_END, stateName, true, false));
     }
 }
 }
