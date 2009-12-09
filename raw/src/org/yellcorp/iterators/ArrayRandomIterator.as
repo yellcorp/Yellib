@@ -1,6 +1,7 @@
 package org.yellcorp.iterators
 {
-import org.yellcorp.iterators.Iterator;
+import org.yellcorp.random.generators.NativeRandom;
+import org.yellcorp.random.generators.RandomNumberGenerator;
 
 
 public class ArrayRandomIterator implements Iterator
@@ -10,9 +11,12 @@ public class ArrayRandomIterator implements Iterator
     private var choices:Array;
     private var arrayIndex:int;
 
-    public function ArrayRandomIterator(array:Array)
+    private var randomSource:RandomNumberGenerator;
+
+    public function ArrayRandomIterator(array:Array, randomSource:RandomNumberGenerator = null)
     {
         this.array = array;
+        this.randomSource = randomSource || new NativeRandom();
         reset();
     }
 
@@ -25,7 +29,7 @@ public class ArrayRandomIterator implements Iterator
     {
         var choiceIndex:int;
 
-        choiceIndex = Math.floor(Math.random() * remaining);
+        choiceIndex = Math.floor(randomSource.nextNumber() * remaining);
         arrayIndex = choices[choiceIndex];
 
         // swap used indices with those at the end of the array -
