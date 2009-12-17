@@ -2,8 +2,8 @@ package org.yellcorp.iterators
 {
 public interface MutableIterator extends Iterator
 {
-    function set item(v:*):void;
-    function insert(v:*):void;
+    function setItem(replaceValue:*):void;
+    function insert(insertValue:*):void;
     function remove():void;
 }
 }

@@ -6,15 +6,14 @@ import flash.events.IEventDispatcher;
 
 public class EventListenerGroup implements IEventDispatcher
 {
-    private var target:IEventDispatcher;
+    private var _target:IEventDispatcher;
     private var listeners:Array;
 
     private var _enabled:Boolean;
 
     public function EventListenerGroup(target:IEventDispatcher, startEnabled:Boolean = true)
     {
-        this.target = target;
-
+        _target = target;
         _enabled = startEnabled;
 
         listeners = [ ];
@@ -36,18 +35,33 @@ public class EventListenerGroup implements IEventDispatcher
             {
                 for (i = 0; i < listeners.length; i++)
                 {
-                    ListenerRecord(listeners[i]).applyTo(target);
+                    ListenerRecord(listeners[i]).applyTo(_target);
                 }
             }
             else
             {
                 for (i = 0; i < listeners.length; i++)
                 {
-                    ListenerRecord(listeners[i]).removeFrom(target);
+                    ListenerRecord(listeners[i]).removeFrom(_target);
                 }
             }
         }
     }
+
+    public function get target():IEventDispatcher
+    {
+        return _target;
+    }
+
+    public function set target(new_target:IEventDispatcher):void
+    {
+        var prevEnabled:Boolean;
+
+        prevEnabled = enabled;
+        enabled = false;
+        _target = new_target;
+        enabled = prevEnabled;
+}
 
     public function clear():void
     {
@@ -65,17 +79,17 @@ public class EventListenerGroup implements IEventDispatcher
 
     public function dispatchEvent(event:Event):Boolean
     {
-        return target.dispatchEvent(event);
+        return _target.dispatchEvent(event);
     }
 
     public function hasEventListener(type:String):Boolean
     {
-        return target.hasEventListener(type);
+        return _target.hasEventListener(type);
     }
 
     public function willTrigger(type:String):Boolean
     {
-        return target.willTrigger(type);
+        return _target.willTrigger(type);
     }
 
     public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
@@ -89,7 +103,7 @@ public class EventListenerGroup implements IEventDispatcher
 
             if (_enabled)
             {
-                record.applyTo(target);
+                record.applyTo(_target);
             }
         }
         else
@@ -108,7 +122,7 @@ public class EventListenerGroup implements IEventDispatcher
         if (index >= 0)
         {
             record = listeners[index];
-            record.removeFrom(target);
+            record.removeFrom(_target);
             listeners.splice(index, 1);
         }
     }

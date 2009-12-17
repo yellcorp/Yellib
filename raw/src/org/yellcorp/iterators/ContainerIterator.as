@@ -17,8 +17,6 @@ public class ContainerIterator implements Iterator
         this.parent = parent;
         this.reverse = reverse;
 
-        lastIndex = reverse ? 0 : (parent.numChildren - 1);
-
         reset();
     }
 
@@ -27,19 +25,17 @@ public class ContainerIterator implements Iterator
         return index != lastIndex;
     }
 
-    public function next():void
+    public function next():*
     {
+        var value:* = parent.getChildAt(index);
         index += (reverse ? -1 : 1);
+        return value;
     }
 
     public function reset():void
     {
+        lastIndex = reverse ? -1 : (parent.numChildren);
         index = reverse ? (parent.numChildren - 1) : 0;
-    }
-
-    public function get item():*
-    {
-        return parent.getChildAt(index);
     }
 }
 }

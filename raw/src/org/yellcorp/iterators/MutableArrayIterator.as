@@ -6,30 +6,32 @@ import org.yellcorp.iterators.MutableIterator;
 // god these names are getting java-ey already
 public class MutableArrayIterator extends ArrayIterator implements MutableIterator
 {
-    public function set item(v:*):void
+    public function setItem(v:*):void
     {
-        array[index] = v;
+        array[index - step] = v;
     }
 
     public function insert(v:*):void
     {
-        array.splice(index, 0, v);
         if (reverse)
         {
-            index++;
+            array.splice(index + 1, 0, v);
         }
         else
         {
+            array.splice(index, 0, v);
+            index++;
             lastIndex++;
         }
     }
 
     public function remove():void
     {
-        array.splice(index, 1);
+        array.splice(index - step, 1);
+        index -= step;
         if (!reverse)
         {
-            index--;
+            lastIndex--;
         }
     }
 }
