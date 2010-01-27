@@ -18,8 +18,8 @@ package org.yellcorp.geom
  * In mathematical notation, the vector is on the left and the
  * matrix is on the right: v' = vM
  *
- * Like:    Direct3D, flash.geom.Matrix, papervision
- * Unlike:  OpenGL, Mac OSX Quartz
+ * Like:    Direct3D, flash.geom.Matrix
+ * Unlike:  OpenGL, Mac OSX Quartz, papervision
  */
 public class Matrix4x3
 {

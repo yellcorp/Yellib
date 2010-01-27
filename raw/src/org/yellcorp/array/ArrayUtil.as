@@ -85,6 +85,29 @@ public class ArrayUtil
         return reordered;
     }
 
+    public static function count(array:Array, truthFunction:Function = null):int
+    {
+        var i:int;
+        var result:int;
+        if (!array) return 0;
+        result = 0;
+        if (truthFunction === null)
+        {
+            for (i = 0; i < array.length; i++)
+            {
+                if (array[i]) result++;
+            }
+        }
+        else
+        {
+            for (i = 0; i < array.length; i++)
+            {
+                if (truthFunction(array[i])) result++;
+            }
+        }
+        return result;
+    }
+
     /**
      * Uses ECMAScript scope behaviour to 'pad out' an existing simple
      * one-arg function for use with Array callbacks, like filter(), map()

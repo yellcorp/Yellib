@@ -56,12 +56,11 @@ public class EventListenerGroup implements IEventDispatcher
     public function set target(new_target:IEventDispatcher):void
     {
         var prevEnabled:Boolean;
-
         prevEnabled = enabled;
         enabled = false;
         _target = new_target;
         enabled = prevEnabled;
-}
+    }
 
     public function clear():void
     {
@@ -170,14 +169,26 @@ internal class ListenerRecord
 
     public function applyTo(target:IEventDispatcher):void
     {
-        trace("applyTo: " + toString());
-        target.addEventListener(type, listener, useCapture, priority, useWeakReference);
+        if (target)
+        {
+            target.addEventListener(type, listener, useCapture, priority, useWeakReference);
+        }
+        else
+        {
+            trace("EventListenerGroup: Can't add event listener: target is null");
+        }
     }
 
     public function removeFrom(target:IEventDispatcher):void
     {
-        trace("removeFrom: " + toString());
-        target.removeEventListener(type, listener, useCapture);
+        if (target)
+        {
+            target.removeEventListener(type, listener, useCapture);
+        }
+        else
+        {
+            trace("EventListenerGroup: Can't remove event listener: target is null");
+        }
     }
 
     public function toString():String

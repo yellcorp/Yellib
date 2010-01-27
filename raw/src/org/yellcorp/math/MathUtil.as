@@ -33,5 +33,10 @@ public class MathUtil
 
         return modResult;
     }
+
+    public static  function roundToMultiple(number:Number, multiple:Number):Number
+    {
+        return Math.round(number / multiple) * multiple;
+    }
 }
 }

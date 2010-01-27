@@ -6,6 +6,62 @@ import flash.display.Graphics;
 public class GraphicsShapes
 {
     public static function
+    drawDashLine(target:Graphics, fromX:Number, fromY:Number,
+                 toX:Number, toY:Number, dashIntervals:Array):void
+    {
+        var dx:Number;
+        var dy:Number;
+        var ux:Number;
+        var uy:Number;
+        var cx:Number;
+        var cy:Number;
+        var lineDistance:Number;
+        var sumDistance:Number = 0;
+        var dash:int = 0;
+
+        if (!dashIntervals || dashIntervals.length < 2)
+        {
+            target.moveTo(fromX, fromY);
+            target.lineTo(toX, toY);
+            return;
+        }
+        dx = toX - fromX;
+        dy = toY - fromY;
+        lineDistance = Math.sqrt(dx*dx + dy*dy);
+        ux = dx / lineDistance;
+        uy = dy / lineDistance;
+        cx = fromX;
+        cy = fromY;
+        target.moveTo(cx, cy);
+        while (sumDistance < lineDistance)
+        {
+            sumDistance += dashIntervals[dash];
+            if (sumDistance < lineDistance)
+            {
+                cx += dashIntervals[dash] * ux;
+                cy += dashIntervals[dash] * uy;
+            }
+            else
+            {
+                cx = toX;
+                cy = toY;
+            }
+            if (dash % 2)
+            {
+                target.moveTo(cx, cy);
+            }
+            else
+            {
+                target.lineTo(cx, cy);
+            }
+            if (++dash >= dashIntervals.length)
+            {
+                dash = 0;
+            }
+        }
+    }
+
+    public static function
     drawPlus(target:Graphics, centreX:Number, centreY:Number,
              halfWidth:Number, halfHeight:Number = Number.NaN):void
     {
