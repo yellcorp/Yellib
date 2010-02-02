@@ -1,4 +1,4 @@
-package org.yellcorp.iterators
+package org.yellcorp.iterators.readonly
 {
 public class ArrayIterator implements Iterator
 {
@@ -14,25 +14,28 @@ public class ArrayIterator implements Iterator
         this.reverse = reverse;
         step = reverse ? -1 : 1;
 
-        lastIndex = reverse ? -1 : (array.length);
-
         reset();
     }
 
-    public function hasNext():Boolean
+    public function get valid():Boolean
     {
-        return index != lastIndex;
+        return (step < 0) ? (index > lastIndex)
+                          : (index < lastIndex);
     }
 
-    public function next():*
+    public function get current():*
     {
-        var value:* = array[index];
+        return array[index];
+    }
+
+    public function next():void
+    {
         index += step;
-        return value;
     }
 
     public function reset():void
     {
+        lastIndex = reverse ? -1 : (array.length);
         index = reverse ? (array.length - 1) : 0;
     }
 }

@@ -1,4 +1,4 @@
-package org.yellcorp.iterators
+package org.yellcorp.iterators.map
 {
 public class MapIterator
 {
@@ -24,20 +24,13 @@ public class MapIterator
         {
             keys.push(enumKey);
         }
-
-        index = 0;
+        index = -1;
+        next();
     }
 
-    public function hasNext():Boolean
+    public function get valid():Boolean
     {
         return index < keys.length;
-    }
-
-    public function next():void
-    {
-        currentKey = keys[index];
-        currentValue = map[currentKey];
-        index++;
     }
 
     public function get key():*
@@ -48,6 +41,13 @@ public class MapIterator
     public function get value():*
     {
         return currentValue;
+    }
+
+    public function next():void
+    {
+        ++index;
+        currentKey = keys[index];
+        currentValue = map[currentKey];
     }
 }
 }

@@ -1,8 +1,5 @@
-package org.yellcorp.iterators
+package org.yellcorp.iterators.map
 {
-import org.yellcorp.iterators.MapIterator;
-
-
 public class MutableMapIterator extends MapIterator
 {
     public function remove():void

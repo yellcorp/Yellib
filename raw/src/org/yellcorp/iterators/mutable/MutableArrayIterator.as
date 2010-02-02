@@ -1,6 +1,6 @@
-package org.yellcorp.iterators
+package org.yellcorp.iterators.mutable
 {
-import org.yellcorp.iterators.MutableIterator;
+import org.yellcorp.iterators.readonly.ArrayIterator;
 
 
 // god these names are getting java-ey already
@@ -20,8 +20,8 @@ public class MutableArrayIterator extends ArrayIterator implements MutableIterat
         else
         {
             array.splice(index, 0, v);
-            index++;
-            lastIndex++;
+            ++index;
+            ++lastIndex;
         }
     }
 
@@ -31,7 +31,7 @@ public class MutableArrayIterator extends ArrayIterator implements MutableIterat
         index -= step;
         if (!reverse)
         {
-            lastIndex--;
+            --lastIndex;
         }
     }
 }
