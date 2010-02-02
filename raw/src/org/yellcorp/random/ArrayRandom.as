@@ -5,6 +5,9 @@ import org.yellcorp.random.generators.RandomNumberGenerator;
 
 public class ArrayRandom
 {
+    /**
+     * In-place Fisher-Yates shuffle
+     */
     public static function shuffle(array:Array, randomSource:RandomNumberGenerator = null):void
     {
         var remaining:uint = array.length;
