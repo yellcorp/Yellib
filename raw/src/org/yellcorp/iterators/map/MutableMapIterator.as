@@ -12,6 +12,8 @@ public class MutableMapIterator extends MapIterator
 
     public function set key(newKey:*):void
     {
+        // FIXME how to treat setting the current key to another
+        // key that already exists?
         delete map[currentKey];
         map[newKey] = currentValue;
         currentKey = newKey;

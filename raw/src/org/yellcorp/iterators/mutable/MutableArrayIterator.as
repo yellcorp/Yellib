@@ -6,9 +6,9 @@ import org.yellcorp.iterators.readonly.ArrayIterator;
 // god these names are getting java-ey already
 public class MutableArrayIterator extends ArrayIterator implements MutableIterator
 {
-    public function setItem(v:*):void
+    public function set current(v:*):void
     {
-        array[index - step] = v;
+        array[index] = v;
     }
 
     public function insert(v:*):void
