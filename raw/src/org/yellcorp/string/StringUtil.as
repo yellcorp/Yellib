@@ -77,34 +77,25 @@ public class StringUtil
 
 
     // these can be handy for making E4X expressions a little more succinct
-    public static function beginsWith(query:String, begin:String, caseSensitive:Boolean = true):Boolean
+    public static function startsWith(query:String, start:String, caseSensitive:Boolean = true):Boolean
     {
-        if (caseSensitive)
+        if (!caseSensitive)
         {
-            return query.substr(0, begin.length) == begin;
+            query = query.toLocaleUpperCase();
+            start = start.toLocaleUpperCase();
         }
-        else
-        {
-            // do this here because toLocaleUpperCase could potentially change
-            // the length of the string, i.e. German ß --> SS
-            begin = begin.toLocaleUpperCase();
-            return query.toLocaleUpperCase().substr(0, begin.length) == begin;
-        }
+        return query.slice(0, start.length) == start;
     }
 
 
     public static function endsWith(query:String, end:String, caseSensitive:Boolean = true):Boolean
     {
-        if (caseSensitive)
+        if (!caseSensitive)
         {
-            return query.substr(query.length-end.length) == end;
-        }
-        else
-        {
-            end = end.toLocaleUpperCase();
             query = query.toLocaleUpperCase();
-            return query.substr(query.length-end.length) == end;
+            end = end.toLocaleUpperCase();
         }
+        return query.slice(-end.length) == end;
     }
 }
 }
