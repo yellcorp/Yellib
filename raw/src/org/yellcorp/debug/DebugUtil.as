@@ -86,7 +86,7 @@ public class DebugUtil
 
     private static function searchTypeChain(query:Object, prefix:String):String
     {
-        var supers:XMLList = describeType(query).extendsClass.(StringUtil.beginsWith(@type, prefix));
+        var supers:XMLList = describeType(query).extendsClass.(StringUtil.startsWith(@type, prefix));
 
         if (supers.length == 0)
         {

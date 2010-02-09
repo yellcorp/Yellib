@@ -5,6 +5,18 @@ import org.yellcorp.random.generators.RandomNumberGenerator;
 
 public class ArrayRandom
 {
+    public static function chooseValue(array:Array, randomSource:RandomNumberGenerator = null):*
+    {
+        if (!randomSource)  {  randomSource = DefaultRandomSource.getSource();  }
+        return array[Math.floor(randomSource.nextNumber() * array.length)];
+    }
+
+    public static function popValue(array:Array, randomSource:RandomNumberGenerator = null):*
+    {
+        if (!randomSource)  {  randomSource = DefaultRandomSource.getSource();  }
+        return array.splice(Math.floor(randomSource.nextNumber() * array.length), 1)[0];
+    }
+
     /**
      * In-place Fisher-Yates shuffle
      */
@@ -24,18 +36,6 @@ public class ArrayRandom
             array[chosenIndex] = array[remaining];
             array[remaining] = swapTemp;
         }
-    }
-
-    public static function chooseValue(array:Array, randomSource:RandomNumberGenerator = null):*
-    {
-        if (!randomSource)  {  randomSource = DefaultRandomSource.getSource();  }
-        return array[Math.floor(randomSource.nextNumber() * array.length)];
-    }
-
-    public static function popValue(array:Array, randomSource:RandomNumberGenerator = null):*
-    {
-        if (!randomSource)  {  randomSource = DefaultRandomSource.getSource();  }
-        return array.splice(Math.floor(randomSource.nextNumber() * array.length), 1)[0];
     }
 }
 }

@@ -33,6 +33,13 @@ public class MapIterator
         return index < keys.length;
     }
 
+    public function next():void
+    {
+        ++index;
+        currentKey = keys[index];
+        currentValue = map[currentKey];
+    }
+
     public function get key():*
     {
         return currentKey;
@@ -41,13 +48,6 @@ public class MapIterator
     public function get value():*
     {
         return currentValue;
-    }
-
-    public function next():void
-    {
-        ++index;
-        currentKey = keys[index];
-        currentValue = map[currentKey];
     }
 }
 }
