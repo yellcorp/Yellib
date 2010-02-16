@@ -55,6 +55,9 @@ public class ConsoleApp extends ResizableStage
 
     protected override function onStageResize():void
     {
+        trace("ConsoleApp.onStageResize()");
+        trace('stage.stageWidth: ' + (stage.stageWidth));
+        trace('stage.stageHeight: ' + (stage.stageHeight));
         if (relativeSize)
         {
             console.height = _consoleFraction * stage.stageHeight;

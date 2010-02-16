@@ -1,6 +1,7 @@
 package org.yellcorp.env.console
 {
-import org.yellcorp.display.Resizer;
+import org.yellcorp.ui.BaseDisplay;
+import org.yellcorp.ui.scrollbar.VerticalScrollBar;
 
 import flash.events.Event;
 import flash.text.TextField;
@@ -8,11 +9,10 @@ import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
 
 
-public class Console extends Resizer
+public class Console extends BaseDisplay
 {
     private var consoleText:TextField;
-    private var scrollbar:Scrollbar;
-    private var scrollPin:Boolean = true;
+    private var scrollbar:VerticalScrollBar;
 
     public function Console()
     {
@@ -23,8 +23,10 @@ public class Console extends Resizer
     public function write(... args):void {
         consoleText.appendText(args.join(""));
 
+        /*
         if (scrollPin)
             consoleText.scrollV = consoleText.maxScrollV;
+        */
 
         updateScrollbar();
     }
@@ -42,23 +44,23 @@ public class Console extends Resizer
         return tf;
     }
 
-    protected override function onResize():void
+    protected override function onRender(event:Event):void
     {
-        //trace(scrollPin);
-
-        consoleText.width = scrollbar.x = nominalWidth - scrollbar.width;
-        consoleText.height = scrollbar.height = nominalHeight;
-
-        if (scrollPin)
-            consoleText.scrollV = consoleText.maxScrollV;
+        consoleText.width = scrollbar.x = width - scrollbar.width;
+        consoleText.height = scrollbar.height = height;
 
         updateScrollbar();
+
+        /*
+        if (scrollPin)
+            consoleText.scrollV = consoleText.maxScrollV;
+             */
     }
 
     private function updateScrollbar():void
     {
-        scrollbar.maxValue = consoleText.maxScrollV;
-        scrollbar.value = consoleText.scrollV;
+        scrollbar.maxScroll = consoleText.maxScrollV;
+        scrollbar.currentScroll = consoleText.scrollV;
     }
 
     private function getTextField():TextField {
@@ -76,13 +78,13 @@ public class Console extends Resizer
 
     private function initDisplay():void {
         addChild(consoleText = getTextField());
-        addChild(scrollbar = new Scrollbar(new GraphicsScrollParts()));
+        addChild(scrollbar = new VerticalScrollBar(new SimpleScrollBarSkin()));
 
         consoleText.addEventListener(Event.SCROLL, onScrollFromText, false, 0, true);
 
-        scrollbar.minValue = 1;
-        scrollbar.maxValue = consoleText.maxScrollV;
-        scrollbar.value = consoleText.scrollV;
+        scrollbar.minScroll = 1;
+        scrollbar.maxScroll = 1;
+        scrollbar.currentScroll = 1;
         scrollbar.arrowStep = 1;
         scrollbar.minCursorSize = 6;
         scrollbar.addEventListener(Event.SCROLL, onScrollFromBar, false, 0, true);
@@ -90,14 +92,14 @@ public class Console extends Resizer
 
     private function onScrollFromText(event:Event):void
     {
-        scrollbar.value = consoleText.scrollV;
-        scrollPin = consoleText.scrollV == consoleText.maxScrollV;
-    }
+        scrollbar.currentScroll = consoleText.scrollV;
+//            scrollPin = consoleText.scrollV == consoleText.maxScrollV;
+        }
 
-    private function onScrollFromBar(event:Event):void
-    {
-        consoleText.scrollV = Math.round(scrollbar.value);
-        scrollPin = consoleText.scrollV == consoleText.maxScrollV;
+        private function onScrollFromBar(event:Event):void
+        {
+            consoleText.scrollV = Math.round(scrollbar.currentScroll);
+//            scrollPin = consoleText.scrollV == consoleText.maxScrollV;
+        }
     }
-}
 }

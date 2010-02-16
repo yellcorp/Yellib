@@ -1,38 +1,42 @@
 package org.yellcorp.env.console
 {
-import org.yellcorp.env.console.IScrollParts;
+import org.yellcorp.ui.scrollbar.ScrollBarSkin;
 
 import flash.display.Graphics;
 import flash.display.InteractiveObject;
 import flash.display.Sprite;
 
 
-public class GraphicsScrollParts implements IScrollParts
+public class SimpleScrollBarSkin implements ScrollBarSkin
 {
     public var baseSize:Number = 16;
+    public var trackColor:uint = 0xDDDDDD;
+    public var cursorColor:uint = 0x999999;
+    public var buttonFaceColor:uint = 0xBBBBBB;
+    public var buttonIconColor:uint = 0xFFFFFF;
 
-    public function makeUpButton():InteractiveObject
+    public function createTrack():InteractiveObject
     {
-        var btn:Sprite = makeBox(0);
-        drawTriangle(btn.graphics, 0xffffff, true);
+        return makeBox(trackColor);
+    }
+
+    public function createCursor():InteractiveObject
+    {
+        return makeBox(cursorColor);
+    }
+
+    public function createDecrementButton():InteractiveObject
+    {
+        var btn:Sprite = makeBox(buttonFaceColor);
+        drawTriangle(btn.graphics, buttonIconColor, true);
         return btn;
     }
 
-    public function makeDownButton():InteractiveObject
+    public function createIncrementButton():InteractiveObject
     {
-        var btn:Sprite = makeBox(0);
-        drawTriangle(btn.graphics, 0xffffff, false);
+        var btn:Sprite = makeBox(buttonFaceColor);
+        drawTriangle(btn.graphics, buttonIconColor, false);
         return btn;
-    }
-
-    public function makeCursor():InteractiveObject
-    {
-        return makeBox(0xffffff);
-    }
-
-    public function makeRange():InteractiveObject
-    {
-        return makeBox(0);
     }
 
     private function makeBox(col:uint):Sprite
