@@ -1,12 +1,35 @@
 package org.yellcorp.math
 {
+/**
+ * The Statistics class groups static methods for
+ * basic statistical calculations.
+ *
+ */
 public class Statistics
 {
+    /**
+     * Returns the maximum value in an <code>Array</code>.  Similar to
+     * <code>Math.max</code>, but takes a single array argument instead
+     * of a variable number of arguments.
+     *
+     * @param values An array of Numbers, ints, or uints
+     * @return The maximum value.
+     * @see Math.max
+     */
     public static function max(values:Array):Number
     {
         return Math.max.apply(Math, values);
     }
 
+    /**
+     * Returns the minimum value in an <code>Array</code>.  Similar to
+     * <code>Math.min</code>, but takes a single array argument instead
+     * of a variable number of arguments.
+     *
+     * @param values An array of Numbers, ints, or uints
+     * @return The maximum value.
+     * @see Math.min
+     */
     public static function min(values:Array):Number
     {
         return Math.min.apply(Math, values);
