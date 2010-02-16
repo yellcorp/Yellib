@@ -4,7 +4,7 @@ import flash.utils.ByteArray;
 import flash.utils.getTimer;
 
 
-public class SysEx
+public class SysUtil
 {
     public static function getGUID():String
     {

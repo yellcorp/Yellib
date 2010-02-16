@@ -1,5 +1,6 @@
 package org.yellcorp.format
 {
+// TODO: does this work with -ve numbers?
 public class NumberFormatUtil
 {
     public static function groupNumber(

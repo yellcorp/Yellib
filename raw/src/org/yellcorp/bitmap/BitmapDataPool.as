@@ -6,8 +6,8 @@ import flash.display.BitmapData;
 
 
 /**
- * BitmapDataPool is a factory class that maximises re-use of BitmapData
- * objects with a goal of minimising disposal and reallocation.  Its
+ * BitmapDataPool is a factory class with a goal of maximising reuse of
+ * BitmapData objects, while minimising disposal and reallocation.  Its
  * <code>getBitmapData</code> method returns a subclass of
  * <code>BitmapData</code>, with an overridden <code>dispose</code> method
  * that returns it to a pool instead of deallocating it.  This pool is then
@@ -32,7 +32,7 @@ public class BitmapDataPool
      *
      * <p>Note that pooled <code>BitmapData</code> objects aren't
      * automatically cleared and may contain old content.  To erase the
-     * bitmap, call <code>fillRect()</code>.
+     * bitmap, call <code>fillRect()</code>.</p>
      *
      * @param width The width of the bitmap image in pixels.
      * @param height The height of the bitmap image in pixels.
@@ -63,8 +63,7 @@ public class BitmapDataPool
 
     /**
      * Clears and deallocates all objects in the
-     * <code>WorkingBitmapData</code> pool.  This forces the next request
-     * to <code>getBitmapData()</code> to allocate a new bitmap.
+     * <code>WorkingBitmapData</code> pool.
      */
     public function purge():void
     {
@@ -87,6 +86,9 @@ public class BitmapDataPool
         freePool = null;
     }
 
+    /**
+     * @private
+     */
     internal function recycle(bmp:BitmapDataPoolMember):void
     {
         var hash:uint;

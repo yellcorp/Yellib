@@ -7,6 +7,20 @@ public class EnglishUtil
     private static var tenWords:Array = ["", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
     private static var powerWords:Array = ["thousand", "million", "billion", "trillion", "quadrillion", "quintillion"];
 
+    /**
+     * Spells an integer as a natural language English phrase.
+     *
+     * @param num The integer to spell.
+     * @param negativeWord The prefix used to refer to a number less than
+     *                     zero. Typically "negative" or "minus".
+     *                     @default"negative".
+     * @param useAnd If <code>true</code>, insert the word 'and' between
+     *               hundreds units and tens/ones, in line with typical
+     *               British English usage.  If <code>false</code>, omit
+     *               'and' in line with typical American English usage.
+     */
+    // TODO: 'and' not quite right - what about 'one million and one?'
+
     public static function spellInteger(num:Number, negativeWord:String = "negative", useAnd:Boolean = true):String
     {
         var powers:Array;
