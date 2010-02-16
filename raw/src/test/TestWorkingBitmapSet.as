@@ -1,6 +1,6 @@
 package test
 {
-import org.yellcorp.bitmap.WorkingBitmapSet;
+import org.yellcorp.bitmap.BitmapDataPool;
 import org.yellcorp.env.ResizableStage;
 
 import flash.display.BitmapData;
@@ -8,7 +8,7 @@ import flash.display.BitmapData;
 
 public class TestWorkingBitmapSet extends ResizableStage
 {
-    private var bmpSet:WorkingBitmapSet;
+    private var bmpSet:BitmapDataPool;
 
     public function TestWorkingBitmapSet()
     {
@@ -18,7 +18,7 @@ public class TestWorkingBitmapSet extends ResizableStage
         var bmp2:BitmapData;
 
         super();
-        bmpSet = new WorkingBitmapSet();
+        bmpSet = new BitmapDataPool();
 
         for (i=0; i < 10; i++)
         {
