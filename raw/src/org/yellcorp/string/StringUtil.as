@@ -71,8 +71,7 @@ public class StringUtil
 
     public static function hasContent(query:String):Boolean
     {
-        return (!!query) && !ALL_WHITESPACE.test(query);
-        //        ^^^^^ both null and empty string cast to boolean as false
+        return Boolean(query) && !ALL_WHITESPACE.test(query);
     }
 
 
