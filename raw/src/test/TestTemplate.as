@@ -24,15 +24,26 @@ public class TestTemplate extends ConsoleApp
         test(Template.format("Path token names {name.first} end", {name:{first:"PASS"}}));
         test(Template.format("Invalid reference string should end here{1}", ["FAIL"]));
         test(Template.format("Invalid reference string should end here{no}", { fail:"FAIL" }));
-        test(Template.format("Escaped delimiter {{open close}} and {0}", ["TOKEN"]));
+        test(Template.format("Escaped delimiter \\{open close} and {0}", ["TOKEN"]));
+        test(Template.format("{0} and Escaped delimiter \\{open close}", ["TOKEN"]));
+        test(Template.format("Escaped bslash should substitute \\\\{0}", ["TOKEN"]));
+        test(Template.format("\\\\{0} Escaped bslash should substitute", ["TOKEN"]));
+        test(Template.format("Escaped delimiter by doubling {{open close} and {0}", ["TOKEN"], null, "{", "}", "{"));
+        test(Template.format("{0} and Escaped delimiter by doubling {{open close}", ["TOKEN"], null, "{", "}", "{"));
         test(Template.format("Invalid unclosed {error", ["FAIL"]));
         test(Template.format("{0}{1}", ["Multiple ", "tokens"]));
         test(Template.format("Reordered {1} and {0} {2.name}", ["mixed", "tokens", { name:'types' }]));
         test(Template.format("Non-string {0}", [new Date()]));
+        test(Template.format("Test cache {cache}", {cache: "NO"}));
+        test(Template.format("Test cache {cache}", {cache: "YES"}));
+        test(Template.format("$(test) Test multi-char open $(a.test) $(test)",
+                              {test: "PASS", a:{test:"PASS"}},
+                              null, "$(", ")"));
     }
 
     private function test(s:String):void
     {
+        trace(s);
         writeln('"', s, '"');
     }
 }
