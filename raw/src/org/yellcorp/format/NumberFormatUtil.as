@@ -1,46 +1,82 @@
 package org.yellcorp.format
 {
-// TODO: does this work with -ve numbers?
+/**
+ * Static methods for basic formatting of numbers.
+ */
 public class NumberFormatUtil
 {
+    /**
+     * Separates the integer part of a number into groups of digits.
+     * The decimal point can optionally be replaced with another character
+     * - this is useful when using "." as the group separator.
+     *
+     * @example
+     * <listing version="3.0">
+     * trace(NumberFormatUtil.groupNumber(1234567);
+     * // traces "1,234,567"
+     *
+     * // European style delimeters
+     * trace(NumberFormatUtil.groupNumber(123456789.1234, ",", ".");
+     * // traces "123.456.789,1234"
+     *
+     * // Japanese style grouping
+     * trace(NumberFormatUtil.groupNumber(100000000.123, ".", ",", 4);
+     * // traces "1,0000,0000.123"
+     * </listing>
+     *
+     * @param number The number to format
+     * @param radixChar The character to use as the decimal point.
+     * @param groupChar The character to use as the group separator.
+     * @param groupSize The group size.  If 0 or less, no group separators
+     *                  are inserted.
+     * @return          The formatted number as a <code>String</code>.
+     */
     public static function groupNumber(
         number:Number,
         radixChar:String = ".",
         groupChar:String = ",",
-        groupSize:uint = 3):String
+        groupSize:int = 3):String
     {
         return groupNumberStr(number.toString(), radixChar, groupChar, groupSize);
     }
 
+    /**
+     * Identical to <code>groupNumber</code>, but accepts the number as a
+     * <code>String</code>
+     *
+     * @see #groupNumber()
+     */
     public static function groupNumberStr(
         numString:String,
         radixChar:String = ".",
         groupChar:String = ",",
-        groupSize:uint = 3):String
+        groupSize:int = 3):String
     {
         var intPart:String;
         var point:int;
         var intResult:String = "";
         var fracPart:String;
+        var isNegative:Boolean;
 
         var i:int;
 
         if (numString == "") return "";
-        if (groupSize == 0) return numString;
 
+        isNegative = numString.charAt(0) == "-";
         point = numString.indexOf(".");
 
         if (point >= 0)
         {
-            intPart = numString.substr(0, point);
+            intPart = numString.substring(isNegative ? 1 : 0, point);
             fracPart = numString.substr(point + 1);
         }
         else
         {
-            intPart = numString;
+            intPart = isNegative ? numString.substr(1)
+                                 : numString;
         }
 
-        if (intPart.length > groupSize)
+        if (groupSize > 0 && intPart.length > groupSize)
         {
             i = intPart.length % groupSize;
             if (i > 0)
@@ -65,7 +101,7 @@ public class NumberFormatUtil
             intResult += radixChar + fracPart;
         }
 
-        return intResult;
+        return isNegative ? ("-" + intResult) : intResult;
     }
 
     public static function localizeNumberSeparators(
