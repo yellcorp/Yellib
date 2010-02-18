@@ -1,4 +1,4 @@
-package test.simplelog
+package scratch.simplelog
 {
 import wip.yellcorp.simplelog.SimpleLog;
 

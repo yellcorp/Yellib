@@ -1,4 +1,4 @@
-package test.hash
+package scratch.hash
 {
 import org.yellcorp.env.ConsoleApp;
 

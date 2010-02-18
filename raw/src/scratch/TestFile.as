@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 import wip.yellcorp.debug.FileHeuristic;
 

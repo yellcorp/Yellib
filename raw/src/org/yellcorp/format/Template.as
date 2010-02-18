@@ -44,8 +44,8 @@ import org.yellcorp.map.TreeMapUtil;
  *                            "The John Butler Threesome",
  *                            "The Presets" ] });
  *
- * Template.format("{0.name} beat {1.name} with a score of {0.score}." +
- *                 " {2.name} beat {3.name} to take out bronze.",
+ * Template.format("{0.name} beat {1.name} with a score of {0.score}. " +
+ *                 "{2.name} beat {3.name} to take out bronze.",
  *                 [ { name: "Pete", score: 23 },
  *                   { name: "Alex", score: 21 },
  *                   { name: "Mark", score: 19 } ]);
@@ -67,9 +67,9 @@ import org.yellcorp.map.TreeMapUtil;
  * they also escape special characters in ActionScript String literals.
  * <listing version="3.0">
  * Template.format("The string \\{name} is replaced with {name}",
- *                 { name: "Hyperion Mindzone" });
+ *                 { name: "Gunnar Magnusson" });
  *
- * // returns "The string {name} is replaced with Hyperion Mindzone"
+ * // returns "The string {name} is replaced with Gunnar Magnusson"
  * </listing>
  *
  * The opening, closing, and escape sequences can all be changed, with
@@ -87,7 +87,8 @@ import org.yellcorp.map.TreeMapUtil;
  * // The escape char can be the same as the opening string if it is a
  * // single character. In this case, double the opening char to use it
  * // literally.
- * Template.format("When I type {{volume} it is replaced with {volume}", soundTransform, null, "{", "}", "{");
+ * Template.format("When I type {{volume} it is replaced with {volume}",
+ *                 soundTransform, null, "{", "}", "{");
  *
  * // returns "When I type {volume} it is replaced with 1"
  *

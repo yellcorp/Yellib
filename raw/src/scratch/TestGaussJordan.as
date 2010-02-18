@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 import org.yellcorp.color.ColorMatrix;
 import org.yellcorp.color.ColorMatrixUtil;

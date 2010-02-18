@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 import org.yellcorp.debug.DebugUtil;
 import org.yellcorp.env.ConsoleApp;

@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 import org.yellcorp.color.HSV;
 import org.yellcorp.color.VectorRGB;

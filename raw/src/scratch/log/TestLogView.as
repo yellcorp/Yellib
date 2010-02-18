@@ -1,4 +1,4 @@
-package test.log
+package scratch.log
 {
 import org.yellcorp.env.ResizableStage;
 

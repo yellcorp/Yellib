@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 import org.yellcorp.env.ConsoleApp;
 import org.yellcorp.format.Template;
@@ -39,6 +39,15 @@ public class TestTemplate extends ConsoleApp
         test(Template.format("$(test) Test multi-char open $(a.test) $(test)",
                               {test: "PASS", a:{test:"PASS"}},
                               null, "$(", ")"));
+        test(Template.format("[[test]] Test multi-char open close [[a.test]] [[test]]",
+                              {test: "PASS", a:{test:"PASS"}},
+                              null, "[[", "]]"));
+        test(Template.format("%test% Test same-char open close %a.test% %test%",
+                              {test: "PASS", a:{test:"PASS"}},
+                              null, "%", "%"));
+        test(Template.format("%%test%% Test same-multi-char open close %%a.test%% %%test%%",
+                              {test: "PASS", a:{test:"PASS"}},
+                              null, "%%", "%%"));
     }
 
     private function test(s:String):void

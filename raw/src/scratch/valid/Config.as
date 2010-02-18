@@ -1,4 +1,4 @@
-package test.valid
+package scratch.valid
 {
 import flash.display.DisplayObject;
 import flash.errors.IllegalOperationError;

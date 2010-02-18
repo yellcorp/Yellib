@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 
 public class URLBuilderTest

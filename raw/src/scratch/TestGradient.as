@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 import org.yellcorp.color.Gradient;
 import org.yellcorp.color.VectorRGB;

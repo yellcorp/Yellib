@@ -1,4 +1,4 @@
-package test
+package scratch
 {
 import org.yellcorp.env.ResizableStage;
 
