@@ -8,7 +8,7 @@ public class TemplateTestRun extends TestRunner
     public function TemplateTestRun()
     {
         super();
-        start(TemplateTest, null, TestRunner.SHOW_TRACE);
+        start(TemplateTest, null, SHOW_TRACE);
     }
 }
 }

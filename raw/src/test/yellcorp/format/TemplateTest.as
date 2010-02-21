@@ -13,7 +13,7 @@ public class TemplateTest extends TestCase
     }
     public function testEmpty():void
     {
-        assertEquals("", Template.format(""));
+        assertEquals("Empty string", "", Template.format(""));
     }
     public function testNoTokens():void
     {
