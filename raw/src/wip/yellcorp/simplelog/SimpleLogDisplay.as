@@ -3,8 +3,7 @@ package wip.yellcorp.simplelog
 import org.yellcorp.layout.LayoutLink;
 import org.yellcorp.layout.LayoutProperty;
 import org.yellcorp.layout.LayoutSet;
-
-import wip.yellcorp.display.BaseDisplay;
+import org.yellcorp.ui.BaseDisplay;
 
 import flash.display.DisplayObject;
 import flash.display.Graphics;

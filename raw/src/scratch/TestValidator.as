@@ -3,10 +3,7 @@ package scratch
 import org.yellcorp.env.ConsoleApp;
 import org.yellcorp.valid.TypeValidator;
 
-import test.valid.Config;
-
-import flash.utils.describeType;
-import flash.utils.getQualifiedClassName;
+import scratch.valid.Config;
 
 
 public class TestValidator extends ConsoleApp

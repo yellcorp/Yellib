@@ -1,8 +1,8 @@
 package wip.yellcorp.log
 {
 import org.yellcorp.regexp.RegExpUtil;
+import org.yellcorp.ui.BaseDisplay;
 
-import wip.yellcorp.display.BaseDisplay;
 import wip.yellcorp.display.TextFieldHighlighter;
 
 import flash.display.BlendMode;

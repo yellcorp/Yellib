@@ -65,7 +65,7 @@ public class MathUtil
     }
 
     /**
-     * Rounds a number to the nearest specified multiple.
+     * Rounds a number to the nearest arbitrary multiple.
      */
     public static function roundToMultiple(number:Number, multiple:Number):Number
     {
