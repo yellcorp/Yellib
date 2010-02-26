@@ -13,13 +13,13 @@ public class RegExpUtil
         return new RegExp(escapeRegExp(literalString), flags);
     }
 
-    public static function createCapturingAlternates(literalAlternates:Array, flags:String = ""):RegExp
+    public static function createAlternates(literalAlternates:Array, capturing:Boolean, flags:String = ""):RegExp
     {
         var escapedAlternates:Array;
         var expression:String;
 
         escapedAlternates = literalAlternates.map(ArrayUtil.simpleCallback(escapeRegExp));
-        expression = "(" + escapedAlternates.join("|") + ")";
+        expression = (capturing ? "(" : "(?:") + escapedAlternates.join("|") + ")";
 
         return new RegExp(expression, flags);
     }
