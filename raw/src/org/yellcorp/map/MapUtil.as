@@ -48,6 +48,15 @@ public class MapUtil
         return result;
     }
 
+    public static function merge(source:*, target:*):void
+    {
+        var key:*;
+        for (key in source)
+        {
+            target[key] = source[key];
+        }
+    }
+
     public static function count(map:*):uint
     {
         var key:*;

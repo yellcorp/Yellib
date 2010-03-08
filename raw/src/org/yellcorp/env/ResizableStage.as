@@ -14,10 +14,19 @@ public class ResizableStage extends Sprite
         addEventListener(Event.ADDED_TO_STAGE, _onStageAvailable);
     }
 
+    // Called on ADDED_TO_STAGE.  Stage is ont null and can
+    // have listeners attached, but dimensions will be set to 0
     protected function onStageAvailable():void
     {
     }
 
+    // Called on the first ENTER_FRAME
+    protected function onFirstFrame():void
+    {
+    }
+
+    // Called on the first RESIZE after onFirstFrame, and on all
+    // subsequent resizes.  Resize handlers should override this
     protected function onStageResize():void
     {
     }
@@ -25,11 +34,21 @@ public class ResizableStage extends Sprite
     private function _onStageAvailable(event:Event):void
     {
         removeEventListener(Event.ADDED_TO_STAGE, _onStageAvailable);
-        stage.align = StageAlign.TOP_LEFT;
-        stage.scaleMode = StageScaleMode.NO_SCALE;
         onStageAvailable();
-        onStageResize();
+
+        stage.addEventListener(Event.ENTER_FRAME, _onFirstFrame);
         stage.addEventListener(Event.RESIZE, _onStageResize);
+
+        stage.align = StageAlign.TOP_LEFT;
+
+        // setting this triggers the first Event.RESIZE
+        stage.scaleMode = StageScaleMode.NO_SCALE;
+    }
+
+    private function _onFirstFrame(event:Event):void
+    {
+        stage.removeEventListener(Event.ENTER_FRAME, _onFirstFrame);
+        onFirstFrame();
     }
 
     private function _onStageResize(event:Event):void
