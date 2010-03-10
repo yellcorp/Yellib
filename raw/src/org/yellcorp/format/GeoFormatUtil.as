@@ -193,8 +193,8 @@ internal class Parser
         zeroPad = parseInteger();
         if (!isFinite(zeroPad))
         {
-            return false;
             parseError("Expected number after zero pad specifier", index);
+            return false;
         }
         switch (template.charAt(index))
         {
@@ -217,8 +217,8 @@ internal class Parser
         decimal = parseInteger();
         if (!isFinite(decimal))
         {
-            return false;
             parseError("Expected number after precision specifier", index);
+            return false;
         }
         else
         {
@@ -265,7 +265,7 @@ internal class Parser
 
     private function parseError(message:String, errorIndex:int):void
     {
-        trace("Parse error: " + message + " at " + errorIndex);
+        trace("Parse error: " + message + " at char " + errorIndex);
     }
 }
 
