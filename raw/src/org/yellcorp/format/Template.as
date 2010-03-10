@@ -168,9 +168,9 @@ public class Template
         function format1(token:*, i:int, a:Array):String
         {
             var result:String;
-            if (token is Substitution)
+            if (token is Token)
             {
-                result = Substitution(token).format(values);
+                result = Token(token).format(values);
                 return result === null ? notFoundValue : result;
             }
             else
@@ -257,15 +257,15 @@ public class Template
         return sequence;
     }
 
-    private static function makeSub(substring:String):Substitution
+    private static function makeSub(substring:String):Token
     {
         if (substring.indexOf(".") < 0)
         {
-            return new SingleSub(substring);
+            return new SingleToken(substring);
         }
         else
         {
-            return new FullSub(substring.split("."));
+            return new FullToken(substring.split("."));
         }
     }
 }
@@ -273,15 +273,15 @@ public class Template
 import org.yellcorp.map.TreeMapUtil;
 
 
-internal interface Substitution
+internal interface Token
 {
     function format(values:Object):String;
 }
 
-internal class SingleSub implements Substitution
+internal class SingleToken implements Token
 {
     private var key:String;
-    public function SingleSub(newKey:String)
+    public function SingleToken(newKey:String)
     {
         this.key = newKey;
     }
@@ -291,11 +291,11 @@ internal class SingleSub implements Substitution
     }
 }
 
-internal class FullSub implements Substitution
+internal class FullToken implements Token
 {
     private var propList:Array;
 
-    public function FullSub(newPropList:Array)
+    public function FullToken(newPropList:Array)
     {
         propList = newPropList;
     }

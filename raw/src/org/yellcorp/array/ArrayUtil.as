@@ -85,13 +85,13 @@ public class ArrayUtil
         return reordered;
     }
 
-    public static function count(array:Array, truthFunction:Function = null):int
+    public static function count(array:Array, boolFunction:Function = null):int
     {
         var i:int;
         var result:int;
         if (!array) return 0;
         result = 0;
-        if (truthFunction === null)
+        if (boolFunction === null)
         {
             for (i = 0; i < array.length; i++)
             {
@@ -102,10 +102,52 @@ public class ArrayUtil
         {
             for (i = 0; i < array.length; i++)
             {
-                if (truthFunction(array[i])) result++;
+                if (boolFunction(array[i])) result++;
             }
         }
         return result;
+    }
+
+    public static function findFirst(array:Array, boolFunction:Function):int
+    {
+        var i:int;
+        if (!array) return -1;
+        if (boolFunction === null)
+        {
+            for (i = 0; i < array.length; i++)
+            {
+                if (array[i]) return i;
+            }
+        }
+        else
+        {
+            for (i = 0; i < array.length; i++)
+            {
+                if (boolFunction(array[i])) return i;
+            }
+        }
+        return -1;
+    }
+
+    public static function findLast(array:Array, boolFunction:Function):int
+    {
+        var i:int;
+        if (!array) return -1;
+        if (boolFunction === null)
+        {
+            for (i = array.length - 1; i >= 0; i--)
+            {
+                if (array[i]) return i;
+            }
+        }
+        else
+        {
+            for (i = array.length - 1; i >= 0; i--)
+            {
+                if (boolFunction(array[i])) return i;
+            }
+        }
+        return -1;
     }
 
     /**
