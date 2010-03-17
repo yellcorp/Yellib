@@ -39,7 +39,14 @@ public class MaxPriorityEmitter extends BaseEmitter
     }
     public override function emitSingle(f:NodeFactory, out:Array):void
     {
-        emitMaxSize(f, evalNode, f.getter(target, LayoutProperty.SIZE), out);
+        out.push(
+            f.setter(target, LayoutProperty.MIN,
+                f.subtract(
+                    evalNode,
+                    f.getter(target, LayoutProperty.SIZE)
+                )
+            )
+        );
     }
 }
 }

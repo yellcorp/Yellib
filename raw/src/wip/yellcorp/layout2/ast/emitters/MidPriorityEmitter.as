@@ -39,7 +39,17 @@ public class MidPriorityEmitter extends BaseEmitter
     }
     public override function emitSingle(f:NodeFactory, out:Array):void
     {
-        emitMidSize(f, evalNode, f.getter(target, LayoutProperty.SIZE), out);
+        out.push(
+            f.setter(target, LayoutProperty.MIN,
+                f.subtract(
+                    evalNode,
+                    f.multiply(
+                        f.constant(.5),
+                        f.getter(target, LayoutProperty.SIZE)
+                    )
+                )
+            )
+        );
     }
 }
 }
