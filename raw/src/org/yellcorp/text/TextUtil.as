@@ -1,10 +1,10 @@
-package org.yellcorp.display
+package org.yellcorp.text
 {
 import flash.text.TextField;
 import flash.text.TextFormat;
 
 
-public class TextFieldUtil
+public class TextUtil
 {
     public static function appendWithFormat(target:TextField, text:String, format:TextFormat = null):void
     {
@@ -13,6 +13,17 @@ public class TextFieldUtil
 
         target.appendText(text);
         target.setTextFormat(format, target.text.length - text.length, target.text.length);
+    }
+
+    public static function cloneTextFormat(format:TextFormat):TextFormat
+    {
+        return new TextFormat(format.font, format.size,
+                              format.color, format.bold,
+                              format.italic, format.underline,
+                              format.url, format.target,
+                              format.align, format.leftMargin,
+                              format.rightMargin, format.indent,
+                              format.leading);
     }
 
     public static function mergeTextFormat(base:TextFormat, ... formatList):TextFormat

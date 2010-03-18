@@ -51,6 +51,9 @@ public class Scale9Bitmap extends Sprite
         addEventListener(Event.ADDED_TO_STAGE, onAdded, false, 0, true);
         addEventListener(Event.REMOVED_FROM_STAGE, onRemoved, false, 0, true);
 
+        _width = bitmapData.width;
+        _height = bitmapData.height;
+
         this.bitmapData = bitmapData;
         this.scale9Grid = scale9Grid;
     }
