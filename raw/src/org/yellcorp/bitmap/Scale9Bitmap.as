@@ -1,26 +1,23 @@
 package org.yellcorp.bitmap
 {
+import org.yellcorp.ui.BaseDisplay;
+
 import flash.display.Bitmap;
 import flash.display.BitmapData;
-import flash.display.Sprite;
-import flash.events.Event;
 import flash.geom.Matrix;
 import flash.geom.Rectangle;
 
 
-public class Scale9Bitmap extends Sprite
+public class Scale9Bitmap extends BaseDisplay
 {
     private var _sourceBitmapData:BitmapData;
     private var _canvas:BitmapData;
     private var _smoothing:Boolean;
-    private var display:Bitmap;
-    private var dirtyBitmap:Boolean;
+    private var bitmapDisplay:Bitmap;
+    private var invalidBitmap:Boolean;
 
-    private var _width:Number;
-    private var _height:Number;
     private var _scale9Grid:Rectangle;
     private var clipRect:Rectangle;
-    private var dirtySize:Boolean;
 
     private var sourceWidths:Array;
     private var sourceHeights:Array;
@@ -35,9 +32,8 @@ public class Scale9Bitmap extends Sprite
                                  smoothing:Boolean = false,
                                  scale9Grid:Rectangle = null)
     {
-        //Bitmap can't be trusted to remember it
         _smoothing = smoothing;
-        addChild(display = new Bitmap(null, pixelSnapping, smoothing));
+        addChild(bitmapDisplay = new Bitmap(null, pixelSnapping, smoothing));
 
         sourceWidths =  [ 0, 0, 0 ];
         sourceHeights = [ 0, 0, 0 ];
@@ -48,43 +44,10 @@ public class Scale9Bitmap extends Sprite
         workMatrix = new Matrix();
         workDrawRect = new Rectangle();
 
-        addEventListener(Event.ADDED_TO_STAGE, onAdded, false, 0, true);
-        addEventListener(Event.REMOVED_FROM_STAGE, onRemoved, false, 0, true);
-
-        _width = bitmapData.width;
-        _height = bitmapData.height;
+        super(bitmapData.width, bitmapData.height);
 
         this.bitmapData = bitmapData;
         this.scale9Grid = scale9Grid;
-    }
-
-    public override function get width():Number
-    {
-        return _width;
-    }
-
-    public override function set width(new_width:Number):void
-    {
-        _width = new_width;
-        invalidateSize();
-    }
-
-    public override function get height():Number
-    {
-        return _height;
-    }
-
-    public override function set height(new_height:Number):void
-    {
-        _height = new_height;
-        invalidateSize();
-    }
-
-    public function setSize(w:Number, h:Number):void
-    {
-        _width = w;
-        _height = h;
-        invalidateSize();
     }
 
     public function get bitmapData():BitmapData
@@ -100,12 +63,12 @@ public class Scale9Bitmap extends Sprite
 
     public function get pixelSnapping():String
     {
-        return display.pixelSnapping;
+        return bitmapDisplay.pixelSnapping;
     }
 
     public function set pixelSnapping(new_pixelSnapping:String):void
     {
-        display.pixelSnapping = new_pixelSnapping;
+        bitmapDisplay.pixelSnapping = new_pixelSnapping;
     }
 
     public function get smoothing():Boolean
@@ -115,7 +78,7 @@ public class Scale9Bitmap extends Sprite
 
     public function set smoothing(new_smoothing:Boolean):void
     {
-        _smoothing = display.smoothing = new_smoothing;
+        _smoothing = bitmapDisplay.smoothing = new_smoothing;
     }
 
     public override function get scale9Grid():Rectangle
@@ -129,31 +92,20 @@ public class Scale9Bitmap extends Sprite
         invalidateSize();
     }
 
-    public function drawNow():void
-    {
-        draw();
-    }
-
-    protected function invalidateSize():void
-    {
-        dirtySize = true;
-        if (stage) stage.invalidate();
-    }
-
     protected function invalidateBitmap():void
     {
-        dirtyBitmap = true;
-        if (stage) stage.invalidate();
+        invalidBitmap = true;
+        invalidate();
     }
 
-    protected function draw():void
+    protected override function draw():void
     {
-        if (dirtyBitmap)
+        if (invalidBitmap)
         {
             drawBitmap();
             drawSize();
         }
-        else if (dirtySize)
+        else if (invalidSize)
         {
             drawSize();
         }
@@ -171,17 +123,17 @@ public class Scale9Bitmap extends Sprite
             _width = 0;
             _height = 0;
         }
-        dirtySize = true;
-        dirtyBitmap = false;
+        invalidSize = true;
+        invalidBitmap = false;
     }
 
     protected function drawSize():void
     {
         if (_sourceBitmapData && _height > 0 && _width > 0)
         {
-            if (!contains(display))
+            if (!contains(bitmapDisplay))
             {
-                addChild(display);
+                addChild(bitmapDisplay);
             }
             if (!_scale9Grid)
             {
@@ -194,19 +146,19 @@ public class Scale9Bitmap extends Sprite
         }
         else
         {
-            if (contains(display))
+            if (contains(bitmapDisplay))
             {
-                removeChild(display);
+                removeChild(bitmapDisplay);
             }
         }
-        dirtySize = false;
+        invalidSize = false;
     }
 
     private function drawLinearScale():void
     {
-        display.bitmapData = _sourceBitmapData;
-        display.width = _width;
-        display.height = _height;
+        bitmapDisplay.bitmapData = _sourceBitmapData;
+        bitmapDisplay.width = _width;
+        bitmapDisplay.height = _height;
     }
 
     private function drawScale9():void
@@ -287,27 +239,11 @@ public class Scale9Bitmap extends Sprite
             cSourceX += cSourceWidth;
         }
 
-        display.scaleX = display.scaleY = 1;
-        display.bitmapData = _canvas;
+        bitmapDisplay.scaleX = bitmapDisplay.scaleY = 1;
+        bitmapDisplay.bitmapData = _canvas;
         clipRect.width = _width;
         clipRect.height = _height;
-        display.scrollRect = clipRect;
-    }
-
-    private function onAdded(event:Event):void
-    {
-        stage.addEventListener(Event.RENDER, onRender);
-        draw();
-    }
-
-    private function onRemoved(event:Event):void
-    {
-        stage.removeEventListener(Event.RENDER, onRender);
-    }
-
-    private function onRender(event:Event):void
-    {
-        draw();
+        bitmapDisplay.scrollRect = clipRect;
     }
 
     protected static function allocateCanvas(bitmap:BitmapData, width:int, height:int):BitmapData

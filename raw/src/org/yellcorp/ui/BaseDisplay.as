@@ -2,27 +2,32 @@ package org.yellcorp.ui
 {
 import flash.display.DisplayObject;
 import flash.display.Sprite;
-import flash.errors.IllegalOperationError;
 import flash.events.Event;
+import flash.utils.getQualifiedClassName;
 
 
 public class BaseDisplay extends Sprite implements Displayable
 {
-    private var _width:Number;
-    private var _height:Number;
-    private var _invalid:Boolean;
+    protected var _width:Number;
+    protected var _height:Number;
+    protected var invalidSize:Boolean;
 
-    protected var destroyed:Boolean;
+    private var waitingForRender:Boolean;
+    private var handlingRender:Boolean;
 
-    public function BaseDisplay()
+    private var debug:Boolean = true;
+
+    public function BaseDisplay(initialWidth:Number = 0, initialHeight:Number = 0)
     {
-        addEventListener(Event.ADDED_TO_STAGE, callAddedToStage, false, 0, true);
-        addEventListener(Event.REMOVED_FROM_STAGE, callRemovedFromStage, false, 0, true);
+        _width = initialWidth;
+        _height = initialHeight;
+        addEventListener(Event.ADDED_TO_STAGE, _onAddedToStage, false, 0, true);
+        addEventListener(Event.REMOVED_FROM_STAGE, _onRemovedFromStage, false, 0, true);
+    }
 
-        super();
-
-        _width = getInitialViewWidth();
-        _height = getInitialViewHeight();
+    public function get display():DisplayObject
+    {
+        return this;
     }
 
     public override function get width():Number
@@ -32,11 +37,8 @@ public class BaseDisplay extends Sprite implements Displayable
 
     public override function set width(new_width:Number):void
     {
-        if (_width != new_width)
-        {
-            _width = new_width;
-            invalidate();
-        }
+        _width = new_width;
+        invalidateSize();
     }
 
     public override function get height():Number
@@ -46,135 +48,119 @@ public class BaseDisplay extends Sprite implements Displayable
 
     public override function set height(new_height:Number):void
     {
-        if (_height != new_height)
-        {
-            _height = new_height;
-            invalidate();
-        }
+        _height = new_height;
+        invalidateSize();
     }
 
-    public override function set visible(new_visible:Boolean):void
+    public function setSize(w:Number, h:Number):void
     {
-        super.visible = new_visible;
-        if (needsRedraw())
-        {
-            callRender();
-        }
-    }
-
-    public function get display():DisplayObject
-    {
-        return this;
-    }
-
-    public function destroy():void
-    {
-        destroyed = true;
-
-        removeEventListener(Event.ADDED_TO_STAGE, callAddedToStage);
-        removeEventListener(Event.REMOVED_FROM_STAGE, callRemovedFromStage);
-    }
-
-    /**
-     * Utility functions to jump up the inheritance chain and
-     * return the non-overidden width (height) as measured by Flash
-     * just in case you need it
-     */
-    protected final function getDisplayWidth():Number
-    {
-        return super.width;
-    }
-
-    protected final function getDisplayHeight():Number
-    {
-        return super.height;
-    }
-
-    /**
-     * Override getInitialViewWidth/Height to set an
-     * initial size.  Default is to just return the
-     * height/width on DisplayObject
-     */
-    protected function getInitialViewWidth():Number
-    {
-        return getDisplayWidth();
-    }
-
-    protected function getInitialViewHeight():Number
-    {
-        return getDisplayHeight();
-    }
-
-    protected function onAddedToStage(addedEvent:Event):void
-    {
-    }
-
-    protected function onRemovedFromStage(removedEvent:Event):void
-    {
-    }
-
-    protected function onRender(renderEvent:Event):void
-    {
-    }
-
-    internal function callRender():void
-    {
-        _invalid = false;
-        onRender(null);
-    }
-
-    internal function handleRender(event:Event):void
-    {
-        _invalid = false;
-        onRender(event);
+        _width = w;
+        _height = h;
+        invalidateSize();
     }
 
     public function forceRedraw():void
     {
-        callRender();
+        invalidSize = true;
+        draw();
+    }
+
+    protected function setSizeOn(object:DisplayObject, w:Number, h:Number):void
+    {
+        var asBaseDisplay:BaseDisplay = object as BaseDisplay;
+        if (asBaseDisplay)
+        {
+            asBaseDisplay.setSize(w, h);
+            if (handlingRender)
+            {
+                asBaseDisplay.forceRedraw();
+            }
+        }
+        else
+        {
+            object.width = w;
+            object.height = h;
+        }
+    }
+
+    protected function forceRedrawOn(... updatedObjects):void
+    {
+        var object:*;
+        var asBaseDisplay:BaseDisplay;
+        for each (object in updatedObjects)
+        {
+            if ((asBaseDisplay = object as BaseDisplay))
+            {
+                asBaseDisplay.forceRedraw();
+            }
+        }
+    }
+
+    protected function invalidateSize():void
+    {
+        invalidSize = true;
+        invalidate();
     }
 
     protected function invalidate():void
     {
-        _invalid = true;
-        if (needsRedraw())
+        waitingForRender = true;
+        if (stage)
         {
             stage.invalidate();
-
-            // start a frame listener to fall back on in case the
-            // RENDER doesn't get dispatched, which is the biggest
-            // likelihood
-            addEventListener(Event.ENTER_FRAME, onNextFrame);
+            addEventListener(Event.ENTER_FRAME, onNextFrame, false, 0, true);
         }
+    }
+
+    protected function onAddedToStage(event:Event):void
+    {
+    }
+
+    protected function onRemovedFromStage(event:Event):void
+    {
+    }
+
+    protected function draw():void
+    {
+    }
+
+    private function _onAddedToStage(event:Event):void
+    {
+        stage.addEventListener(Event.RENDER, onRender);
+        onAddedToStage(event);
+        if (waitingForRender)
+        {
+            trace("("+getQualifiedClassName(this)+")"+this.name + " render on stage add");
+            //onRender();
+            invalidate();
+        }
+    }
+
+    private function _onRemovedFromStage(event:Event):void
+    {
+        onRemovedFromStage(event);
+        stage.removeEventListener(Event.RENDER, onRender);
+    }
+
+    private function onRender(event:Event = null):void
+    {
+        waitingForRender = false;
+        handlingRender = true;
+        draw();
+        handlingRender = false;
     }
 
     private function onNextFrame(event:Event):void
     {
-        removeEventListener(Event.ENTER_FRAME, onNextFrame);
-        if (needsRedraw()) callRender();
-    }
-
-    private function needsRedraw():Boolean
-    {
-        return _invalid && visible && stage;
-    }
-
-    private function callAddedToStage(event:Event):void
-    {
-        stage.addEventListener(Event.RENDER, handleRender);
-        onAddedToStage(event);
-        if (needsRedraw()) callRender();
-    }
-
-    private function callRemovedFromStage(event:Event):void
-    {
-        onRemovedFromStage(event);
-        stage.removeEventListener(Event.RENDER, callRender);
-    }
-
-    protected final function illegalOpAfterDestroy():void
-    {
-        throw new IllegalOperationError("Not allowed on destroyed object");
+        removeEventListener(Event.ENTER_FRAME, onNextFrame, false);
+        if (waitingForRender)
+        {
+            if (debug)
+            {
+                trace("("+getQualifiedClassName(this)+")"+this.name + " missed render event: Use redraw()");
+            }
+            onRender();
+        }
     }
 }
 }
