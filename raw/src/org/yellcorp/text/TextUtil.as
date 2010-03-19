@@ -31,6 +31,18 @@ public class TextUtil
         return _mergeTextFormat(base, formatList);
     }
 
+    /**
+     * Convenience fixer method as dynamic text fields seem to lose the
+     * letterSpacing attribute set in the Flash IDE
+     */
+    public static function setDefaultLetterSpacing(field:TextField, letterSpacing:Number):TextField
+    {
+        var format:TextFormat = field.defaultTextFormat;
+        format.letterSpacing = letterSpacing;
+        field.defaultTextFormat = format;
+        return field;
+    }
+
     private static function _mergeTextFormat(base:TextFormat, formatList:Array):TextFormat
     {
         var next:TextFormat;

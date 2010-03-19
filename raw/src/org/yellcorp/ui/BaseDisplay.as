@@ -124,6 +124,11 @@ public class BaseDisplay extends Sprite implements Displayable
     {
     }
 
+    protected function debugName():String
+    {
+        return "(" + getQualifiedClassName(this) + ")" + this.name;
+    }
+
     private function _onAddedToStage(event:Event):void
     {
         stage.addEventListener(Event.RENDER, onRender);
@@ -132,7 +137,7 @@ public class BaseDisplay extends Sprite implements Displayable
         {
             if (debug)
             {
-                trace("("+getQualifiedClassName(this)+")"+this.name + " render on stage add");
+                trace(debugName() + " " + event.type + " render");
             }
             onRender();
         }
@@ -159,7 +164,7 @@ public class BaseDisplay extends Sprite implements Displayable
         {
             if (debug)
             {
-                trace("("+getQualifiedClassName(this)+")"+this.name + " render on frame");
+                trace(debugName() + " " + event.type + " render");
             }
             onRender();
         }
