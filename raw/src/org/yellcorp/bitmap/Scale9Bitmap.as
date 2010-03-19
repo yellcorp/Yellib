@@ -14,7 +14,6 @@ public class Scale9Bitmap extends BaseDisplay
     private var _canvas:BitmapData;
     private var _smoothing:Boolean;
     private var bitmapDisplay:Bitmap;
-    private var invalidBitmap:Boolean;
 
     private var _scale9Grid:Rectangle;
     private var clipRect:Rectangle;
@@ -58,7 +57,14 @@ public class Scale9Bitmap extends BaseDisplay
     public function set bitmapData(new_bitmapData:BitmapData):void
     {
         _sourceBitmapData = new_bitmapData;
-        invalidateBitmap();
+        if (_sourceBitmapData)
+        {
+            setSize(_sourceBitmapData.width, _sourceBitmapData.height);
+        }
+        else
+        {
+            setSize(0, 0);
+        }
     }
 
     public function get pixelSnapping():String
@@ -92,20 +98,9 @@ public class Scale9Bitmap extends BaseDisplay
         invalidateSize();
     }
 
-    protected function invalidateBitmap():void
-    {
-        invalidBitmap = true;
-        invalidate();
-    }
-
     protected override function draw():void
     {
-        if (invalidBitmap)
-        {
-            drawBitmap();
-            drawSize();
-        }
-        else if (invalidSize)
+        if (invalidSize)
         {
             drawSize();
         }
@@ -113,18 +108,7 @@ public class Scale9Bitmap extends BaseDisplay
 
     protected function drawBitmap():void
     {
-        if (_sourceBitmapData)
-        {
-            _width = _sourceBitmapData.width;
-            _height = _sourceBitmapData.height;
-        }
-        else
-        {
-            _width = 0;
-            _height = 0;
-        }
         invalidSize = true;
-        invalidBitmap = false;
     }
 
     protected function drawSize():void

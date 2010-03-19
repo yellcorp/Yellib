@@ -130,9 +130,11 @@ public class BaseDisplay extends Sprite implements Displayable
         onAddedToStage(event);
         if (waitingForRender)
         {
-            trace("("+getQualifiedClassName(this)+")"+this.name + " render on stage add");
-            //onRender();
-            invalidate();
+            if (debug)
+            {
+                trace("("+getQualifiedClassName(this)+")"+this.name + " render on stage add");
+            }
+            onRender();
         }
     }
 
@@ -157,7 +159,7 @@ public class BaseDisplay extends Sprite implements Displayable
         {
             if (debug)
             {
-                trace("("+getQualifiedClassName(this)+")"+this.name + " missed render event: Use redraw()");
+                trace("("+getQualifiedClassName(this)+")"+this.name + " render on frame");
             }
             onRender();
         }
