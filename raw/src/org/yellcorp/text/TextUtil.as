@@ -6,6 +6,45 @@ import flash.text.TextFormat;
 
 public class TextUtil
 {
+    public static function cloneTextField(field:TextField):TextField
+    {
+        var clone:TextField = new TextField();
+
+        clone.embedFonts = field.embedFonts;
+        clone.defaultTextFormat = cloneTextFormat(field.defaultTextFormat);
+
+        clone.alwaysShowSelection = field.alwaysShowSelection;
+        clone.background = field.background;
+        clone.backgroundColor = field.backgroundColor;
+        clone.border = field.border;
+        clone.borderColor = field.borderColor;
+        clone.condenseWhite = field.condenseWhite;
+        clone.displayAsPassword = field.displayAsPassword;
+        clone.gridFitType = field.gridFitType;
+        clone.maxChars = field.maxChars;
+        clone.mouseWheelEnabled = field.mouseWheelEnabled;
+        clone.restrict = field.restrict;
+        clone.selectable = field.selectable;
+        clone.type = field.type;
+
+        clone.styleSheet = field.styleSheet;
+
+        clone.antiAliasType = field.antiAliasType;
+        clone.sharpness = field.sharpness;
+        clone.thickness = field.thickness;
+
+        clone.multiline = field.multiline;
+        clone.wordWrap = field.wordWrap;
+        clone.autoSize = field.autoSize;
+
+        clone.x = field.x;
+        clone.y = field.y;
+        clone.width = field.width;
+        clone.height = field.height;
+
+        return clone;
+    }
+
     public static function appendWithFormat(target:TextField, text:String, format:TextFormat = null):void
     {
         if (text === null) text = "";

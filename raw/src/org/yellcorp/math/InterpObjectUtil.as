@@ -17,7 +17,7 @@ public class InterpObjectUtil
     public static function lerpRect(a:Rectangle, b:Rectangle, t:Number, out:Rectangle):Rectangle
     {
         out.x = a.x + t * (b.x - a.x);
-        out.y = b.y + t * (b.y - a.y);
+        out.y = a.y + t * (b.y - a.y);
         out.width = a.width + t * (b.width - a.width);
         out.height = a.height + t * (b.height - a.height);
         return out;

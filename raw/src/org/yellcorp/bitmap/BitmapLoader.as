@@ -91,6 +91,11 @@ public class BitmapLoader extends EventDispatcher
         return _loaded ? loader.contentLoaderInfo.height : -1;
     }
 
+    public function get loaded():Boolean
+    {
+        return _loaded;
+    }
+
     public function get isOverSize():Boolean
     {
         return _isOverSize;
