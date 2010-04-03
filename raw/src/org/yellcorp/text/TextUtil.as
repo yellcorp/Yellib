@@ -47,9 +47,8 @@ public class TextUtil
 
     public static function appendWithFormat(target:TextField, text:String, format:TextFormat = null):void
     {
-        if (text === null) text = "";
+        if (text === null || text.length == 0) return;
         if (format === null) format = target.defaultTextFormat;
-
         target.appendText(text);
         target.setTextFormat(format, target.text.length - text.length, target.text.length);
     }
@@ -65,21 +64,34 @@ public class TextUtil
                               format.leading);
     }
 
+    /**
+     * Awful hack to fix author-time attributes of TextField formats which
+     * get forgotten at run time (particularly letterSpacing).  It gets
+     * format attributes common to all characters and merges it with the
+     * field's default text format.
+     */
+    public static function fixField(field:TextField):TextField
+    {
+        var commonFormat:TextFormat = field.getTextFormat();
+        var defaultFormat:TextFormat = cloneTextFormat(field.defaultTextFormat);
+        mergeTextFormat(defaultFormat, commonFormat);
+        field.defaultTextFormat = defaultFormat;
+        field.setTextFormat(commonFormat);
+        return field;
+    }
+
+    public static function fixFields(textFieldArray:Array):void
+    {
+        var field:TextField;
+        for each (field in textFieldArray)
+        {
+            fixField(field);
+        }
+    }
+
     public static function mergeTextFormat(base:TextFormat, ... formatList):TextFormat
     {
         return _mergeTextFormat(base, formatList);
-    }
-
-    /**
-     * Convenience fixer method as dynamic text fields seem to lose the
-     * letterSpacing attribute set in the Flash IDE
-     */
-    public static function setDefaultLetterSpacing(field:TextField, letterSpacing:Number):TextField
-    {
-        var format:TextFormat = field.defaultTextFormat;
-        format.letterSpacing = letterSpacing;
-        field.defaultTextFormat = format;
-        return field;
     }
 
     private static function _mergeTextFormat(base:TextFormat, formatList:Array):TextFormat
