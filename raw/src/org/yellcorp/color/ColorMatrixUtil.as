@@ -1,6 +1,5 @@
 package org.yellcorp.color
 {
-import flash.display.BitmapData;
 import flash.display.BitmapDataChannel;
 import flash.geom.ColorTransform;
 

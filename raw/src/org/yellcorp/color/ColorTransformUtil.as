@@ -39,6 +39,23 @@ public class ColorTransformUtil
         return out;
     }
 
+    public static function setInvert(out:ColorTransform = null):ColorTransform
+    {
+        if (!out) out = new ColorTransform();
+
+        out.redMultiplier   = -1;
+        out.greenMultiplier = -1;
+        out.blueMultiplier  = -1;
+        out.alphaMultiplier = 1;
+
+        out.redOffset       = 255;
+        out.greenOffset     = 255;
+        out.blueOffset      = 255;
+        out.alphaOffset     = 0;
+
+        return out;
+    }
+
     public static function setMultiply(c:VectorRGB, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
