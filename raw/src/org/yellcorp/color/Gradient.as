@@ -186,10 +186,16 @@ public class Gradient extends BaseGradient
 
         if (!ratiosValid) sort();
 
-        a1 = _alphas[intIndex];
-        a2 = _alphas[intIndex + 1];
-
-        return a1 + fracIndex * (a2 - a1);
+        if (fracIndex == 0)
+        {
+            return _alphas[intIndex];
+        }
+        else
+        {
+            a1 = _alphas[intIndex];
+            a2 = _alphas[intIndex + 1];
+            return a1 + fracIndex * (a2 - a1);
+        }
     }
 
     private function findIndex(point:Number):Number
@@ -310,7 +316,7 @@ public class Gradient extends BaseGradient
         var i:int;
         if (alphas != null)
         {
-            if (_alphas.length != _length)
+            if (alphas.length != _length)
                 throw new ArgumentError("Number of alphas must match number of colors");
             _alphas = alphas.slice();
         }
@@ -334,7 +340,7 @@ public class Gradient extends BaseGradient
 
         if (ratios != null)
         {
-            if (_ratios.length != _length)
+            if (ratios.length != _length)
                 throw new ArgumentError("Number of ratios must match number of colors");
 
             for (i = 0; i < _length; i++)
