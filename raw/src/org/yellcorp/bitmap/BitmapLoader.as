@@ -1,5 +1,7 @@
 package org.yellcorp.bitmap
 {
+import org.yellcorp.mem.Destructor;
+
 import flash.display.BitmapData;
 import flash.display.Loader;
 import flash.display.LoaderInfo;
@@ -14,7 +16,7 @@ import flash.system.LoaderContext;
 import flash.utils.ByteArray;
 
 
-public class BitmapLoader extends EventDispatcher
+public class BitmapLoader extends EventDispatcher implements Destructor
 {
     public static const FP9_MAX_AXIS:uint = 2880;
     public static const FP10_MAX_AXIS:uint = 8192;
@@ -56,6 +58,27 @@ public class BitmapLoader extends EventDispatcher
             }
         }
         addListeners(loader.contentLoaderInfo);
+    }
+
+    public function destroy():void
+    {
+        removeListeners(loader.contentLoaderInfo);
+        try {
+            loader.close();
+        }
+        catch (e:Error)
+        { }
+        clear();
+    }
+
+    public function get bytesLoaded():uint
+    {
+        return loader.contentLoaderInfo.bytesLoaded;
+    }
+
+    public function get bytesTotal():uint
+    {
+        return loader.contentLoaderInfo.bytesTotal;
     }
 
     public function get fitMethod():String
@@ -271,9 +294,19 @@ public class BitmapLoader extends EventDispatcher
     private function addListeners(cli:LoaderInfo):void
     {
         cli.addEventListener(Event.COMPLETE, onComplete, false, 0, true);
+        cli.addEventListener(Event.OPEN, dispatchEvent, false, 0, true);
         cli.addEventListener(HTTPStatusEvent.HTTP_STATUS, dispatchEvent, false, 0, true);
-        cli.addEventListener(IOErrorEvent.IO_ERROR, dispatchEvent, false, 0, true);
         cli.addEventListener(ProgressEvent.PROGRESS, dispatchEvent, false, 0, true);
+        cli.addEventListener(IOErrorEvent.IO_ERROR, dispatchEvent, false, 0, true);
+    }
+
+    private function removeListeners(cli:LoaderInfo):void
+    {
+        cli.removeEventListener(Event.COMPLETE, onComplete, false);
+        cli.removeEventListener(Event.OPEN, dispatchEvent, false);
+        cli.removeEventListener(HTTPStatusEvent.HTTP_STATUS, dispatchEvent, false);
+        cli.removeEventListener(ProgressEvent.PROGRESS, dispatchEvent, false);
+        cli.removeEventListener(IOErrorEvent.IO_ERROR, dispatchEvent, false);
     }
 }
 }
