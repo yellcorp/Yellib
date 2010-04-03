@@ -10,7 +10,7 @@ public class InterpObjectUtil
     public static function lerpPoint(a:Point, b:Point, t:Number, out:Point):Point
     {
         out.x = a.x + t * (b.x - a.x);
-        out.y = b.y + t * (b.y - a.y);
+        out.y = a.y + t * (b.y - a.y);
         return out;
     }
 
