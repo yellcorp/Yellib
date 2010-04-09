@@ -17,11 +17,8 @@ public class SysUtil
         var rnd:Number = Math.random();
 
         buffer.writeDouble(msec);
-        //trace('msec: ' + (msec));
         buffer.writeInt(runningTime);
-        //trace('runningTime: ' + (runningTime));
         buffer.writeDouble(rnd);
-        //trace('rnd: ' + (rnd));
 
         buffer.position = 0;
 

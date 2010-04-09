@@ -8,13 +8,6 @@ import flash.geom.Rectangle;
 
 public class GeomUtil
 {
-    public static function convertPoint(pointInFromSpace:Point, fromSpace:DisplayObject, toSpace:DisplayObject):Point
-    {
-        if (fromSpace === toSpace) return pointInFromSpace.clone();
-        var global:Point = fromSpace.localToGlobal(pointInFromSpace);
-        return toSpace.globalToLocal(global);
-    }
-
     public static function createRectMap(source:Rectangle, target:Rectangle,
         preTranslate:Boolean = false, outMatrix:Matrix = null):Matrix
     {

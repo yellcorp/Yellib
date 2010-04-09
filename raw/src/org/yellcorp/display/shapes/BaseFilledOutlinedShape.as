@@ -122,7 +122,7 @@ public class BaseFilledOutlinedShape extends Shape
         if (stage) stage.invalidate();
     }
 
-    private function redraw():void
+    public function redraw():void
     {
         var g:Graphics = graphics;
 
@@ -147,6 +147,7 @@ public class BaseFilledOutlinedShape extends Shape
         {
             draw(_width / scaleX, _height / scaleY);
         }
+        qRedraw = false;
     }
 
     private function setProp(propName:String, newVal:*):void

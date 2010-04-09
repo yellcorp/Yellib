@@ -114,7 +114,7 @@ public class CFormatTemplate
                 break;
 
             case CFormatToken.TYPE_HEX_FLOAT :
-                // TODO
+                // TODO: CFormatToken.TYPE_HEX_FLOAT
                 result = "[TODO CFormatToken.TYPE_HEX_FLOAT]";
                 break;
 
