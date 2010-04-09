@@ -35,6 +35,32 @@ public class MapUtil
         return target;
     }
 
+    public static function getKeys(map:*):Array
+    {
+        var key:*;
+        var result:Array = [ ];
+
+        for (key in map)
+        {
+            result.push(key);
+        }
+
+        return result;
+    }
+
+    public static function getValues(map:*):Array
+    {
+        var key:*;
+        var result:Array = [ ];
+
+        for (key in map)
+        {
+            result.push(map[key]);
+        }
+
+        return result;
+    }
+
     public static function mapToArray(map:*):Array
     {
         var key:*;

@@ -10,6 +10,7 @@ public class GeomUtil
 {
     public static function convertPoint(pointInFromSpace:Point, fromSpace:DisplayObject, toSpace:DisplayObject):Point
     {
+        if (fromSpace === toSpace) return pointInFromSpace.clone();
         var global:Point = fromSpace.localToGlobal(pointInFromSpace);
         return toSpace.globalToLocal(global);
     }

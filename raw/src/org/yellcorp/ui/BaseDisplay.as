@@ -15,7 +15,7 @@ public class BaseDisplay extends Sprite implements Displayable
     private var waitingForRender:Boolean;
     private var handlingRender:Boolean;
 
-    private var debug:Boolean = true;
+    private var debug:Boolean = false;
 
     public function BaseDisplay(initialWidth:Number = 0, initialHeight:Number = 0)
     {

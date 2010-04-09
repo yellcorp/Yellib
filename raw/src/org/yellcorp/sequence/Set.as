@@ -10,7 +10,7 @@ public class Set {
     {
         clear();
 
-        if (initialMembers != null && initialMembers.length > 0)
+        if (initialMembers && initialMembers.length > 0)
             addIterable(initialMembers);
     }
 
@@ -94,12 +94,8 @@ public class Set {
 
     public function clone():Set
     {
-        var item:*;
         var newSet:Set = new Set();
-
-        for each (item in dict)
-            newSet.add(item);
-
+        newSet.addIterable(dict);
         return newSet;
     }
 

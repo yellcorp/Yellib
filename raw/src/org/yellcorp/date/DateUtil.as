@@ -1,11 +1,10 @@
 package org.yellcorp.date
 {
-
 public class DateUtil
 {
     public static function clone(original:Date):Date
     {
-        return new Date(original.time);
+        return original ? new Date(original.time) : original;
     }
 
     public static function add(dateObj:Date,
@@ -39,7 +38,7 @@ public class DateUtil
     }
 
     /**
-     * @desc Rounds the provided date to the nearest provided unit.
+     * Rounds the provided date to the nearest provided unit.
      *
      * For example, call DateUtil.round(yourDate, TimeUnits.HOUR) to round to
      * the nearest hour.  To use your own units, pass in the unit size
@@ -108,8 +107,86 @@ public class DateUtil
         return new Date((a.time > b.time) ? a.time : b.time);
     }
 
+    public static function equal(a:Date, b:Date):Boolean
+    {
+        if (!a && !b)
+        {
+            return true;
+        }
+        else if (!a || !b)
+        {
+            return false;
+        }
+        else
+        {
+            return a.time == b.time;
+        }
+    }
+
+    public static function isEarlier(queryDate:Date, reference:Date):Boolean
+    {
+        return queryDate.time < reference.time;
+    }
+
+    public static function isEarlierOrEqual(queryDate:Date, reference:Date):Boolean
+    {
+        return queryDate.time <= reference.time;
+    }
+
+    public static function isLater(queryDate:Date, reference:Date):Boolean
+    {
+        return queryDate.time > reference.time;
+    }
+
+    public static function isLaterOrEqual(queryDate:Date, reference:Date):Boolean
+    {
+        return queryDate.time >= reference.time;
+    }
+
+    public static function isBetween(queryDate:Date, a:Date, b:Date):Boolean
+    {
+        if (a)
+        {
+            if (b)
+            {
+                if (a.time < b.time)
+                {
+                    return queryDate.time >= a.time && queryDate.time < b.time;
+                }
+                else
+                {
+                    return queryDate.time >= b.time && queryDate.time < a.time;
+                }
+            }
+            else
+            {
+                return queryDate.time >= a.time;
+            }
+        }
+        else
+        {
+            if (b)
+            {
+                return queryDate.time < b.time;
+            }
+            else
+            {
+                // because null arguments are considered unbounded,
+                // isBetween(date, null, null) is always true
+                return true;
+            }
+        }
+    }
+
     public static function clamp(queryDate:Date, earliest:Date, latest:Date):Date
     {
+        var temp:Date;
+        if (earliest && latest && earliest.time > latest.time)
+        {
+            temp = earliest;
+            earliest = latest;
+            latest = temp;
+        }
         if (earliest !== null && queryDate.time < earliest.time)
         {
             return earliest;
@@ -126,6 +203,13 @@ public class DateUtil
 
     public static function clampClone(queryDate:Date, earliest:Date, latest:Date):Date
     {
+        var temp:Date;
+        if (earliest && latest && earliest.time > latest.time)
+        {
+            temp = earliest;
+            earliest = latest;
+            latest = temp;
+        }
         if (earliest !== null && queryDate.time < earliest.time)
         {
             return new Date(earliest.time);
@@ -158,7 +242,7 @@ public class DateUtil
 
     public static function lerpDate(date1:Date, date2:Date, t:Number):Date
     {
-        var epoch:Number = Math.round((1 - t) * date1.time + t * date2.time);
+        var epoch:Number = Math.round(date1.time + t * (date2.time - date1.time));
         return new Date(epoch);
     }
 }
