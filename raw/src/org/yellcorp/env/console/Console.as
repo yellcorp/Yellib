@@ -11,8 +11,14 @@ import flash.text.TextFormat;
 
 public class Console extends BaseDisplay
 {
+    private static const NONE:int = 0;
+    private static const FIELD:int = 1;
+    private static const BAR:int = 2;
+
     private var consoleText:TextField;
     private var scrollbar:VerticalScrollBar;
+
+    private var invalidScroll:int = NONE;
 
     public function Console()
     {
@@ -20,15 +26,30 @@ public class Console extends BaseDisplay
         initDisplay();
     }
 
-    public function write(... args):void {
+    public function write(... args):void
+    {
+        var pin:Boolean = isScrollPinned();
         consoleText.appendText(args.join(""));
+        if (pin) pinScroll();
+    }
 
-        /*
-        if (scrollPin)
-            consoleText.scrollV = consoleText.maxScrollV;
-        */
+    private function isScrollPinned():Boolean
+    {
+        return consoleText.scrollV >= (consoleText.maxScrollV - 1);
+    }
 
-        updateScrollbar();
+    private function pinScroll():void
+    {
+        consoleText.scrollV = consoleText.maxScrollV;
+    }
+
+    private function invalidateScroll(type:int):void
+    {
+        if (type > invalidScroll)
+        {
+            invalidScroll = type;
+            invalidate();
+        }
     }
 
     public function writeln(... args):void {
@@ -44,23 +65,31 @@ public class Console extends BaseDisplay
         return tf;
     }
 
-    protected override function onRender(event:Event):void
+    protected override function draw():void
     {
-        consoleText.width = scrollbar.x = width - scrollbar.width;
-        consoleText.height = scrollbar.height = height;
+        var pin:Boolean;
+        if (invalidSize)
+        {
+            pin = isScrollPinned();
+            setSizeOn(consoleText, width - scrollbar.width, height);
+            setSizeOn(scrollbar, scrollbar.width, height);
+            scrollbar.x = consoleText.width;
+            if (pin) pinScroll();
+            invalidateScroll(FIELD);
+            invalidSize = false;
+        }
 
-        updateScrollbar();
-
-        /*
-        if (scrollPin)
-            consoleText.scrollV = consoleText.maxScrollV;
-             */
-    }
-
-    private function updateScrollbar():void
-    {
-        scrollbar.maxScroll = consoleText.maxScrollV;
-        scrollbar.currentScroll = consoleText.scrollV;
+        if (invalidScroll == FIELD)
+        {
+            scrollbar.maxScroll = consoleText.maxScrollV;
+            scrollbar.currentScroll = consoleText.scrollV;
+        }
+        else if (invalidScroll == BAR)
+        {
+            scrollbar.maxScroll = consoleText.maxScrollV;
+            consoleText.scrollV = Math.round(scrollbar.currentScroll);
+        }
+        invalidScroll = NONE;
     }
 
     private function getTextField():TextField {
@@ -92,14 +121,12 @@ public class Console extends BaseDisplay
 
     private function onScrollFromText(event:Event):void
     {
-        scrollbar.currentScroll = consoleText.scrollV;
-//            scrollPin = consoleText.scrollV == consoleText.maxScrollV;
-        }
-
-        private function onScrollFromBar(event:Event):void
-        {
-            consoleText.scrollV = Math.round(scrollbar.currentScroll);
-//            scrollPin = consoleText.scrollV == consoleText.maxScrollV;
-        }
+        invalidateScroll(FIELD);
     }
+
+    private function onScrollFromBar(event:Event):void
+    {
+        invalidateScroll(BAR);
+    }
+}
 }

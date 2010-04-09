@@ -3,7 +3,6 @@ package org.yellcorp.ui.scrollbar
 import fl.controls.ScrollBarDirection;
 
 import flash.display.DisplayObject;
-import flash.events.Event;
 
 
 public class VerticalScrollBar extends BaseScrollBar
@@ -18,22 +17,22 @@ public class VerticalScrollBar extends BaseScrollBar
         return ScrollBarDirection.VERTICAL;
     }
 
-    protected override function getCoordinate(display:DisplayObject):Number
+    protected override function getAxisCoord(display:DisplayObject):Number
     {
         return display.y;
     }
 
-    protected override function setCoordinate(display:DisplayObject, newPosition:Number):void
+    protected override function setAxisCoord(display:DisplayObject, newPosition:Number):void
     {
         display.y = newPosition;
     }
 
-    protected override function getSize(display:DisplayObject):Number
+    protected override function getAxisSize(display:DisplayObject):Number
     {
         return display.height;
     }
 
-    protected override function setSize(display:DisplayObject, newSize:Number):void
+    protected override function setAxisSize(display:DisplayObject, newSize:Number):void
     {
         display.height = newSize;
     }
@@ -48,9 +47,13 @@ public class VerticalScrollBar extends BaseScrollBar
         return mouseY;
     }
 
-    protected override function onRender(renderEvent:Event):void
+    protected override function draw():void
     {
-        setTotalSize(height);
+        if (invalidSize)
+        {
+            setTotalSize(height);
+            invalidSize = false;
+        }
     }
 }
 }

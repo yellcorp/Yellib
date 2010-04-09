@@ -3,6 +3,7 @@ package org.yellcorp.ui.scrollbar
 import fl.events.ScrollEvent;
 
 import org.yellcorp.error.AbstractCallError;
+import org.yellcorp.mem.Destructor;
 import org.yellcorp.ui.BaseDisplay;
 import org.yellcorp.ui.utils.AutoVaryingTimer;
 
@@ -14,7 +15,7 @@ import flash.utils.Dictionary;
 
 
 [Event(name="scroll", type="fl.events.ScrollEvent")]
-public class BaseScrollBar extends BaseDisplay
+public class BaseScrollBar extends BaseDisplay implements Destructor
 {
     public var arrowStep:Number;
     public var pageStep:Number;
@@ -61,27 +62,24 @@ public class BaseScrollBar extends BaseDisplay
 
         skin = initSkin;
 
+        super();
+
         // if a skin was provided, use it to build the necessary
         // display objects
         if (skin)
         {
             buildFromSkin();
         }
-
-        super();
-
+        else
+        {
         // if a null skin, assume that this is the superclass of
         // a clip drawn and linked in Flash IDE, with the necessary parts
-        // with appropriate instance names on the timeline.  This goes
-        // after the call to super() so the secret constructChildren()
-        // call goes ahead
-
-        // TODO: is it really worth jumping through all these hoops
-        // just so it looks a little more coherent at author time
-        if (!skin)
-        {
+        // with appropriate instance names on the timeline.
             buildFromAuthoring();
         }
+
+        _width = decButton.width;
+        _height = decButton.height;
 
         setupView();
 
@@ -99,30 +97,6 @@ public class BaseScrollBar extends BaseDisplay
         orientation = getOrientation();
 
         setupEvents();
-    }
-
-    protected override function getInitialViewHeight():Number
-    {
-        if (decButton)
-        {
-            return decButton.height;
-        }
-        else
-        {
-            return super.getInitialViewHeight();
-        }
-    }
-
-    protected override function getInitialViewWidth():Number
-    {
-        if (decButton)
-        {
-            return decButton.width;
-        }
-        else
-        {
-            return super.getInitialViewWidth();
-        }
     }
 
     public function addMouseWheelListener(mouseWheelTarget:InteractiveObject):void
@@ -149,7 +123,7 @@ public class BaseScrollBar extends BaseDisplay
         }
     }
 
-    public override function destroy():void
+    public function destroy():void
     {
         clearMouseWheelListeners();
         destroyEvents();
@@ -255,7 +229,7 @@ public class BaseScrollBar extends BaseDisplay
         throw new AbstractCallError();
     }
 
-    protected function getCoordinate(display:DisplayObject):Number
+    protected function getAxisCoord(display:DisplayObject):Number
     {
         // this should be overridden by a function returns the x
         // of the display object if the scroll bar is horizontal,
@@ -263,12 +237,12 @@ public class BaseScrollBar extends BaseDisplay
         throw new AbstractCallError();
     }
 
-    protected function setCoordinate(display:DisplayObject, newPosition:Number):void
+    protected function setAxisCoord(display:DisplayObject, newPosition:Number):void
     {
         throw new AbstractCallError();
     }
 
-    protected function getSize(display:DisplayObject):Number
+    protected function getAxisSize(display:DisplayObject):Number
     {
         // this should be overridden by a function that measures the
         // passed-in display object and returns its width if the
@@ -276,7 +250,7 @@ public class BaseScrollBar extends BaseDisplay
         throw new AbstractCallError();
     }
 
-    protected function setSize(display:DisplayObject, newSize:Number):void
+    protected function setAxisSize(display:DisplayObject, newSize:Number):void
     {
         throw new AbstractCallError();
     }
@@ -325,7 +299,7 @@ public class BaseScrollBar extends BaseDisplay
 
     private function onCursorPress(event:MouseEvent):void
     {
-        startCursorDrag(getCoordinate(cursor) - getMouseCoordinate());
+        startCursorDrag(getAxisCoord(cursor) - getMouseCoordinate());
     }
 
     private function onMouseWheel(event:MouseEvent):void
@@ -369,8 +343,8 @@ public class BaseScrollBar extends BaseDisplay
         var cursorMin:Number;
         var cursorMax:Number;
 
-        cursorMin = getSize(decButton);
-        cursorMax = cursorMin + getSize(track) - getSize(cursor);
+        cursorMin = getAxisSize(decButton);
+        cursorMax = cursorMin + getAxisSize(track) - getAxisSize(cursor);
 
         if (newCursorCoord < cursorMin)
         {
@@ -381,12 +355,12 @@ public class BaseScrollBar extends BaseDisplay
             newCursorCoord = cursorMax;
         }
 
-        setCoordinate(cursor, newCursorCoord);
+        setAxisCoord(cursor, newCursorCoord);
     }
 
     private function setCurrentScrollFromCursor():void
     {
-        currentScroll = convertTrackCoordToScrollValue(getCoordinate(cursor), false);
+        currentScroll = convertTrackCoordToScrollValue(getAxisCoord(cursor), false);
     }
 
     private function step(delta:Number, repeat:Boolean, stopScroll:Number):void
@@ -443,9 +417,9 @@ public class BaseScrollBar extends BaseDisplay
 
         var decSize:Number = Math.round(decProportion * size);
 
-        setSize(decButton, decSize);
-        setCoordinate(incButton, decSize);
-        setSize(incButton, size - decSize);
+        setAxisSize(decButton, decSize);
+        setAxisCoord(incButton, decSize);
+        setAxisSize(incButton, size - decSize);
 
         track.visible = false;
         cursor.visible = false;
@@ -459,15 +433,15 @@ public class BaseScrollBar extends BaseDisplay
 
         if (reducedButtons)
         {
-            setSize(decButton, nativeDecButtonSize);
-            setSize(incButton, nativeIncButtonSize);
+            setAxisSize(decButton, nativeDecButtonSize);
+            setAxisSize(incButton, nativeIncButtonSize);
             reducedButtons = false;
         }
 
-        setCoordinate(incButton, size - getSize(incButton));
+        setAxisCoord(incButton, size - getAxisSize(incButton));
 
         trackSize = size - nativeDecButtonSize - nativeIncButtonSize;
-        setSize(track, trackSize);
+        setAxisSize(track, trackSize);
         track.visible = true;
 
         redrawCursor();
@@ -478,17 +452,12 @@ public class BaseScrollBar extends BaseDisplay
         var cursorPos:Number;
         var trackSize:Number;
 
-        trackSize = getSize(track);
+        trackSize = getAxisSize(track);
 
         if (reducedButtons || _minScroll == _maxScroll)
         {
-            trace("hiding cursor");
             cursor.visible = false;
             return;
-        }
-        else
-        {
-            trace("showing cursor: " + _minScroll + " != " + _maxScroll);
         }
 
         if (!isFinite(lastCursorSize) || cursorSizeNeedsRecalc)
@@ -501,7 +470,7 @@ public class BaseScrollBar extends BaseDisplay
 
         if (cursor.visible)
         {
-            setSize(cursor, lastCursorSize);
+            setAxisSize(cursor, lastCursorSize);
             cursorPos = scaleRange(_currentScroll,
                                    _minScroll, _maxScroll,
                                    nativeDecButtonSize,
@@ -512,7 +481,7 @@ public class BaseScrollBar extends BaseDisplay
                 cursorPos = 0;
             }
 
-            setCoordinate(cursor, Math.round(cursorPos));
+            setAxisCoord(cursor, Math.round(cursorPos));
         }
     }
 
@@ -550,12 +519,12 @@ public class BaseScrollBar extends BaseDisplay
 
     private function setupView():void
     {
-        nativeDecButtonSize = getSize(decButton);
-        nativeIncButtonSize = getSize(incButton);
-        nativeCursorSize = getSize(cursor);
+        nativeDecButtonSize = getAxisSize(decButton);
+        nativeIncButtonSize = getAxisSize(incButton);
+        nativeCursorSize = getAxisSize(cursor);
 
-        setCoordinate(decButton, 0);
-        setCoordinate(track, nativeDecButtonSize);
+        setAxisCoord(decButton, 0);
+        setAxisCoord(track, nativeDecButtonSize);
 
         // maxScroll and minScroll both start inited to zero, this
         // means no cursor
@@ -601,10 +570,10 @@ public class BaseScrollBar extends BaseDisplay
         var trackMin:Number;
         var trackMax:Number;
 
-        var cursorSize:Number = cursor.visible ? getSize(cursor) : 0;
+        var cursorSize:Number = cursor.visible ? getAxisSize(cursor) : 0;
 
-        trackMin = getCoordinate(track);
-        trackMax = trackMin + getSize(track) - cursorSize;
+        trackMin = getAxisCoord(track);
+        trackMax = trackMin + getAxisSize(track) - cursorSize;
 
         if (useCentre)
         {
