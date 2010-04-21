@@ -58,10 +58,7 @@ public class MathUtil
     public static function positiveMod(dividend:Number, divisor:Number):Number
     {
         var modResult:Number = dividend % divisor;
-
-        if (modResult < 0) modResult += divisor;
-
-        return modResult;
+        return modResult < 0 ? modResult + divisor : modResult;
     }
 
     /**
