@@ -4,46 +4,100 @@ import org.yellcorp.ui.BaseDisplay;
 import org.yellcorp.ui.scrollbar.VerticalScrollBar;
 
 import flash.display.InteractiveObject;
+import flash.display.Sprite;
+import flash.events.MouseEvent;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFieldType;
 
 
-public class DebugConsoleView extends BaseDisplay
+public class DebugConsoleView extends BaseDisplay implements InputEditor
 {
+    private var controller:DebugConsole;
+
     private var background:InteractiveObject;
-    private var sizeHandle:InteractiveObject;
-    private var outputField:TextField;
+    private var sizeHandle:Sprite;
     private var outputScroll:VerticalScrollBar;
-    private var inputField:TextField;
+    private var _outputField:TextField;
+    private var _inputField:TextField;
     private var skin:DebugConsoleSkin;
 
-    public function DebugConsoleView(initialWidth:Number, initialHeight:Number, skin:DebugConsoleSkin)
+    public function DebugConsoleView(controller:DebugConsole, initialWidth:Number, initialHeight:Number, skin:DebugConsoleSkin)
     {
+        this.controller = controller;
         this.skin = skin;
 
         super(initialWidth, initialHeight);
 
         addChild(background = skin.createBackground());
         addChild(sizeHandle = skin.createSizeHandle());
-        addChild(outputField = skin.createOutputField());
+        addChild(_outputField = skin.createOutputField());
         addChild(outputScroll = skin.createOutputScrollBar());
-        addChild(inputField = skin.createInputField());
+        addChild(_inputField = skin.createInputField());
 
-        outputField.autoSize = TextFieldAutoSize.NONE;
-        outputField.multiline = true;
-        outputField.selectable = true;
-        outputField.type = TextFieldType.DYNAMIC;
-        outputField.wordWrap = true;
+        sizeHandle.addEventListener(MouseEvent.MOUSE_DOWN, onSizeHandleDown);
 
-        inputField.autoSize = TextFieldAutoSize.NONE;
-        inputField.multiline = false;
-        inputField.selectable = true;
-        inputField.type = TextFieldType.INPUT;
-        inputField.wordWrap = false;
+        _outputField.autoSize = TextFieldAutoSize.NONE;
+        _outputField.multiline = true;
+        _outputField.selectable = true;
+        _outputField.type = TextFieldType.DYNAMIC;
+        _outputField.wordWrap = true;
+
+        _inputField.autoSize = TextFieldAutoSize.NONE;
+        _inputField.multiline = false;
+        _inputField.selectable = true;
+        _inputField.type = TextFieldType.INPUT;
+        _inputField.wordWrap = false;
 
         initLayout();
         invalidateSize();
+    }
+
+    public function getInput():String
+    {
+        return _inputField.text;
+    }
+
+    public function setInput(newInput:String):void
+    {
+        _inputField.text = newInput;
+        _inputField.setSelection(newInput.length, newInput.length);
+    }
+
+    internal function get outputField():TextField
+    {
+        return _outputField;
+    }
+
+    internal function get inputField():TextField
+    {
+        return _inputField;
+    }
+
+    private function onSizeHandleDown(event:MouseEvent):void
+    {
+        sizeHandle.startDrag();
+        stage.addEventListener(MouseEvent.MOUSE_MOVE, onSizeHandleMove);
+        stage.addEventListener(MouseEvent.MOUSE_UP, onSizeHandleUp);
+    }
+
+    private function onSizeHandleUp(event:MouseEvent):void
+    {
+        stage.removeEventListener(MouseEvent.MOUSE_MOVE, onSizeHandleMove);
+        stage.removeEventListener(MouseEvent.MOUSE_UP, onSizeHandleUp);
+        sizeHandle.stopDrag();
+        setSizeFromSizeHandle();
+    }
+
+    private function onSizeHandleMove(event:MouseEvent):void
+    {
+        setSizeFromSizeHandle();
+    }
+
+    private function setSizeFromSizeHandle():void
+    {
+        setSize(sizeHandle.x + sizeHandle.width + skin.windowGutter,
+                sizeHandle.y + sizeHandle.height + skin.windowGutter);
     }
 
     protected override function draw():void
@@ -56,9 +110,9 @@ public class DebugConsoleView extends BaseDisplay
 
     private function initLayout():void
     {
-        outputField.x =
-        outputField.y =
-        inputField.x =
+        _outputField.x =
+        _outputField.y =
+        _inputField.x =
         outputScroll.y =
             skin.windowGutter;
     }
@@ -71,17 +125,18 @@ public class DebugConsoleView extends BaseDisplay
         sizeHandle.x = _width - sizeHandle.width - skin.windowGutter;
         sizeHandle.y = _height - sizeHandle.height - skin.windowGutter;
 
-        inputField.width = sizeHandle.x - skin.controlGutter - inputField.x;
-        inputField.y = _height - skin.windowGutter - inputField.height;
+        _inputField.width = sizeHandle.x - skin.controlGutter - _inputField.x;
+        _inputField.y = _height - skin.windowGutter - _inputField.height;
 
         outputScroll.x = _width - outputScroll.width - skin.windowGutter;
-        outputScroll.height = inputField.y - skin.controlGutter - outputScroll.y;
+        outputScroll.height = _inputField.y - skin.controlGutter - outputScroll.y;
         outputScroll.forceRedraw();
 
-        outputField.width = outputScroll.x - outputField.x;
-        outputField.height = outputScroll.height;
+        _outputField.width = outputScroll.x - _outputField.x;
+        _outputField.height = outputScroll.height;
 
         invalidSize = false;
     }
+
 }
 }

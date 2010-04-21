@@ -19,7 +19,7 @@ public class TestDebugConsoleSkin implements DebugConsoleSkin
         return createSpriteBox(0xEEEEEE, 100, 100);
     }
 
-    public function createSizeHandle():InteractiveObject
+    public function createSizeHandle():Sprite
     {
         return createSpriteBox(0xFF00FF, 20, 20);
     }
@@ -43,15 +43,15 @@ public class TestDebugConsoleSkin implements DebugConsoleSkin
 
     public function get windowGutter():Number
     {
-        return 8;
+        return 6;
     }
 
     public function get controlGutter():Number
     {
-        return 4;
+        return 5;
     }
 
-    private static function createSpriteBox(fill:uint, width:Number, height:Number):InteractiveObject
+    private static function createSpriteBox(fill:uint, width:Number, height:Number):Sprite
     {
         var s:Sprite = new Sprite();
         var g:Graphics = s.graphics;
@@ -65,8 +65,8 @@ public class TestDebugConsoleSkin implements DebugConsoleSkin
     {
         var tf:TextField = new TextField();
         tf.defaultTextFormat = new TextFormat("_sans", 11, 0);
-        tf.border = true;
-        tf.borderColor = 0x888888;
+        tf.background = true;
+        tf.backgroundColor = 0xf7f7f7;
         return tf;
     }
 }
