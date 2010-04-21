@@ -1,7 +1,6 @@
 package org.yellcorp.debug.console.richtext
 {
 import org.yellcorp.text.TextEventUtil;
-import org.yellcorp.text.TextUtil;
 
 import flash.events.Event;
 import flash.events.TextEvent;
@@ -27,6 +26,13 @@ public class RichTextComposer
 
         list = new BlockStateList();
         store = new BlockStateIndex();
+    }
+
+    public function clear():void
+    {
+        _targetField.text = "";
+        list.clear();
+        store.clear();
     }
 
     public function appendBlock(block:TextBlock):void
@@ -63,7 +69,7 @@ public class RichTextComposer
         lowestInvalidBlock = null;
     }
 
-    public function compose():void
+    public function composeInvalid():void
     {
         var state:TextBlockState = lowestInvalidBlock;
 
@@ -141,7 +147,7 @@ public class RichTextComposer
     private function onBlockChange(event:Event):void
     {
         invalidateBlock(store.getByBlock(TextBlock(event.target)));
-        compose();
+        composeInvalid();
     }
 
     private function createState(block:TextBlock):TextBlockState
@@ -180,18 +186,40 @@ internal class BlockStateList
             head = tail = state;
         }
     }
+
+    // break the entire linked list as flash's gc isn't the
+    // most reliable with connected but unreachable objects
+    public function clear():void
+    {
+        var node:TextBlockState = head;
+        var next:TextBlockState;
+
+        while (node)
+        {
+            next = node.next;
+            node.next = null;
+            node.prev = null;
+            node = next;
+        }
+    }
 }
 
 internal class BlockStateIndex
 {
     private var byBlock:Dictionary;
     private var byID:Object;
-    private var nextid:uint = 0;
+    private var nextid:uint;
 
     public function BlockStateIndex()
     {
+        clear();
+    }
+
+    public function clear():void
+    {
         byBlock = new Dictionary();
         byID = { };
+        nextid = 0;
     }
 
     public function add(newState:TextBlockState):void
@@ -199,19 +227,23 @@ internal class BlockStateIndex
         byBlock[newState.textBlock] = newState;
         byID[newState.id] = newState;
     }
+
     public function remove(oldState:TextBlockState):void
     {
         delete byBlock[oldState.textBlock];
         delete byID[oldState.id];
     }
+
     public function getByBlock(block:TextBlock):TextBlockState
     {
         return byBlock[block];
     }
+
     public function getByID(id:String):TextBlockState
     {
         return byID[id];
     }
+
     public function getNewID():String
     {
         var id:String = nextid.toString(36);
