@@ -100,5 +100,31 @@ public class MapUtil
 
         return true;
     }
+
+    public static function indexKeys(map:*, indexingFunc:Function, target:* = null):*
+    {
+        return index(map, indexingFunc, true, target);
+    }
+
+    public static function indexValues(map:*, indexingFunc:Function, target:* = null):*
+    {
+        return index(map, indexingFunc, true, target);
+    }
+
+    private static function index(map:*, indexingFunc:Function, useValues:Boolean, target:*):*
+    {
+        var key:*;
+        var value:*;
+        var newKey:*;
+        if (target === null) target = { };
+
+        for (key in map)
+        {
+            value = map[key];
+            newKey = indexingFunc(value, key);
+            target[newKey] = useValues ? value : key;
+        }
+        return target;
+    }
 }
 }

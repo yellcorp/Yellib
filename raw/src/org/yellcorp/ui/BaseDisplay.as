@@ -61,8 +61,18 @@ public class BaseDisplay extends Sprite implements Displayable
 
     public function forceRedraw():void
     {
-        invalidSize = true;
+        invalidateSize();
         draw();
+    }
+
+    protected function getDisplayWidth():Number
+    {
+        return super.width;
+    }
+
+    protected function getDisplayHeight():Number
+    {
+        return super.height;
     }
 
     protected function setSizeOn(object:DisplayObject, w:Number, h:Number):void

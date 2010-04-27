@@ -226,11 +226,11 @@ public class DateUtil
 
     public static function cmp(a:Date, b:Date):int
     {
-        if (a.time > b.time)
+        if (a.time < b.time)
         {
             return -1;
         }
-        else if (a.time < b.time)
+        else if (a.time > b.time)
         {
             return 1;
         }

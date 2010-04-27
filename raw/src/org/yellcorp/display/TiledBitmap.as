@@ -51,6 +51,13 @@ public class TiledBitmap extends Shape
         draw();
     }
 
+    public function setSize(newWidth:Number, newHeight:Number):void
+    {
+        _width = newWidth;
+        _height = newHeight;
+        draw();
+    }
+
     public function get fillTransform():Matrix
     {
         return _fillTransform;
