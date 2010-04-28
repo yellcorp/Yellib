@@ -1,8 +1,5 @@
 package org.yellcorp.geom
 {
-import flash.geom.Point;
-
-
 public class Vector2
 {
     public var x:Number;
@@ -19,24 +16,6 @@ public class Vector2
     public function clone():Vector2
     {
         return new Vector2(x, y);
-    }
-
-    public static function copy(source:Vector2, dest:Vector2):void
-    {
-        dest.x = source.x;
-        dest.y = source.y;
-    }
-
-    public static function copyToPoint(source:Vector2, dest:Point):void
-    {
-        dest.x = source.x;
-        dest.y = source.y;
-    }
-
-    public static function copyFromPoint(source:Point, dest:Vector2):void
-    {
-        dest.x = source.x;
-        dest.y = source.y;
     }
 
     public function clear():void
@@ -83,10 +62,16 @@ public class Vector2
 
     public function normalize():void
     {
-        scale(1 / magnitude());
+        scale(magInverse());
     }
 
     // Setter operators (this = A op B)
+
+    public function setEquals(a:Vector2):void
+    {
+        x = a.x;
+        y = a.y;
+    }
 
     public function setAdd(a:Vector2, b:Vector2):void
     {
@@ -114,7 +99,7 @@ public class Vector2
 
     public function setNormalize(a:Vector2):void
     {
-        setScale(a, 1 / a.magnitude());
+        setScale(a, a.magInverse());
     }
 
     // Scalar
@@ -127,6 +112,11 @@ public class Vector2
     public function magSquared():Number
     {
         return x * x + y * y;
+    }
+
+    public function magInverse():Number
+    {
+        return 1 / Math.sqrt(x * x + y * y);
     }
 
     public function dot(w:Vector2):Number
@@ -146,10 +136,48 @@ public class Vector2
         return isFinite(x) && isFinite(y);
     }
 
-    public function isEpsilon(e:Number):Boolean
+    public function isNearZero(epsilon:Number):Boolean
     {
-        return (x < e) && (x > -e) &&
-               (y < e) && (y > -e);
+        return x < epsilon && x > -epsilon &&
+               y < epsilon && y > -epsilon;
+    }
+
+    public static function isEqual(a:Vector2, b:Vector2):Boolean
+    {
+        if (!a && !b)
+        {
+            return true;
+        }
+        else if (!a || !b)
+        {
+            return false;
+        }
+        else
+        {
+            return a.x == b.x && a.y == b.y;
+        }
+    }
+
+    public static function isClose(a:Vector2, b:Vector2, epsilon:Number):Boolean
+    {
+        var dx:Number;
+        var dy:Number;
+
+        if (!a && !b)
+        {
+            return true;
+        }
+        else if (!a || !b)
+        {
+            return false;
+        }
+        else
+        {
+            dx = a.x - b.x;
+            dy = a.y - b.y;
+            return dx < epsilon && dx > -epsilon &&
+                   dy < epsilon && dy > -epsilon;
+        }
     }
 }
 }

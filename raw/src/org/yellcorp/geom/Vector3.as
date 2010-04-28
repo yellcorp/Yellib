@@ -20,13 +20,6 @@ public class Vector3
         return new Vector3(x, y, z);
     }
 
-    public static function copy(source:Vector3, dest:Vector3):void
-    {
-        dest.x = source.x;
-        dest.y = source.y;
-        dest.z = source.z;
-    }
-
     public function clear():void
     {
         x = y = z = 0;
@@ -57,7 +50,7 @@ public class Vector3
     {
         x = -x;
         y = -y;
-        y = -z;
+        z = -z;
     }
 
     public function subtract(v:Vector3):void
@@ -91,10 +84,17 @@ public class Vector3
 
     public function normalize():void
     {
-        scale(1 / magnitude());
+        scale(magInverse());
     }
 
     // Setter operators (this = A op B)
+
+    public function setEquals(a:Vector3):void
+    {
+        x = a.x;
+        y = a.y;
+        z = a.z;
+    }
 
     public function setAdd(a:Vector3, b:Vector3):void
     {
@@ -126,7 +126,7 @@ public class Vector3
 
     public function setNormalize(a:Vector3):void
     {
-        setScale(a, 1 / a.magnitude());
+        setScale(a, a.magInverse());
     }
 
     public function setCross(v:Vector3, w:Vector3):void
@@ -156,6 +156,11 @@ public class Vector3
         return x * x + y * y + z * z;
     }
 
+    public function magInverse():Number
+    {
+        return 1 / Math.sqrt(x * x + y * y + z * z);
+    }
+
     public function dot(w:Vector3):Number
     {
         return x * w.x + y * w.y + z * w.z;
@@ -174,11 +179,52 @@ public class Vector3
         return isFinite(x) && isFinite(y) && isFinite(z);
     }
 
-    public function isEpsilon(e:Number):Boolean
+    public function isNearZero(epsilon:Number):Boolean
     {
-        return (x < e) && (x > -e) &&
-               (y < e) && (y > -e) &&
-               (z < e) && (z > -e);
+        return x < epsilon && x > -epsilon &&
+               y < epsilon && y > -epsilon &&
+               z < epsilon && z > -epsilon;
+    }
+
+    public static function isEqual(a:Vector3, b:Vector3):Boolean
+    {
+        if (!a && !b)
+        {
+            return true;
+        }
+        else if (!a || !b)
+        {
+            return false;
+        }
+        else
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z;
+        }
+    }
+
+    public static function isClose(a:Vector3, b:Vector3, epsilon:Number):Boolean
+    {
+        var dx:Number;
+        var dy:Number;
+        var dz:Number;
+
+        if (!a && !b)
+        {
+            return true;
+        }
+        else if (!a || !b)
+        {
+            return false;
+        }
+        else
+        {
+            dx = a.x - b.x;
+            dy = a.y - b.y;
+            dz = a.z - b.z;
+            return dx < epsilon && dx > -epsilon &&
+                   dy < epsilon && dy > -epsilon &&
+                   dz < epsilon && dz > -epsilon;
+        }
     }
 }
 }
