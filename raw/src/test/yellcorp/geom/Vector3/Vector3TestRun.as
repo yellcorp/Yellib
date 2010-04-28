@@ -1,12 +1,12 @@
-package test.yellcorp.geom.Vector2
+package test.yellcorp.geom.Vector3
 {
 import asunit.framework.TestSuite;
 import asunit.textui.TestRunner;
 
 
-public class Vector2TestRun extends TestRunner
+public class Vector3TestRun extends TestRunner
 {
-    public function Vector2TestRun()
+    public function Vector3TestRun()
     {
         super();
         var s:TestSuite = new TestSuite();

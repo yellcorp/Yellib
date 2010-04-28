@@ -1,9 +1,9 @@
-package test.yellcorp.geom.Vector2
+package test.yellcorp.geom.Vector3
 {
-import org.yellcorp.geom.Vector2;
+import org.yellcorp.geom.Vector3;
 
 
-public class TestScalar extends BaseVector2TestCase
+public class TestScalar extends BaseVector3TestCase
 {
     public function TestScalar(testMethod:String = null)
     {

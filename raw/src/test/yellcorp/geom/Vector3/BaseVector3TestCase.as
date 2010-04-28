@@ -1,15 +1,15 @@
-package test.yellcorp.geom.Vector2
+package test.yellcorp.geom.Vector3
 {
 import asunit.framework.TestCase;
 
-import org.yellcorp.geom.Vector2;
+import org.yellcorp.geom.Vector3;
 
 
-public class BaseVector2TestCase extends TestCase
+public class BaseVector3TestCase extends TestCase
 {
     public static const TEST_FLOAT_TOLERANCE:Number = 1e-5;
 
-    public function BaseVector2TestCase(testMethod:String = null)
+    public function BaseVector3TestCase(testMethod:String = null)
     {
         super(testMethod);
     }

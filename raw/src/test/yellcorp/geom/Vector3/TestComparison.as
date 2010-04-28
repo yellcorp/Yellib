@@ -1,9 +1,9 @@
-package test.yellcorp.geom.Vector2
+package test.yellcorp.geom.Vector3
 {
-import org.yellcorp.geom.Vector2;
+import org.yellcorp.geom.Vector3;
 
 
-public class TestComparison extends BaseVector2TestCase
+public class TestComparison extends BaseVector3TestCase
 {
     private static const TEST_EPSILON:Number = 1e-3;
 
