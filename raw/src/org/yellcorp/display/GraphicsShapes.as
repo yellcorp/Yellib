@@ -193,34 +193,27 @@ public class GraphicsShapes
               headHalfWidthFactor:Number = Number.NaN,
               closeHead:Boolean = false):void
     {
-        var headLengthX:Number;
-        var headLengthY:Number;
-        var halfHeadWidthX:Number;
-        var halfHeadWidthY:Number;
-
         if (isNaN(headHalfWidthFactor)) headHalfWidthFactor = headLengthFactor * 0.5;
 
-        headLengthX = (toX - fromX) * headLengthFactor;
-        headLengthY = (toY - fromY) * headLengthFactor;
-
-        halfHeadWidthX = (toY - fromY) * headHalfWidthFactor;
-        halfHeadWidthY = (fromX - toX) * headHalfWidthFactor;
-
         target.moveTo(fromX, fromY);
-        target.lineTo(toX, toX);
-
-        target.moveTo(toX - headLengthX + halfHeadWidthX,
-                      toY - headLengthY + halfHeadWidthY);
-
         target.lineTo(toX, toY);
 
-        target.lineTo(toX - headLengthX - halfHeadWidthX,
-                      toY - headLengthY - halfHeadWidthY);
+        var dx:Number = toX - fromX;
+        var dy:Number = toY - fromY;
+
+        var headCenterX:Number = fromX + headLengthFactor * dx;
+        var headCenterY:Number = fromY + headLengthFactor * dy;
+
+        var headdx:Number = -dy * headHalfWidthFactor;
+        var headdy:Number = dx * headHalfWidthFactor;
+
+        target.moveTo(headCenterX + headdx, headCenterY + headdy);
+        target.lineTo(toX, toY);
+        target.lineTo(headCenterX - headdx, headCenterY - headdy);
 
         if (closeHead)
         {
-            target.lineTo(toX - headLengthX + halfHeadWidthX,
-                          toY - headLengthY + halfHeadWidthY);
+            target.lineTo(headCenterX + headdx, headCenterY + headdy);
         }
     }
 }
