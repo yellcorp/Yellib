@@ -163,11 +163,10 @@ public class Vector2
         var dx:Number;
         var dy:Number;
 
-        if (!a && !b)
-        {
-            return true;
-        }
-        else if (!a || !b)
+        // different semantics to isEqual: an absence of both
+        // vectors means equality, but is a null vector 'close' to
+        // another null vector? i dunno. i think no.
+        if (!a || !b)
         {
             return false;
         }
