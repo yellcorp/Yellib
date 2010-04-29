@@ -83,6 +83,15 @@ public class MapUtil
         }
     }
 
+    public static function mergeSubset(source:*, target:*, keyList:Array):void
+    {
+        var key:*;
+        for each (key in keyList)
+        {
+            target[key] = source[key];
+        }
+    }
+
     public static function count(map:*):uint
     {
         var key:*;
