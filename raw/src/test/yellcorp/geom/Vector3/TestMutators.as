@@ -12,59 +12,73 @@ public class TestMutators extends BaseVector3TestCase
 
     public function testAdd():void
     {
-        var u:Vector2 = new Vector2(1, 2);
-        var v:Vector2 = u.clone();
-        var w:Vector2 = new Vector2(-3, -8);
+        var u:Vector3 = new Vector3(1, 2, 3);
+        var v:Vector3 = u.clone();
+        var w:Vector3 = new Vector3(-3, -8, -1);
         u.add(w);
-        assertVectorEqualsXY("add", v.x + w.x, v.y + w.y, u);
+        assertVectorEqualsXYZ("add", v.x + w.x, v.y + w.y, v.z + w.z, u);
     }
 
     public function testSubtract():void
     {
-        var u:Vector2 = new Vector2(-2, 7);
-        var v:Vector2 = u.clone();
-        var w:Vector2 = new Vector2(1, -9);
+        var u:Vector3 = new Vector3(-2, 7, 12);
+        var v:Vector3 = u.clone();
+        var w:Vector3 = new Vector3(1, -9, 9031);
         u.subtract(w);
-        assertVectorEqualsXY("subtract", v.x - w.x, v.y - w.y, u);
+        assertVectorEqualsXYZ("subtract", v.x - w.x, v.y - w.y, v.z - w.z, u);
     }
 
     public function testNegate():void
     {
-        var u:Vector2 = new Vector2(1, -1);
-        var v:Vector2 = u.clone();
+        var u:Vector3 = new Vector3(1, -1, 2);
+        var v:Vector3 = u.clone();
         u.negate();
-        assertVectorEqualsXY("negate", -v.x, -v.y, u);
+        assertVectorEqualsXYZ("negate", -v.x, -v.y, -v.z, u);
     }
 
     public function testScale():void
     {
-        var u:Vector2 = new Vector2(5, -7);
-        var v:Vector2 = u.clone();
+        var u:Vector3 = new Vector3(5, -7, 19);
+        var v:Vector3 = u.clone();
         var s:Number = 2;
         u.scale(s);
-        assertVectorEqualsXY("scale", v.x * s, v.y * s, u);
+        assertVectorEqualsXYZ("scale", v.x * s, v.y * s, v.z* s, u);
+    }
+
+    public function testCross():void
+    {
+        var u:Vector3 = new Vector3(-2, 7, 12);
+        var v:Vector3 = u.clone();
+        var w:Vector3 = new Vector3(1, -9, 9031);
+        u.cross(w);
+        assertVectorEqualsXYZ("cross",
+            v.y * w.z - v.z * w.y,
+            v.z * w.x - v.x * w.z,
+            v.x * w.y - v.y * w.x,
+            u);
     }
 
     public function testNormalizeZero():void
     {
-        var v:Vector2 = new Vector2(0,0);
+        var v:Vector3 = new Vector3(0,0,0);
         v.normalize();
         assertFalse("normalized zero vector is not finite", v.isfinite());
         assertTrue(isNaN(v.x));
         assertTrue(isNaN(v.y));
+        assertTrue(isNaN(v.z));
     }
 
     public function testNormalize():void
     {
         var testVectors:Array = makeCombinations([1, -1, 2, -2, Math.PI, -Math.PI]);
 
-        function testNormalizeSingle(v:Vector2):void
+        function testNormalizeSingle(v:Vector3):void
         {
             v.normalize();
             assertEqualsFloat("normalize", 1, v.magnitude(), TEST_FLOAT_TOLERANCE);
         }
 
-        for each (var v:Vector2 in testVectors)
+        for each (var v:Vector3 in testVectors)
         {
             testNormalizeSingle(v);
         }

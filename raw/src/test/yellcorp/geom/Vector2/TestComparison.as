@@ -46,10 +46,10 @@ public class TestComparison extends BaseVector2TestCase
         var n:Vector2 = new Vector2(Number.NaN, Number.NaN);
 
         assertTrue("same object equal", Vector2.isEqual(a, a));
-        assertTrue("same object close", Vector2.isEqual(a, a));
+        assertTrue("same object close", Vector2.isClose(a, a, TEST_EPSILON));
 
         assertTrue("same value equal", Vector2.isEqual(a, b));
-        assertTrue("same value close", Vector2.isEqual(a, b));
+        assertTrue("same value close", Vector2.isClose(a, b, TEST_EPSILON));
 
         assertFalse("different value not equal", Vector2.isEqual(a, x));
 

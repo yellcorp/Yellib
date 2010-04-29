@@ -12,9 +12,9 @@ public class TestBoolean extends BaseVector3TestCase
 
     public function testZero():void
     {
-        function testSingleIsZero(v:Vector2):void
+        function testSingleIsZero(v:Vector3):void
         {
-            if (v.x === 0 && v.y === 0)
+            if (v.x === 0 && v.y === 0 && v.z === 0)
             {
                 assertTrue(v.toString() + " should be zero", v.isZero());
             }
@@ -30,7 +30,7 @@ public class TestBoolean extends BaseVector3TestCase
               Number.NEGATIVE_INFINITY,
               Number.NaN ]);
 
-        for each (var v:Vector2 in testVectors)
+        for each (var v:Vector3 in testVectors)
         {
             testSingleIsZero(v);
         }
@@ -38,9 +38,9 @@ public class TestBoolean extends BaseVector3TestCase
 
     public function testFinite():void
     {
-        function testSingleIsFinite(v:Vector2):void
+        function testSingleIsFinite(v:Vector3):void
         {
-            if (isFinite(v.x) && isFinite(v.y))
+            if (isFinite(v.x) && isFinite(v.y) && isFinite(v.z))
             {
                 assertTrue(v.toString() + " should be finite", v.isfinite());
             }
@@ -56,7 +56,7 @@ public class TestBoolean extends BaseVector3TestCase
               Number.NEGATIVE_INFINITY,
               Number.NaN ]);
 
-        for each (var v:Vector2 in vectors)
+        for each (var v:Vector3 in vectors)
         {
             testSingleIsFinite(v);
         }
@@ -68,13 +68,13 @@ public class TestBoolean extends BaseVector3TestCase
         var near:Number = epsilon * .5;
         var notNear:Number = epsilon * 2;
 
-        function testSingleIsNearZero(v:Vector2):void
+        function testSingleIsNearZero(v:Vector3):void
         {
             if (!v.isfinite())
             {
                 assertFalse(v.toString() + " should not be near", v.isNearZero(epsilon));
             }
-            else if (Math.abs(v.x) < epsilon && Math.abs(v.y) < epsilon)
+            else if (Math.abs(v.x) < epsilon && Math.abs(v.y) < epsilon && Math.abs(v.z) < epsilon)
             {
                 assertTrue(v.toString() + " should be near", v.isNearZero(epsilon));
             }
@@ -90,7 +90,7 @@ public class TestBoolean extends BaseVector3TestCase
               Number.NEGATIVE_INFINITY,
               Number.NaN ]);
 
-        for each (var v:Vector2 in vectors)
+        for each (var v:Vector3 in vectors)
         {
             testSingleIsNearZero(v);
         }

@@ -208,11 +208,7 @@ public class Vector3
         var dy:Number;
         var dz:Number;
 
-        if (!a && !b)
-        {
-            return true;
-        }
-        else if (!a || !b)
+        if (!a || !b)
         {
             return false;
         }

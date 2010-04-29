@@ -12,62 +12,78 @@ public class TestSetters extends BaseVector3TestCase
 
     public function testAdd():void
     {
-        var t:Vector2 = new Vector2(1, -1);
+        var t:Vector3 = new Vector3(1, -1, 0);
 
-        var u:Vector2 = new Vector2(12, -4);
-        var v:Vector2 = new Vector2(-9, 3);
+        var u:Vector3 = new Vector3(12, -4, 10);
+        var v:Vector3 = new Vector3(-9, 3, 17);
 
         t.setAdd(u, v);
 
-        assertVectorEqualsXY("Set add", 3, -1, t);
+        assertVectorEqualsXYZ("Set add", 3, -1, 27, t);
     }
 
     public function testSubtract():void
     {
-        var t:Vector2 = new Vector2(1, -1);
+        var t:Vector3 = new Vector3(1, -1, 0);
 
-        var u:Vector2 = new Vector2(12, -4);
-        var v:Vector2 = new Vector2(-9, 3);
+        var u:Vector3 = new Vector3(12, -4, 10);
+        var v:Vector3 = new Vector3(-9, 3, 17);
 
         t.setSubtract(u, v);
 
-        assertVectorEqualsXY("Set subtract", 21, -7, t);
+        assertVectorEqualsXYZ("Set subtract", 21, -7, -7, t);
+    }
+
+    public function testCross():void
+    {
+        var t:Vector3 = new Vector3(1, -1, 0);
+
+        var u:Vector3 = new Vector3(12, -4, 10);
+        var v:Vector3 = new Vector3(-9, 3, 17);
+
+        t.setCross(u, v);
+
+        assertVectorEqualsXYZ("Set cross",
+            u.y * v.z - u.z * v.y,
+            u.z * v.x - u.x * v.z,
+            u.x * v.y - u.y * v.x,
+            t);
     }
 
     public function testNegative():void
     {
-        var t:Vector2 = new Vector2(1, -1);
+        var t:Vector3 = new Vector3(1, -1, 0);
 
-        var u:Vector2 = new Vector2(12, -4);
+        var u:Vector3 = new Vector3(12, -4, 10);
 
         t.setNegative(u);
 
-        assertVectorEqualsXY("Set negative", -12, 4, t);
+        assertVectorEqualsXYZ("Set negative", -12, 4, -10, t);
     }
 
     public function testScale():void
     {
-        var t:Vector2 = new Vector2(1, -1);
+        var t:Vector3 = new Vector3(1, -1, 0);
 
-        var u:Vector2 = new Vector2(12, -4);
+        var u:Vector3 = new Vector3(12, -4, 10);
 
         t.setScale(u, 4.5);
 
-        assertVectorEqualsXY("Set scale", 54, -18, t);
+        assertVectorEqualsXYZ("Set scale", 54, -18, 45, t);
     }
 
     public function testNormalize():void
     {
         var testVectors:Array = makeCombinations([1, -1, 2, -2, Math.PI, -Math.PI]);
-        var target:Vector2 = new Vector2();
+        var target:Vector3 = new Vector3();
 
-        function testNormalizeSingle(v:Vector2):void
+        function testNormalizeSingle(v:Vector3):void
         {
             target.setNormalize(v);
             assertEqualsFloat("normalize", 1, target.magnitude(), TEST_FLOAT_TOLERANCE);
         }
 
-        for each (var v:Vector2 in testVectors)
+        for each (var v:Vector3 in testVectors)
         {
             testNormalizeSingle(v);
         }
