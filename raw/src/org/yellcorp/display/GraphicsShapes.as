@@ -70,7 +70,7 @@ public class GraphicsShapes
         target.moveTo(centreX - halfWidth, centreY);
         target.lineTo(centreX + halfWidth, centreY);
         target.moveTo(centreX, centreY - halfHeight);
-        target.lineTo(centreX, centreY - halfHeight);
+        target.lineTo(centreX, centreY + halfHeight);
     }
 
     public static function
