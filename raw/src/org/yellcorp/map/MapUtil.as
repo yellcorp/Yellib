@@ -112,7 +112,7 @@ public class MapUtil
 
     public static function indexKeys(map:*, indexingFunc:Function, target:* = null):*
     {
-        return index(map, indexingFunc, true, target);
+        return index(map, indexingFunc, false, target);
     }
 
     public static function indexValues(map:*, indexingFunc:Function, target:* = null):*
