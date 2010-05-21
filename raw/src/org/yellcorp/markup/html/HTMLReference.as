@@ -39,12 +39,27 @@ public class HTMLReference
 
     public function isHTMLTag(tagName:String):Boolean
     {
-        return allTags.contains(tagName.toLowerCase());
+        return inTagSet(allTags, tagName);
     }
 
-    public function isEmptyTag(tag:String):Boolean
+    public function isEmptyTag(tagName:String):Boolean
     {
-        return empty.contains(tag.toLowerCase());
+        return inTagSet(empty, tagName);
+    }
+
+    public function isBlockTag(tagName:String):Boolean
+    {
+        return inTagSet(block, tagName);
+    }
+
+    public function isInlineTag(tagName:String):Boolean
+    {
+        return inTagSet(inline, tagName);
+    }
+
+    public function isAttrOptionalTag(tagName:String):Boolean
+    {
+        return inTagSet(attrOptionalTags, tagName);
     }
 
     public function isTagClosedBy(openTag:String, nextTag:String):Boolean
@@ -55,11 +70,6 @@ public class HTMLReference
             return false;
         }
         return matcher.match(nextTag.toLowerCase());
-    }
-
-    public function isAttrOptionalTag(tagName:String):Boolean
-    {
-        return attrOptionalTags.contains(tagName.toLowerCase());
     }
 
     public function isTextEntity(query:String):Boolean
@@ -154,8 +164,7 @@ public class HTMLReference
         block.addIterable(heading);
         block.addIterable(list);
 
-        inline = fontstyle.clone();
-        inline.addIterable(phrase);
+        inline = Set.union(fontstyle, phrase);
         inline.addIterable(special);
         inline.addIterable(formctrl);
 
@@ -200,6 +209,11 @@ public class HTMLReference
         attrOptionalTags.addIterable(list);
         attrOptionalTags.addIterable(fontstyle);
         attrOptionalTags.addIterable(phrase);
+    }
+
+    private static function inTagSet(tagSet:Set, tagName:String):Boolean
+    {
+        return tagSet.contains(tagName.toLowerCase());
     }
 
 
