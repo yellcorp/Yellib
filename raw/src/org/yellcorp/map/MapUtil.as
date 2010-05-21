@@ -4,9 +4,8 @@ public class MapUtil
 {
     public static function setFromKeysValues(keys:Array, values:Array, target:* = null):*
     {
-        var i:int;
         if (target === null) target = { };
-        for (i = 0;i < keys.length; i++)
+        for (var i:int = 0;i < keys.length; i++)
         {
             target[keys[i]] = values[i];
         }
@@ -15,9 +14,8 @@ public class MapUtil
 
     public static function setFromInterleaved(keysValues:Array, target:* = null):*
     {
-        var i:int;
         if (target === null) target = { };
-        for (i = 0;i < keysValues.length; i += 2)
+        for (var i:int = 0;i < keysValues.length; i += 2)
         {
             target[keysValues[i]] = keysValues[i + 1];
         }
@@ -26,9 +24,8 @@ public class MapUtil
 
     public static function setFromMap(map:Object, target:* = null):*
     {
-        var key:*;
         if (target === null) target = { };
-        for (key in map)
+        for (var key:* in map)
         {
             target[key] = map[key];
         }
@@ -37,10 +34,9 @@ public class MapUtil
 
     public static function getKeys(map:*):Array
     {
-        var key:*;
         var result:Array = [ ];
 
-        for (key in map)
+        for (var key:* in map)
         {
             result.push(key);
         }
@@ -50,10 +46,9 @@ public class MapUtil
 
     public static function getValues(map:*):Array
     {
-        var key:*;
         var result:Array = [ ];
 
-        for (key in map)
+        for (var key:* in map)
         {
             result.push(map[key]);
         }
@@ -63,10 +58,9 @@ public class MapUtil
 
     public static function mapToArray(map:*):Array
     {
-        var key:*;
         var result:Array = [ ];
 
-        for (key in map)
+        for (var key:* in map)
         {
             result.push([key, map[key]]);
         }
@@ -76,8 +70,7 @@ public class MapUtil
 
     public static function merge(source:*, target:*):void
     {
-        var key:*;
-        for (key in source)
+        for (var key:* in source)
         {
             target[key] = source[key];
         }
@@ -85,8 +78,7 @@ public class MapUtil
 
     public static function mergeSubset(source:*, target:*, keyList:Array):void
     {
-        var key:*;
-        for each (key in keyList)
+        for each (var key:* in keyList)
         {
             target[key] = source[key];
         }
@@ -96,17 +88,13 @@ public class MapUtil
     {
         var key:*;
         var n:uint = 0;
-
         for (key in map) n++;
-
         return n;
     }
 
     public static function isEmpty(map:*):Boolean
     {
-        var key:*;
-        for (key in map) return false;
-
+        for (var key:* in map) return false;
         return true;
     }
 
