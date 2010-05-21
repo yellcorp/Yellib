@@ -175,6 +175,7 @@ public class HTMLCleanLexer
         var tagName:String = getName().toLowerCase();
         emit(tagName);
         currentToken.name = tagName;
+        pushToken(HTMLToken.TAG_OPEN_START);
         state = TAG_OPEN_TRAILER;
 
         // could be a tag missing a closing > without attributes.
@@ -222,7 +223,7 @@ public class HTMLCleanLexer
             if (getch() == ">")
             {
                 emit("/>");
-                pushToken(HTMLToken.TAG_EMPTY);
+                pushToken(HTMLToken.TAG_OPEN_END_CLOSE);
                 state = TEXT;
             }
             else
@@ -233,7 +234,7 @@ public class HTMLCleanLexer
         else if (char == ">")
         {
             emit(char);
-            pushToken(HTMLToken.TAG_OPEN);
+            pushToken(HTMLToken.TAG_OPEN_END);
             state = TEXT;
         }
         else
@@ -246,23 +247,26 @@ public class HTMLCleanLexer
     {
         skipWhiteSpace();
         var char:String = getch();
+        var attrName:String;
 
         if (isNameStartChar(char))
         {
             putback();
-            emit(getName().toLowerCase());
+            attrName = getName().toLowerCase();
+            currentToken.name = attrName;
+            emit(attrName);
             state = TAG_ATTR_EQUALS;
         }
         else if (char == ">")
         {
             emit(char);
-            pushToken(HTMLToken.TAG_OPEN);
+            pushToken(HTMLToken.TAG_OPEN_END);
             state = TEXT;
         }
         else if (char == "")
         {
             emit(">");
-            pushToken(HTMLToken.TAG_OPEN);
+            pushToken(HTMLToken.TAG_OPEN_END);
             state = TEXT;
         }
         else if (char == "/")
@@ -270,7 +274,7 @@ public class HTMLCleanLexer
             if (getch() == ">")
             {
                 emit("/>");
-                pushToken(HTMLToken.TAG_EMPTY);
+                pushToken(HTMLToken.TAG_OPEN_END_CLOSE);
                 state = TEXT;
             }
             else
@@ -291,6 +295,8 @@ public class HTMLCleanLexer
         if (char == "=")
         {
             emit(char);
+            skipWhiteSpace();
+            currentToken.value = "";
             char = getch();
             if (char == '"' || char == "'")
             {
@@ -301,7 +307,6 @@ public class HTMLCleanLexer
             else
             {
                 putback();
-                skipWhiteSpace();
                 emit('"');
                 quote = '"';
                 state = TAG_ATTR_BARE_VALUE;
@@ -311,14 +316,16 @@ public class HTMLCleanLexer
         {
             putback();
             emit('="true"');
+            currentToken.value = "true";
+            pushToken(HTMLToken.TAG_ATTR);
             state = TAG_ATTR_NAME;
         }
     }
 
     private function lexTagAttrQuotedValue():void
     {
-        skipWhiteSpace();
         var char:String = getch();
+        var entity:String;
 
         if (char == quote)
         {
@@ -330,11 +337,13 @@ public class HTMLCleanLexer
             pushState(getEntityRepr(char));
 
             emit(char);
+            pushToken(HTMLToken.TAG_ATTR);
             state = TAG_ATTR_NAME;
         }
         else if (char == "")
         {
             emit(quote);
+            pushToken(HTMLToken.TAG_ATTR);
             state = TAG_ATTR_NAME;
         }
         else if (char == ">")
@@ -343,6 +352,7 @@ public class HTMLCleanLexer
             pushState(quote + ">");
 
             emit(getEntityRepr(char));
+            currentToken.value += getEntityRepr(char);
         }
         else if (char == "&")
         {
@@ -350,39 +360,50 @@ public class HTMLCleanLexer
             pushState(getEntityRepr(char));
 
             putback();
-            emit(getEntity());
+            entity = getEntity();
+            emit(entity);
+            currentToken.value += entity;
         }
         else if (getEntityRepr(char))
         {
             emit(getEntityRepr(char));
+            currentToken.value += getEntityRepr(char);
         }
         else
         {
             emit(char);
+            currentToken.value += char;
         }
     }
 
     private function lexTagAttrBareValue():void
     {
         var char:String = getch();
+        var entity:String;
 
         if (isSpace(char))
         {
             putback();
             emit(quote);
+            pushToken(HTMLToken.TAG_ATTR);
             state = TAG_ATTR_NAME;
         }
         else if (char == "&")
         {
             pushState(getEntityRepr(char));
             putback();
-            emit(getEntity());
+            entity = getEntity();
+            emit(entity);
+            currentToken.value += entity;
         }
         else if (char == ">")
         {
             pushState(getEntityRepr(char));
-            emit(quote + char);
-            pushToken(HTMLToken.TAG_OPEN);
+            emit(quote);
+            pushToken(HTMLToken.TAG_ATTR);
+            emit(char);
+            currentToken.value += char;
+            pushToken(HTMLToken.TAG_OPEN_END);
             state = TEXT;
         }
         else if (char == "/")
@@ -390,23 +411,27 @@ public class HTMLCleanLexer
             if (getch() == ">")
             {
                 pushState("/&gt;");
+                pushToken(HTMLToken.TAG_ATTR);
                 emit(quote + "/>");
-                pushToken(HTMLToken.TAG_EMPTY);
+                pushToken(HTMLToken.TAG_OPEN_END_CLOSE);
                 state = TEXT;
             }
             else
             {
                 putback();
                 emit(char);
+                currentToken.value += char;
             }
         }
         else if (getEntityRepr(char))
         {
             emit(getEntityRepr(char));
+            currentToken.value += getEntityRepr(char);
         }
         else
         {
             emit(char);
+            currentToken.value += char;
         }
     }
     private function lexTagExcl():void
@@ -638,7 +663,7 @@ public class HTMLCleanLexer
 
     private function emit(text:String):void
     {
-        currentToken.value += text;
+        currentToken.text += text;
     }
 
     private function eat(literal:String, matchCase:Boolean = true):Boolean
@@ -692,7 +717,7 @@ public class HTMLCleanLexer
 
     private function pushToken(type:String):void
     {
-        if (!(type == HTMLToken.TEXT && currentToken.value.length == 0))
+        if (!(type == HTMLToken.TEXT && currentToken.text.length == 0))
         {
             currentToken.type = type;
             tokenStream.push(currentToken);

@@ -2,6 +2,7 @@ package org.yellcorp.markup.htmlclean
 {
 import org.yellcorp.markup.html.HTMLReference;
 import org.yellcorp.markup.html.HTMLToken;
+import org.yellcorp.sequence.Set;
 
 
 public class HTMLCleanParser
@@ -10,14 +11,17 @@ public class HTMLCleanParser
     private var tokenStream:Array;
 
     private var dispatch:Object;
+    private var seenAttrs:Set;
 
     public function HTMLCleanParser()
     {
         dispatch = { };
         dispatch[HTMLToken.TEXT] = parseText;
-        dispatch[HTMLToken.TAG_OPEN] = parseTagOpen;
+        dispatch[HTMLToken.TAG_OPEN_START] = parseTagOpenStart;
+        dispatch[HTMLToken.TAG_ATTR] = parseTagAttr;
+        dispatch[HTMLToken.TAG_OPEN_END] = parseTagOpenEnd;
+        dispatch[HTMLToken.TAG_OPEN_END_CLOSE] = parseTagOpenEndClose;
         dispatch[HTMLToken.TAG_CLOSE] = parseTagClose;
-        dispatch[HTMLToken.TAG_EMPTY] = parseTagEmpty;
         dispatch[HTMLToken.CDATA] = parseCData;
         dispatch[HTMLToken.COMMENT] = parseComment;
         dispatch[HTMLToken.DECLARATION] = parseDeclaration;
@@ -29,7 +33,7 @@ public class HTMLCleanParser
         return parseToStream(lexTokenStream).map(
             function (token:HTMLToken, ... ignored):String
             {
-                return token.value;
+                return token.text;
             }
         ).join("");
     }
@@ -67,20 +71,49 @@ public class HTMLCleanParser
         emit(token);
     }
 
-    private function parseTagOpen(token:HTMLToken):void
+    private function parseTagOpenStart(token:HTMLToken):void
     {
         closeTopTagIfEmpty();
         var top:HTMLToken = getTopTag();
         if (top && HTMLReference.instance.isTagClosedBy(top.name, token.name))
         {
             closeTopTag();
-            parseTagOpen(token);
+            parseTagOpenStart(token);
         }
         else
         {
             pushTag(token);
+            seenAttrs = new Set();
             emit(token);
         }
+    }
+
+    private function parseTagAttr(token:HTMLToken):void
+    {
+        var spacer:HTMLToken;
+        if (!seenAttrs.contains(token.name))
+        {
+            seenAttrs.add(token.name);
+            emit(token);
+        }
+        else
+        {
+            spacer = new HTMLToken();
+            spacer.type = HTMLToken.TAG_ATTR;
+            spacer.text = " ";
+            emit(spacer);
+        }
+    }
+
+    private function parseTagOpenEnd(token:HTMLToken):void
+    {
+        emit(token);
+    }
+
+    private function parseTagOpenEndClose(token:HTMLToken):void
+    {
+        popTag();
+        emit(token);
     }
 
     private function parseTagClose(token:HTMLToken):void
@@ -119,12 +152,6 @@ public class HTMLCleanParser
         return false;
     }
 
-    private function parseTagEmpty(token:HTMLToken):void
-    {
-        closeTopTagIfEmpty();
-        emit(token);
-    }
-
     private function parseCData(token:HTMLToken):void
     {
         closeTopTagIfEmpty();
@@ -161,7 +188,7 @@ public class HTMLCleanParser
 
         close.type = HTMLToken.TAG_CLOSE;
         close.name = tag.name;
-        close.value = "</" + close.name + ">";
+        close.text = "</" + close.name + ">";
 
         emit(close);
         return close;
