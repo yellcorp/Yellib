@@ -26,7 +26,7 @@ public class HTMLReference
     private var   special:Set;
     private var   formctrl:Set;
 
-    private var closedBy:Object;
+    private var allow:Object;
 
     public function HTMLReference(key:HTMLReference_ctor)
     {
@@ -62,14 +62,19 @@ public class HTMLReference
         return inTagSet(attrOptionalTags, tagName);
     }
 
-    public function isTagClosedBy(openTag:String, nextTag:String):Boolean
+    public function isTagAllowedInTag(parentTag:String, childTag:String):Boolean
     {
-        var matcher:Matcher = Matcher(closedBy[openTag.toLowerCase()]);
-        if (!matcher)
+        var allowedTags:Set = allow[parentTag];
+
+        if (allowedTags)
         {
-            return false;
+            return allowedTags.contains(childTag);
         }
-        return matcher.match(nextTag.toLowerCase());
+        else
+        {
+            // no record of it, assume it's allowed
+            return true;
+        }
     }
 
     public function isTextEntity(query:String):Boolean
@@ -116,26 +121,23 @@ public class HTMLReference
     // http://www.w3.org/TR/REC-html40/sgml/loosedtd.html
     private function buildCloseTable():void
     {
-        var anyInline:Matcher = new InSet(inline);
-        var anyFlow:Matcher = new InSet(flow);
-        var all:Matcher = new All();
-        var allButTR:Matcher = new Not(new Equals("tr"));
-        var allButCol:Matcher = new Not(new Equals("col"));
-        var allButTableCells:Matcher = new Not(new InSet(tableCells));
+        var onlyTR:Set = new Set(["tr"]);
+        var onlyCol:Set = new Set(["col"]);
+        var none:Set = new Set();
 
-        closedBy = {
-            p:  anyInline,
-            dt: anyInline,
-            dd: anyFlow,
-            li: anyFlow,
-            option: all,
-            thead: allButTR,
-            tfoot: allButTR,
-            tbody: allButTR,
-            colgroup: allButCol,
-            tr: allButTableCells,
-            th: anyFlow,
-            tf: anyFlow
+        allow = {
+            p: inline,
+            dt: inline,
+            dd: flow,
+            li: flow,
+            option: none,
+            thead: onlyTR,
+            tfoot: onlyTR,
+            tbody: onlyTR,
+            colgroup: onlyCol,
+            tr: tableCells,
+            th: flow,
+            td: flow
         };
     }
 
@@ -146,10 +148,11 @@ public class HTMLReference
         list = new Set(["ul", "ol", "dir", "menu"]);
 
         fontstyle = new Set(["tt", "i", "b", "u", "s", "strike", "big",
-            "small"]);
+            "small", /* nonstandard */ "blink"]);
 
         phrase = new Set(["em", "strong", "dfn", "code", "samp", "kbd",
-            "var", "cite", "abbr", "acronym"]);
+            "var", "cite", "abbr", "acronym",
+            /* nonstandard */ "rt", "ruby"]);
 
         special = new Set(["a", "img", "applet", "object", "font",
             "basefont", "br", "script", "map", "q", "sub", "sup", "span",
@@ -160,7 +163,8 @@ public class HTMLReference
 
         block = new Set(["p", "dl", "div", "center", "noscript",
             "noframes", "blockquote", "form", "isindex", "hr", "table",
-            "fieldset", "address", "pre"]);
+            "fieldset", "address", "pre", /* nonstandard */, "ilayer",
+            "layer", "marquee", "noembed"]);
         block.addIterable(heading);
         block.addIterable(list);
 
@@ -173,7 +177,8 @@ public class HTMLReference
         tableCells = new Set(["th", "td"]);
 
         empty = new Set(["basefont", "br", "area", "link", "img", "param",
-            "hr", "input", "col", "frame", "isindex", "base", "meta"]);
+            "hr", "input", "col", "frame", "isindex", "base", "meta",
+            /* nonstandard */ "bgsound", "embed", "spacer", "wbr"]);
 
         allTags = new Set(['sub', 'sup', 'span', 'bdo', 'basefont', 'font',
         'br', 'body', 'address', 'div', 'center', 'a', 'map', 'area',
@@ -229,56 +234,4 @@ public class HTMLReference
 }
 }
 
-import org.yellcorp.sequence.Set;
-
-
 internal class HTMLReference_ctor { }
-
-internal interface Matcher
-{
-    function match(tag:String):Boolean
-}
-internal class All implements Matcher
-{
-    public function match(tag:String):Boolean
-    {
-        return true;
-    }
-}
-internal class InSet implements Matcher
-{
-    private var matchSet:Set;
-    public function InSet(matchSet:Set)
-    {
-        this.matchSet = matchSet;
-    }
-    public function match(tag:String):Boolean
-    {
-        return matchSet.contains(tag);
-    }
-}
-internal class Equals implements Matcher
-{
-    private var value:String;
-    public function Equals(value:String)
-    {
-        this.value = value;
-    }
-    public function match(tag:String):Boolean
-    {
-        return tag == value;
-    }
-}
-internal class Not implements Matcher
-{
-    private var matcher:Matcher;
-    public function Not(matcher:Matcher)
-    {
-        this.matcher = matcher;
-    }
-
-    public function match(tag:String):Boolean
-    {
-        return !matcher.match(tag);
-    }
-}

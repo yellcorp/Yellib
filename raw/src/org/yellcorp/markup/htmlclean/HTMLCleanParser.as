@@ -75,7 +75,7 @@ public class HTMLCleanParser
     {
         closeTopTagIfEmpty();
         var top:HTMLToken = getTopTag();
-        if (top && HTMLReference.instance.isTagClosedBy(top.name, token.name))
+        if (top && !HTMLReference.instance.isTagAllowedInTag(top.name, token.name))
         {
             closeTopTag();
             parseTagOpenStart(token);
