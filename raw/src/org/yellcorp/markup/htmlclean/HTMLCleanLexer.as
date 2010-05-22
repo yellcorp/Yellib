@@ -9,21 +9,21 @@ import org.yellcorp.markup.htmlclean.errors.HTMLCleanSyntaxError;
 public class HTMLCleanLexer
 {
     private static const TEXT:int = 0;
-    private static const TAG_START:int = 100;
-    private static const TAG_OPEN:int = 200;
-    private static const TAG_EXCL:int = 250;
-    private static const TAG_OPEN_TRAILER:int = 300;
-    private static const TAG_ATTR_NAME:int = 400;
-    private static const TAG_ATTR_EQUALS:int = 500;
-    private static const TAG_ATTR_QUOTED_VALUE:int = 600;
-    private static const TAG_ATTR_BARE_VALUE:int = 700;
-    private static const TAG_CLOSE:int = 800;
-    private static const TAG_CLOSE_TRAILER:int = 900;
-    private static const CDATA_CONTENT:int = 1100;  // <![CDATA[
-    private static const COMMENT:int = 1200;        // <!--
-    private static const COMMENT_CLOSE:int = 1250;  // -->
-    private static const DECLARATION:int = 1300;    // <!
-    private static const PROC_INSTR:int = 1400;     // <?
+    private static const TAG_START:int = 1;
+    private static const TAG_OPEN:int = 2;
+    private static const TAG_EXCL:int = 3;
+    private static const TAG_OPEN_TRAILER:int = 4;
+    private static const TAG_ATTR_NAME:int = 5;
+    private static const TAG_ATTR_EQUALS:int = 6;
+    private static const TAG_ATTR_QUOTED_VALUE:int = 7;
+    private static const TAG_ATTR_BARE_VALUE:int = 8;
+    private static const TAG_CLOSE:int = 9;
+    private static const TAG_CLOSE_TRAILER:int = 10;
+    private static const CDATA_CONTENT:int = 11;  // <![CDATA[
+    private static const COMMENT:int = 12;          // <!--
+    private static const COMMENT_CLOSE:int = 13;  // -->
+    private static const DECLARATION:int = 14;    // <!
+    private static const PROC_INSTR:int = 15;     // <?
 
     private static const RETRY_COMMENT_CLOSE:String = "RETRY_COMMENT_CLOSE";
     private static const RETRY_PI_CLOSE:String = "RETRY_PI_CLOSE";
@@ -637,13 +637,15 @@ public class HTMLCleanLexer
             }
             else
             {
+                // if the entity parsed so far is valid, then allow it to
+                // be terminated with something other than a ;
                 if (HTMLReference.instance.isTextEntity(ent.substr(1).toLowerCase()) ||
                     HTMLReference.instance.isNumericEntity(ent))
                 {
                     ent += ";";
                     putback();
                 }
-                else
+                else  // otherwise the opening & may have been meant as literal
                 {
                     fail("Illegal character in entity");
                 }
@@ -717,6 +719,7 @@ public class HTMLCleanLexer
 
     private function pushToken(type:String):void
     {
+        // don't make empty text tokens
         if (!(type == HTMLToken.TEXT && currentToken.text.length == 0))
         {
             currentToken.type = type;
@@ -768,8 +771,8 @@ public class HTMLCleanLexer
     {
         return isNameStartChar(char) ||
                (char >= "0" && char <= "9") ||
-               char == "-" ||
-               char == ".";
+               char == "-" || char == "." ||
+               char == ":";    // allow xml namespaces
     }
 
     private static function isNameStartChar(char:String):Boolean
