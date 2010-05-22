@@ -10,10 +10,10 @@ public class XMLTraverser
         dispatch[XMLNodeKind.ELEMENT] = processElement;
         dispatch[XMLNodeKind.TEXT] = processText;
         dispatch[XMLNodeKind.COMMENT] = processComment;
-        dispatch[XMLNodeKind.PROCESSING_INSTRUCTION] = processProcInstr;
+        dispatch[XMLNodeKind.PROCESSING_INSTRUCTION] = processPI;
     }
 
-    public function traverse(source:XML):void
+    protected function traverse(source:XML):void
     {
         var options:XMLOptionState = new XMLOptionState();
         XML.ignoreComments = false;
@@ -26,11 +26,11 @@ public class XMLTraverser
         options.restore();
     }
 
-    protected function openElement(node:XML):void
+    protected function processOpenElement(node:XML):void
     {
     }
 
-    protected function closeElement(node:XML):void
+    protected function processCloseElement(node:XML):void
     {
     }
 
@@ -42,7 +42,7 @@ public class XMLTraverser
     {
     }
 
-    protected function processProcInstr(node:XML):void
+    protected function processPI(node:XML):void
     {
     }
 
@@ -54,12 +54,12 @@ public class XMLTraverser
     private function processElement(node:XML):void
     {
         var child:XML;
-        openElement(node);
+        processOpenElement(node);
         for each (child in node.children())
         {
             process(child);
         }
-        closeElement(node);
+        processCloseElement(node);
     }
 }
 }
