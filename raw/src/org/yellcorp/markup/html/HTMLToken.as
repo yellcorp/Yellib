@@ -16,8 +16,8 @@ public class HTMLToken
     public static const PROC_INSTR:String = "PROC_INSTR";
 
     public var type:String;
-    public var name:String;
-    public var value:String;
+    public var name:String = "";
+    public var value:String = "";
     public var text:String = "";
 
     public function HTMLToken() { }
