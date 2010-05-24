@@ -32,13 +32,13 @@ public class XMLTraverser
                 processElement(node);
                 break;
             case XMLNodeKind.TEXT :
-                if (textHandler) textHandler(node);
+                if (Boolean(textHandler)) textHandler(node);
                 break;
             case XMLNodeKind.COMMENT :
-                if (commentHandler) commentHandler(node);
+                if (Boolean(commentHandler)) commentHandler(node);
                 break;
             case XMLNodeKind.PROCESSING_INSTRUCTION :
-                if (processingInstructionHandler)
+                if (Boolean(processingInstructionHandler))
                     processingInstructionHandler(node);
                 break;
             default :
@@ -48,12 +48,12 @@ public class XMLTraverser
 
     private function processElement(node:XML):void
     {
-        if (openElementHandler) openElementHandler(node);
+        if (Boolean(openElementHandler)) openElementHandler(node);
         for each (var child:XML in node.children())
         {
             process(child);
         }
-        if (closeElementHandler) closeElementHandler(node);
+        if (Boolean(closeElementHandler)) closeElementHandler(node);
     }
 }
 }
