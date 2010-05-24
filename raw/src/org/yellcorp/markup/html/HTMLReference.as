@@ -148,11 +148,11 @@ public class HTMLReference
         list = new Set(["ul", "ol", "dir", "menu"]);
 
         fontstyle = new Set(["tt", "i", "b", "u", "s", "strike", "big",
-            "small", /* nonstandard */ "blink"]);
+            "small" /*nonstandard*/, "blink"]);
 
         phrase = new Set(["em", "strong", "dfn", "code", "samp", "kbd",
-            "var", "cite", "abbr", "acronym",
-            /* nonstandard */ "rt", "ruby"]);
+            "var", "cite", "abbr", "acronym"
+            /*nonstandard*/, "rt", "ruby"]);
 
         special = new Set(["a", "img", "applet", "object", "font",
             "basefont", "br", "script", "map", "q", "sub", "sup", "span",
@@ -163,7 +163,7 @@ public class HTMLReference
 
         block = new Set(["p", "dl", "div", "center", "noscript",
             "noframes", "blockquote", "form", "isindex", "hr", "table",
-            "fieldset", "address", "pre", /* nonstandard */, "ilayer",
+            "fieldset", "address", "pre" /*nonstandard*/, "ilayer",
             "layer", "marquee", "noembed"]);
         block.addIterable(heading);
         block.addIterable(list);
@@ -177,8 +177,8 @@ public class HTMLReference
         tableCells = new Set(["th", "td"]);
 
         empty = new Set(["basefont", "br", "area", "link", "img", "param",
-            "hr", "input", "col", "frame", "isindex", "base", "meta",
-            /* nonstandard */ "bgsound", "embed", "spacer", "wbr"]);
+            "hr", "input", "col", "frame", "isindex", "base", "meta"
+            /*nonstandard*/, "bgsound", "embed", "spacer", "wbr"]);
 
         allTags = new Set(['sub', 'sup', 'span', 'bdo', 'basefont', 'font',
         'br', 'body', 'address', 'div', 'center', 'a', 'map', 'area',

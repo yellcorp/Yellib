@@ -86,8 +86,6 @@ public class HTMLCleanLexer
             catch (se:HTMLCleanSyntaxError)
             {
                 _errorHistory.push(se);
-                trace(se.formatSourceSample(se.message + ": "));
-                trace(se.formatCursor(se.message + ": "));
                 popState();
             }
         }

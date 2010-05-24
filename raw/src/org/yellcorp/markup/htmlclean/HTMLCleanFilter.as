@@ -2,6 +2,7 @@ package org.yellcorp.markup.htmlclean
 {
 import org.yellcorp.markup.html.HTMLReference;
 import org.yellcorp.sequence.Set;
+import org.yellcorp.xml.XMLOptionState;
 import org.yellcorp.xml.XMLTraverser;
 
 
@@ -49,13 +50,14 @@ public class HTMLCleanFilter extends XMLTraverser
                         'leading': true,
                         'leftmargin': true,
                         'rightmargin': true,
-                        'tabstops': true },
+                        'tabstops': true
+                      },
 
         'ul': null
     };
 
-    private var filtered:XML;
-    private var parent:XML;
+    private var earlyClosed:int;
+    private var tagStack:Array;
 
     public function HTMLCleanFilter()
     {
@@ -64,10 +66,17 @@ public class HTMLCleanFilter extends XMLTraverser
 
     public function filter(document:XML):XML
     {
-        filtered = <html />;
-        parent = filtered;
+        var oldOptions:XMLOptionState = new XMLOptionState();
+        XML.ignoreWhitespace = false;
+
+        earlyClosed = 0;
+        tagStack = [ ];
+        openElement(<span />);
+
         traverse(document);
-        return filtered;
+
+        oldOptions.restore();
+        return tagStack[0];
     }
 
     protected override function processOpenElement(node:XML):void
@@ -108,8 +117,20 @@ public class HTMLCleanFilter extends XMLTraverser
 
     protected function processOpenUnsupportedElement(node:XML):void
     {
+        // change unsupported tags with block layout to <p>
         if (HTMLReference.instance.isBlockTag(node.localName()))
         {
+            // don't allow a <p> inside another <p>. if one is currently
+            // open, close it first before appending a new one
+            while (parent.localName() == "p")
+            {
+                closeElement();
+
+                // as this tag has been closed early, make a note of it
+                // so when the real close tag shows up in the input, we
+                // don't try to double-close it in the output
+                earlyClosed++;
+            }
             openElement(<p />);
         }
     }
@@ -123,24 +144,43 @@ public class HTMLCleanFilter extends XMLTraverser
     {
         if (HTMLReference.instance.isBlockTag(node.localName()))
         {
-            closeElement();
+            if (earlyClosed == 0)
+            {
+                closeElement();
+            }
+            else
+            {
+                earlyClosed--;
+            }
         }
     }
 
     private function openElement(node:XML):void
     {
-        parent.appendChild(node);
-        parent = node;
+        tagStack.push(node);
     }
 
     private function closeElement():void
     {
-        parent = parent.parent();
+        var closingTag:XML = tagStack.pop();
+
+        if (closingTag.localName() == "p" && closingTag.children().length() == 0)
+        {
+            // don't emit empty <p />
+            return;
+        }
+
+        parent.appendChild(closingTag);
     }
 
     private function appendNode(node:XML):void
     {
         parent.appendChild(node);
+    }
+
+    private function get parent():XML
+    {
+        return tagStack[tagStack.length - 1];
     }
 
     private static function filterNode(node:XML):XML
