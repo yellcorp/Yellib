@@ -1,23 +1,21 @@
 package org.yellcorp.xml
 {
+
 public class XMLTraverser
 {
-    private var dispatch:Object;
+    public var openElementHandler:Function = null;
+    public var closeElementHandler:Function = null;
+    public var textHandler:Function = null;
+    public var commentHandler:Function = null;
+    public var processingInstructionHandler:Function = null;
 
-    public function XMLTraverser()
-    {
-        dispatch = { };
-        dispatch[XMLNodeKind.ELEMENT] = processElement;
-        dispatch[XMLNodeKind.TEXT] = processText;
-        dispatch[XMLNodeKind.COMMENT] = processComment;
-        dispatch[XMLNodeKind.PROCESSING_INSTRUCTION] = processPI;
-    }
+    public function XMLTraverser() { }
 
-    protected function traverse(source:XML):void
+    public function traverse(source:XML):void
     {
         var options:XMLOptionState = new XMLOptionState();
-        XML.ignoreComments = false;
-        XML.ignoreProcessingInstructions = false;
+        XML.ignoreComments = commentHandler === null;
+        XML.ignoreProcessingInstructions = processingInstructionHandler === null;
         XML.ignoreWhitespace = false;
         XML.prettyPrinting = false;
 
@@ -26,40 +24,36 @@ public class XMLTraverser
         options.restore();
     }
 
-    protected function processOpenElement(node:XML):void
-    {
-    }
-
-    protected function processCloseElement(node:XML):void
-    {
-    }
-
-    protected function processText(node:XML):void
-    {
-    }
-
-    protected function processComment(node:XML):void
-    {
-    }
-
-    protected function processPI(node:XML):void
-    {
-    }
-
     private function process(node:XML):void
     {
-        dispatch[node.nodeKind()](node);
+        switch (node.nodeKind())
+        {
+            case XMLNodeKind.ELEMENT :
+                processElement(node);
+                break;
+            case XMLNodeKind.TEXT :
+                if (textHandler) textHandler(node);
+                break;
+            case XMLNodeKind.COMMENT :
+                if (commentHandler) commentHandler(node);
+                break;
+            case XMLNodeKind.PROCESSING_INSTRUCTION :
+                if (processingInstructionHandler)
+                    processingInstructionHandler(node);
+                break;
+            default :
+                throw new Error("Internal error: Unsupported node");
+        }
     }
 
     private function processElement(node:XML):void
     {
-        var child:XML;
-        processOpenElement(node);
-        for each (child in node.children())
+        if (openElementHandler) openElementHandler(node);
+        for each (var child:XML in node.children())
         {
             process(child);
         }
-        processCloseElement(node);
+        if (closeElementHandler) closeElementHandler(node);
     }
 }
 }

@@ -13,9 +13,11 @@ public class TestHTMLFilter extends ConsoleApp
         var doc:XML =
         <html>
             fart an arse out of my <a href="http://balls" onmouseover="no!">mouth</a>
-            <table>
-                <tr><td>shitballs</td></tr>
-            </table>
+            <div>
+                <table>
+                    <tr><td>shitballs</td></tr>
+                </table>
+            </div>
         </html>;
 
         var hcf:HTMLCleanFilter = new HTMLCleanFilter();

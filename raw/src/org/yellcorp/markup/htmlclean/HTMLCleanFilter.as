@@ -6,7 +6,7 @@ import org.yellcorp.xml.XMLOptionState;
 import org.yellcorp.xml.XMLTraverser;
 
 
-public class HTMLCleanFilter extends XMLTraverser
+public class HTMLCleanFilter
 {
     private static var whitelist:Object =
     {
@@ -59,9 +59,15 @@ public class HTMLCleanFilter extends XMLTraverser
     private var earlyClosed:int;
     private var tagStack:Array;
 
+    private var traverser:XMLTraverser;
+
     public function HTMLCleanFilter()
     {
         super();
+        traverser = new XMLTraverser();
+        traverser.openElementHandler = processOpenElement;
+        traverser.closeElementHandler = processCloseElement;
+        traverser.textHandler = processText;
     }
 
     public function filter(document:XML):XML
@@ -73,13 +79,13 @@ public class HTMLCleanFilter extends XMLTraverser
         tagStack = [ ];
         openElement(<span />);
 
-        traverse(document);
+        traverser.traverse(document);
 
         oldOptions.restore();
         return tagStack[0];
     }
 
-    protected override function processOpenElement(node:XML):void
+    private function processOpenElement(node:XML):void
     {
         if (isSupportedTag(node.localName()))
         {
@@ -91,8 +97,7 @@ public class HTMLCleanFilter extends XMLTraverser
         }
     }
 
-
-    protected override function processCloseElement(node:XML):void
+    private function processCloseElement(node:XML):void
     {
         if (isSupportedTag(node.localName()))
         {
@@ -104,18 +109,18 @@ public class HTMLCleanFilter extends XMLTraverser
         }
     }
 
-    protected override function processText(node:XML):void
+    private function processText(node:XML):void
     {
         appendNode(node);
     }
 
-    protected function processOpenSupportedElement(node:XML):void
+    private function processOpenSupportedElement(node:XML):void
     {
         var filterCopy:XML = filterNode(node);
         openElement(filterCopy);
     }
 
-    protected function processOpenUnsupportedElement(node:XML):void
+    private function processOpenUnsupportedElement(node:XML):void
     {
         // change unsupported tags with block layout to <p>
         if (HTMLReference.instance.isBlockTag(node.localName()))
@@ -135,12 +140,12 @@ public class HTMLCleanFilter extends XMLTraverser
         }
     }
 
-    protected function processCloseSupportedElement(node:XML):void
+    private function processCloseSupportedElement(node:XML):void
     {
         closeElement();
     }
 
-    protected function processCloseUnsupportedElement(node:XML):void
+    private function processCloseUnsupportedElement(node:XML):void
     {
         if (HTMLReference.instance.isBlockTag(node.localName()))
         {
