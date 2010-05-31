@@ -31,16 +31,20 @@ public class XMLTraverser
             case XMLNodeKind.ELEMENT :
                 processElement(node);
                 break;
+
             case XMLNodeKind.TEXT :
                 if (Boolean(textHandler)) textHandler(node);
                 break;
+
             case XMLNodeKind.COMMENT :
                 if (Boolean(commentHandler)) commentHandler(node);
                 break;
+
             case XMLNodeKind.PROCESSING_INSTRUCTION :
                 if (Boolean(processingInstructionHandler))
                     processingInstructionHandler(node);
                 break;
+
             default :
                 throw new Error("Internal error: Unsupported node");
         }
