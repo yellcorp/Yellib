@@ -5,9 +5,23 @@ import org.yellcorp.markup.html.HTMLToken;
 import org.yellcorp.sequence.Set;
 
 
+/**
+ * This class is responsible for structural analysis of an HTML
+ * document and its conversion into XML.  It makes sure tags are
+ * balanced, using HTMLReference to judge whether a tag should be left
+ * empty or automatically closed.  It also strips duplicate attributes
+ * in open tags.
+ *
+ */
 public class HTMLCleanParser
 {
+    // a stack of current open tags.  tags are pushed when opened and
+    // popped when closed.  a close tag should have the same name as the
+    // top-most tag on this stack, otherwise there's some correction to be
+    // done.
     private var tokenStack:Array;
+
+    // the output token stream
     private var tokenStream:Array;
 
     private var dispatch:Object;
@@ -30,6 +44,10 @@ public class HTMLCleanParser
 
     public function parse(lexTokenStream:Array):String
     {
+        // convenience function - gets the parsed output stream,
+        // then joins all their .text properties into a final
+        // output string.  This can be then (hopefully) cast to XML
+
         return parseToStream(lexTokenStream).map(
             function (token:HTMLToken, ... ignored):String
             {
@@ -40,6 +58,8 @@ public class HTMLCleanParser
 
     public function parseToStream(lexTokenStream:Array):Array
     {
+        // main function: calls the parse routine for each tag
+        // in the input stream
         var tokenStreamReturn:Array;
 
         tokenStack = [ ];
@@ -50,6 +70,7 @@ public class HTMLCleanParser
             parse1(lexTokenStream[i]);
         }
 
+        // close any tags left on the stack
         while (tokenStack.length > 0)
         {
             closeTopTag();
@@ -67,17 +88,31 @@ public class HTMLCleanParser
 
     private function parseText(token:HTMLToken):void
     {
+        // HTMLToken.TEXT: a text node
         closeTopTagIfEmpty();
         emit(token);
     }
 
     private function parseTagOpenStart(token:HTMLToken):void
     {
+        // HTMLToken.TAG_OPEN_START: The beginning of an open tag.
+
+        // open tags are split into multiple tokens so their attributes
+        // can be analyzed
+
         closeTopTagIfEmpty();
         var top:HTMLToken = getTopTag();
+
+        // In HTML, (as opposed to XHTML) some tags e.g. <li> or <td>
+        // don't need to be closed.  The HTML DTD specifies a list of
+        // allowable child tags for each parent tag.  If a child tag is
+        // not allowed in a parent tag then the parent should be
+        // automatically closed
         if (top && !HTMLReference.instance.isTagAllowedInTag(top.name, token.name))
         {
             closeTopTag();
+
+            // recurse -- auto-close as many times as needed
             parseTagOpenStart(token);
         }
         else
@@ -90,6 +125,8 @@ public class HTMLCleanParser
 
     private function parseTagAttr(token:HTMLToken):void
     {
+        // HTMLToken.TAG_ATTR: Open tag attributes.  Duplicates should
+        // be eliminated as they choke the XML parser
         var spacer:HTMLToken;
         if (!seenAttrs.contains(token.name))
         {
@@ -107,24 +144,31 @@ public class HTMLCleanParser
 
     private function parseTagOpenEnd(token:HTMLToken):void
     {
+        // HTMLToken.TAG_OPEN_END: Usually just a > capping off the
+        // opening tag
         emit(token);
     }
 
     private function parseTagOpenEndClose(token:HTMLToken):void
     {
+        // HTMLToken.TAG_OPEN_END_CLOSE: End of an empty tag
+        // i.e. a /> sequence.
         popTag();
         emit(token);
     }
 
     private function parseTagClose(token:HTMLToken):void
     {
+        // HTMLToken.TAG_CLOSE: closing tag
         if (getTopTag().name == token.name)
         {
+            // if it matches the top tag, then it's simple
             popTag();
             emit(token);
         }
         else
         {
+            // otherwise hand it off to this function
             parseUnmatchedTagClose(token);
         }
     }
@@ -132,6 +176,16 @@ public class HTMLCleanParser
     private function parseUnmatchedTagClose(token:HTMLToken):void
     {
         var closedToken:HTMLToken;
+
+        // if there's a possible match in the stack - close all the
+        // intermediate tags as well.  this for example turns:
+        //
+        // <table><tr><td>text</table>
+        //
+        // into:
+        //
+        // <table><tr><td>text</td></tr></table>
+
         if (stackContains(token.name))
         {
             do
@@ -140,7 +194,7 @@ public class HTMLCleanParser
             }
             while (closedToken.name != token.name);
         }
-        // else just ignore it if it was never opened
+        // otherwise just ignore it if it was never opened
     }
 
     private function stackContains(tagType:String):Boolean
@@ -165,12 +219,12 @@ public class HTMLCleanParser
 
     private function parseDeclaration(token:HTMLToken):void
     {
-        // ignore
+        // ignore it
     }
 
     private function parseProcInstr(token:HTMLToken):void
     {
-        // squash it
+        // ignore it
     }
 
     private function getTopTag():HTMLToken
@@ -180,6 +234,8 @@ public class HTMLCleanParser
 
     private function closeTopTag():HTMLToken
     {
+        // pop the tag stack, generate a close token with
+        // its name, and emit it
         var tag:HTMLToken = popTag();
 
         if (!tag) return null;
@@ -196,6 +252,9 @@ public class HTMLCleanParser
 
     private function closeTopTagIfEmpty():HTMLToken
     {
+        // checks the tag on the top of the stack and closes it if
+        // HTML defines it as empty.  Examples of empty tags are <img>,
+        // <meta>, <input>
         var topTag:HTMLToken = getTopTag();
         if (topTag && HTMLReference.instance.isEmptyTag(getTopTag().name))
         {

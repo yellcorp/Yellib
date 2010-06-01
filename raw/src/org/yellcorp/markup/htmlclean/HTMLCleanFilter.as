@@ -6,6 +6,16 @@ import org.yellcorp.xml.XMLOptionState;
 import org.yellcorp.xml.XMLTraverser;
 
 
+/**
+ * HTMLCleanFilter accepts XML objects representing XHTML documents and
+ * transforms them according to the subset of HTML supported by Flash's
+ * native TextField.  This is an optional 3rd step in cleaning HTML
+ * documents for display in Flash.
+ *
+ * Unsupported attributes and and unsupported tags with inline
+ * layout are stripped, unsupported block layout tags are converted to <p>
+ *
+ */
 public class HTMLCleanFilter
 {
     private static var whitelist:Object =

@@ -5,6 +5,12 @@ import org.yellcorp.sequence.Set;
 import flash.errors.IllegalOperationError;
 
 
+/**
+ * A partial database of HTML tags and entities taken from the HTML DTD.
+ *
+ * This class is a singleton, so access methods via HTMLReference.instance
+ *
+ */
 public class HTMLReference
 {
     private var textEntities:Set;
@@ -37,31 +43,55 @@ public class HTMLReference
         buildCloseTable();
     }
 
+    /**
+     * True if passed the name of a standard HTML tag or popular
+     * non-standard one.  The name should be the string alone - no < or >
+     */
     public function isHTMLTag(tagName:String):Boolean
     {
         return inTagSet(allTags, tagName);
     }
 
+    /**
+     * True if passed the name of a tag defined as empty.  An empty tag
+     * is one that allows no child tags or text.  <img> is an example.
+     */
     public function isEmptyTag(tagName:String):Boolean
     {
         return inTagSet(empty, tagName);
     }
 
+    /**
+     * True if the tag is defined as having block layout.
+     */
     public function isBlockTag(tagName:String):Boolean
     {
         return inTagSet(block, tagName);
     }
 
+    /**
+     * True if the tag is defined as having inline layout.
+     */
     public function isInlineTag(tagName:String):Boolean
     {
         return inTagSet(inline, tagName);
     }
 
+    /**
+     * True if the tag does not require attributes.  This is more
+     * heuristic than strict.  For example, by the standard, <script> tags
+     * should always have attributes, but browsers widely assume JavaScript
+     * if a type is not defined.  Conversely, <a> can be empty but is
+     * rarely useful without either name or href.
+     */
     public function isAttrOptionalTag(tagName:String):Boolean
     {
         return inTagSet(attrOptionalTags, tagName);
     }
 
+    /**
+     * True if childTag is allowed as a child of parentTag
+     */
     public function isTagAllowedInTag(parentTag:String, childTag:String):Boolean
     {
         var allowedTags:Set = allow[parentTag];
@@ -77,16 +107,29 @@ public class HTMLReference
         }
     }
 
+    /**
+     * True if query is a valid entity. Note that this function
+     * expects just the name part of the entity - i.e. between, but not
+     * including, the & and ;
+     */
     public function isTextEntity(query:String):Boolean
     {
         return textEntities.contains(query.toLowerCase());
     }
 
+    /**
+     * True if query is a valid character code entity. This is different
+     * to isTextEntity in that it expects the leading &
+     */
     public function isNumericEntity(query:String):Boolean
     {
         return numericEntityPattern.test(query);
     }
 
+    /**
+     * Returns the entity for the character passed into literalChar, if
+     * it exists in the database
+     */
     public function getEntityRepr(literalChar:String):String
     {
         return charEntities[literalChar.charCodeAt(0)];

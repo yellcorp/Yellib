@@ -6,8 +6,39 @@ import org.yellcorp.markup.htmlclean.errors.HTMLCleanLexError;
 import org.yellcorp.markup.htmlclean.errors.HTMLCleanSyntaxError;
 
 
+/**
+ * HTMLCleanLexer is responsible for lexing a raw string into a stream
+ * of HTML tokens, with an aim to correcting common markup errors in
+ * a way a web browser might.  This is the first step when trying to
+ * coerce a random HTML document into valid XML.
+ *
+ * Lexing is done on an entire stream at once - the lex method accepts the
+ * entire document as a String and returns an Array of HTMLToken instances,
+ * which should then be passed to an instance of HTMLCleanParser.
+ * It's done this way instead of incrementally so the lexer can back
+ * up and retry a section if it reaches a dead end.
+ *
+ * The Lexer saves its state when it encounters an ambiguity: for
+ * example, a < in the source may be the beginning of an HTML tag, or
+ * it may be a literal less-than that should be converted to &lt;
+ *
+ * If it can't make sense of < as the beginning of a tag, it will back
+ * up and assume it should be changed to an &lt; instead.
+ *
+ * For the most part, the lexer works a single character at a time,
+ * which is fast in the land of C and Java but probably the slower way
+ * of doing things in ActionScript.  Such is the cost of dealing with
+ * dirty HTML.
+ *
+ */
 public class HTMLCleanLexer
 {
+    ////////////////////
+    // Lexer scan states
+    ////////////////////
+
+    // See lex* methods for descriptions
+
     private static const TEXT:int = 0;
     private static const TAG_START:int = 1;
     private static const TAG_OPEN:int = 2;
@@ -25,29 +56,56 @@ public class HTMLCleanLexer
     private static const DECLARATION:int = 14;    // <!
     private static const PROC_INSTR:int = 15;     // <?
 
+    //////////////////
+    // Emit properties
+    //////////////////
+
+    // emit() is called by the lexer to append a string
+    // to the current token.  It can emit to any of the token's .name,
+    // .value, or .text by passing a bitwise OR of the following constants
     private static const EMIT_NAME:int = 1;
     private static const EMIT_VALUE:int = 2;
     private static const EMIT_TEXT:int = 4;
 
+    //////////////
+    // State names
+    //////////////
+
+    // Special case alternatives.  Some parsing routines check what _kind_
+    // of ambiguities are on the stack to decide how to proceed
     private static const RETRY_COMMENT_CLOSE:String = "RETRY_COMMENT_CLOSE";
     private static const RETRY_PI_CLOSE:String = "RETRY_PI_CLOSE";
 
+
+    // instance fields
     private var source:String;
     private var cursor:int;
     private var sourceLen:int;
     private var state:int;
     private var dispatch:Array;
 
+    // special state var: which close quote we are looking for
     private var quote:String;
+
+    // alternate ways of interpreting ambiguities are stored here, and
+    // are popped when the lexer encounters an error.  If this stack is
+    // exhausted, lex() throws an HTMLCleanLexError to the caller
     private var stateStack:Array;
 
     private var currentToken:HTMLToken;
     private var tokenStream:Array;
 
+    // an array of HTMLCleanSyntaxError objects which can be examined
+    // by the caller to see all errors encountered.  HTMLCleanSyntaxErrors
+    // are never thrown publically so don't need to be caught by calling
+    // code.
     private var _errorHistory:Array;
 
     public function HTMLCleanLexer()
     {
+        // dispatch table.  This indexes the different lexing functions
+        // by the state they belong to.  Same effect as a big switch-case.
+        // maybe it _should_ be a big switch-case.
         dispatch = [];
         dispatch[TEXT] = lexTextChar;
         dispatch[TAG_START] = lexTagStart;
@@ -67,6 +125,13 @@ public class HTMLCleanLexer
         dispatch[PROC_INSTR] = lexProcInstr;
     }
 
+    /**
+     * Lex an HTML document.
+     *
+     * @param dirtyHTML The HTML document.
+     * @return An array of HTMLToken objects.
+     * @throws HTMLCleanLexError
+     */
     public function lex(dirtyHTML:String):Array
     {
         var tokenStreamReturn:Array;
@@ -94,9 +159,13 @@ public class HTMLCleanLexer
             }
         }
 
+        // make a local copy of the tokenStream...
         tokenStreamReturn = tokenStream;
+
+        // so we can clear it before returning it to the caller
         tokenStream = [ ];
         stateStack = [ ];
+
         return tokenStreamReturn;
     }
 
@@ -107,6 +176,8 @@ public class HTMLCleanLexer
 
     private function lexTextChar():void
     {
+        // TEXT: Scanning literal text or an entity
+
         var char:String = getch();
 
         if (char == "<")
@@ -128,10 +199,13 @@ public class HTMLCleanLexer
         }
         else if (getEntityRepr(char))
         {
+            // if this is some other char that should be
+            // an entity, convert it ( i.e. > ' " )
             emit(getEntityRepr(char));
         }
         else if (char == "")
         {
+            // end of document
             pushToken(HTMLToken.TEXT);
         }
         else
@@ -142,6 +216,10 @@ public class HTMLCleanLexer
 
     private function lexTagStart():void
     {
+        // TAG_START: Encountered a < and allowing whitespace, but yet to
+        // decide if this is an open, close </, comment/declaration <!,
+        // or PI <?
+
         skipWhiteSpace();
         var char:String = getch();
 
@@ -173,6 +251,9 @@ public class HTMLCleanLexer
 
     private function lexTagOpen():void
     {
+        // TAG_OPEN: Scanned a < followed by an alpha char.  Now looking
+        // for the tag name
+
         skipWhiteSpace();
         var tagName:String = getName().toLowerCase();
         emit(tagName, EMIT_TEXT | EMIT_NAME);
@@ -191,6 +272,7 @@ public class HTMLCleanLexer
 
     private function lexTagClose():void
     {
+        // TAG_CLOSE: Scanned </ and looking for tag name
         skipWhiteSpace();
         var tagName:String = getName().toLowerCase();
         emit(tagName, EMIT_TEXT | EMIT_NAME);
@@ -199,9 +281,16 @@ public class HTMLCleanLexer
 
     private function lexTagCloseTrailer():void
     {
+        // TAG_CLOSE_TRAILER: Scanned </TAGNAME and looking for close >
+
         skipWhiteSpace();
         var char:String = getch();
 
+        // the first non whitespace character closes the tag and puts us
+        // back into plaintext mode.  Emit a > regardless of what it is.
+
+        // basically this means any junk inside the close tag itself will
+        // become plain text following the close tag
         if (char != ">")
             putback();
 
@@ -212,6 +301,8 @@ public class HTMLCleanLexer
 
     private function lexTagOpenTrailer():void
     {
+        // TAG_OPEN_TRAILER: Scanned the < and tag name, now looking for
+        // either the closing > or a series of attributes
         var char:String = getch();
         if (isSpace(char))
         {
@@ -220,6 +311,7 @@ public class HTMLCleanLexer
         }
         else if (char == "/")
         {
+            // could be a self-closing tag like <br />
             if (getch() == ">")
             {
                 emit("/>");
@@ -245,6 +337,8 @@ public class HTMLCleanLexer
 
     private function lexTagAttrName():void
     {
+        // TAG_ATTR_NAME: Attribute name in opening tag
+
         skipWhiteSpace();
         var char:String = getch();
 
@@ -256,18 +350,21 @@ public class HTMLCleanLexer
         }
         else if (char == ">")
         {
+            // no attributes
             emit(char);
             pushToken(HTMLToken.TAG_OPEN_END);
             state = TEXT;
         }
         else if (char == "")
         {
+            // end of document: close the tag with a >
             emit(">");
             pushToken(HTMLToken.TAG_OPEN_END);
             state = TEXT;
         }
         else if (char == "/")
         {
+            // possible self-closing tag
             if (getch() == ">")
             {
                 emit("/>");
@@ -287,6 +384,8 @@ public class HTMLCleanLexer
 
     private function lexTagAttrEquals():void
     {
+        // TAG_ATTR_EQUALS: Scanning the = of an attribute name-value pair
+
         skipWhiteSpace();
         var char:String = getch();
         if (char == "=")
@@ -296,12 +395,16 @@ public class HTMLCleanLexer
             char = getch();
             if (char == '"' || char == "'")
             {
+                // found a quoted value
                 emit(char);
                 quote = char;
                 state = TAG_ATTR_QUOTED_VALUE;
             }
             else
             {
+                // found a non-quoted value, for example
+                // <img src=image.jpg>
+                // wrap the value in quotes
                 putback();
                 emit('"');
                 quote = '"';
@@ -312,6 +415,8 @@ public class HTMLCleanLexer
         {
             putback();
 
+            // found an attribute without a value. give it the string
+            // value "true".
             emit('="true"', EMIT_TEXT);
             emit("true", EMIT_VALUE);
 
@@ -322,6 +427,9 @@ public class HTMLCleanLexer
 
     private function lexTagAttrQuotedValue():void
     {
+        // TAG_ATTR_QUOTED_VALUE: Scanning a quoted value, which will be
+        // terminated by the quote that opened it
+
         var char:String = getch();
         var entity:String;
 
@@ -330,8 +438,8 @@ public class HTMLCleanLexer
             // could be close quote without close tag
             pushState(quote + ">");
 
-            // could be quote-within-quote
-            // more likely, so push this last
+            // could also be quote-within-quote. assuming this is more
+            // likely, so push this last
             pushState(getEntityRepr(char));
 
             emit(char);
@@ -340,6 +448,9 @@ public class HTMLCleanLexer
         }
         else if (char == "")
         {
+            // end of document. close it using the opening quote we found
+            // then back up to the TAG_ATTR_NAME state, which will also
+            // see the end of the document and add its closing >
             emit(quote);
             pushToken(HTMLToken.TAG_ATTR);
             state = TAG_ATTR_NAME;
@@ -372,6 +483,9 @@ public class HTMLCleanLexer
 
     private function lexTagAttrBareValue():void
     {
+        // TAG_ATTR_BARE_VALUE: Scanning an unquoted attribute value, which
+        // will be terminated by > or whitespace
+
         var char:String = getch();
         var entity:String;
 
@@ -391,7 +505,11 @@ public class HTMLCleanLexer
         }
         else if (char == ">")
         {
+            // assume this is the end of the unquoted value
+
+            // but it could, as always, be intended as a &gt;
             pushState(getEntityRepr(char));
+
             emit(quote);
             pushToken(HTMLToken.TAG_ATTR);
             emit(char);
@@ -423,23 +541,29 @@ public class HTMLCleanLexer
             emit(char, EMIT_TEXT | EMIT_VALUE);
         }
     }
+
     private function lexTagExcl():void
     {
+        // TAG_EXCL: Scanning a <! tag which could turn into either a
+        // doctype declaration, CDATA, or a comment
         skipWhiteSpace();
         if (eat("--"))
         {
+            // it's a comment
             emit("--");
             state = COMMENT;
             return;
         }
         else if (eat("[CDATA[", false))
         {
+            // it's a CDATA
             emit("[CDATA[");
             state = CDATA_CONTENT;
             return;
         }
         else if (isNameStartChar(peekch()))
         {
+            // it's a DOCTYPE or some other exotic beast
             state = DECLARATION;
         }
         else
@@ -450,9 +574,24 @@ public class HTMLCleanLexer
 
     private function lexComment():void
     {
+        // COMMENT: scanning a comment, removing -- sequences that aren't
+        // --> sequences (illegal in XML).
+
+        // Also will save any bare > characters as a possible closed
+        // comment, I think IE used to allow this
+
+        // FIXME: May not handle -> very well.  Could turn it into --->
+        // which would choke the XML parser
+
         var char:String = getch();
         if (char == "")
         {
+            // reached the end of the document while in a comment.  two
+            // possibilities are likely here - either it truly is the end
+            // of the doc and we just need to cap it off with a -->
+
+            // OR: There was an attempted close early on (say with a bare
+            // > char) and we just ate the rest of the document
             if (getTopStateNote() == RETRY_COMMENT_CLOSE)
             {
                 fail("EOF while in comment - possibly closed improperly");
@@ -466,7 +605,7 @@ public class HTMLCleanLexer
         {
             if (getch() == "-")
             {
-                // don't emit -- sequence. lexCommentClose should
+                // don't emit -- sequence. Let lexCommentClose
                 // check if it's a proper closing sequence. if so,
                 // then emit and close the comment, if not, then
                 // suppress the multiple hyphens as they are not allowed
@@ -480,6 +619,7 @@ public class HTMLCleanLexer
         }
         else if (char == ">")
         {
+            // here's the possible bad comment close
             pushState("-->", RETRY_COMMENT_CLOSE);
             emit(char);
         }
@@ -491,19 +631,27 @@ public class HTMLCleanLexer
 
     private function lexCommentClose():void
     {
+        // COMMENT_CLOSE: lexComment has already read the -- sequence, but
+        // not emitted it.
+
         var char:String = getch();
+
+        // skip over any superfluous -
         while (char == "-")
         {
             char = getch();
         }
         if (char == ">")
         {
+            // if we get a > emit a proper closing sequence
             emit("-->");
             pushToken(HTMLToken.COMMENT);
             state = TEXT;
         }
         else
         {
+            // turns out it wasn't a close after all. don't emit the -
+            // characters
             putback();
             state = COMMENT;
         }
@@ -511,8 +659,12 @@ public class HTMLCleanLexer
 
     private function lexDeclaration():void
     {
+        // DECLARATION: a <! tag that isn't a comment <!-- or <![CDATA[
+
         // just read up to >
-        // quoted >s are legal, but i'm getting bored of this
+
+        // FIXME: quoted >s are legal and this is a copout,
+        // but i'm getting bored of this.
         var char:String = getch();
         emit(char);
         if (char == ">")
@@ -524,7 +676,13 @@ public class HTMLCleanLexer
 
     private function lexProcInstr():void
     {
-        // read up to ?>
+        // PROC_INSTR: In most cases <?xml version="1.0" ?>
+
+        // The scanner just looks for a closing ?> sequence and otherwise
+        // doesn't care about the content.  Like the auto-comment fixing,
+        // will first accept a >, but if it reaches the end of doc, will
+        // retry it as a ?>
+
         var char:String = getch();
         if (char == "")
         {
@@ -564,26 +722,36 @@ public class HTMLCleanLexer
 
     private function lexCDataContent():void
     {
+        // CDATA_CONTENT: In a <![CDATA[ and looking for a closing ]]>
         var char:String = getch();
         emit(char);
         if (char == "]")
         {
-            if (getch() == ">")
+            if (eat("]>"))
             {
-                emit(">");
+                emit("]>");
                 pushToken(HTMLToken.CDATA);
                 state = TEXT;
             }
-            else
-            {
-                putback();
-            }
+        }
+        else if (char == "")
+        {
+            emit("]]>");
+            pushToken(HTMLToken.CDATA);
+            state = TEXT;
         }
     }
 
+    // end of state methods
 
     private function getName():String
     {
+        // scans, consumes and returns a valid name
+
+        // a valid name is one that starts with a NameStartChar and
+        // followed by 0 or more NameChars (see the is* functions for
+        // definitions)
+
         var char:String;
         var name:String = getch();
 
@@ -606,6 +774,8 @@ public class HTMLCleanLexer
 
     private function getEntity():String
     {
+        // scans, consumes and returns an XML/HTML entity
+
         var ent:String = getch();
         var char:String = getch();
 
@@ -634,8 +804,10 @@ public class HTMLCleanLexer
                     ent += ";";
                     putback();
                 }
-                else  // otherwise the opening & may have been meant as literal
+                else
                 {
+                    // otherwise the opening & may have been meant as
+                    // literal.  fail here and let lex() pop the stack
                     fail("Illegal character in entity");
                 }
                 break;
@@ -646,6 +818,10 @@ public class HTMLCleanLexer
 
     private function fail(message:String):void
     {
+        // utility function to create a new HTMLCleanSyntaxError object,
+        // populate it with brief info about the current state, and then
+        // throw it.  Errors are thrown so a bad lex state can be escaped
+        // from anywhere
         var from:int = Math.max(cursor - 12, 0);
         var to:int =   Math.min(cursor + 12, source.length);
 
@@ -654,6 +830,13 @@ public class HTMLCleanLexer
 
     private function emit(string:String, target:int = EMIT_TEXT):void
     {
+        // append string to a property of the current token. For the most
+        // part this will just be to the .text property (EMIT_TEXT) -
+        // which reflects the literal text belonging to the token
+
+        // the .name and .value properties are used in the parsing stage
+        // (HTMLCleanParser)
+
         if (target & EMIT_NAME)  currentToken.name  += string;
         if (target & EMIT_VALUE) currentToken.value += string;
         if (target & EMIT_TEXT)  currentToken.text  += string;
@@ -661,6 +844,10 @@ public class HTMLCleanLexer
 
     private function eat(literal:String, matchCase:Boolean = true):Boolean
     {
+        // checks for a sequence coming up in the character stream, and if
+        // it matches, skips past it and returns true.  if not a match,
+        // returns false and leaves the cursor where it was
+
         var sourceStr:String = source.substr(cursor, literal.length);
 
         if (!matchCase)
@@ -693,6 +880,7 @@ public class HTMLCleanLexer
 
     private function getch():String
     {
+        // gets the next character in the input stream
         var char:String = source.charAt(cursor);
         cursor++;
         return char;
@@ -700,16 +888,22 @@ public class HTMLCleanLexer
 
     private function peekch():String
     {
+        // returns the next character without advancing the cursor
         return source.charAt(cursor);
     }
 
     private function putback():void
     {
+        //FIXME: invalid after restoring a state, so should throw
+        // if the cursor goes into negative territory
         cursor--;
     }
 
     private function pushToken(type:String):void
     {
+        // tags the current token with a token type, pushes it to the
+        // output stream, and creates a new empty current token
+
         // don't make empty text tokens
         if (!(type == HTMLToken.TEXT && currentToken.text.length == 0))
         {
@@ -721,6 +915,22 @@ public class HTMLCleanLexer
 
     private function pushState(insert:String, note:String = ""):void
     {
+        // saves the current lexer state when a potential ambiguity or
+        // alternate interpretation exists.  the string passed in the
+        // 'insert' argument will be inserted to the character stream
+        // i.e. if this state is restored, getch() will first read the
+        // chars from this inserted string, and then return to the
+        // original stream.
+
+        // 'insert' should always have a value otherwise the saved state
+        // will behave no differently if it is restored
+
+        // note that the input stream up to cursor-1 is not saved with
+        // these states
+
+        // FIXME: the true cursor value should still be stored otherwise
+        // the offsets in the Error objects will be all wrong
+
         var lexerState:LexerState =
             new LexerState(insert + source.substr(cursor),
                            0,
@@ -729,11 +939,16 @@ public class HTMLCleanLexer
                            currentToken,
                            tokenStream,
                            note);
+
         stateStack.push(lexerState);
     }
 
     private function popState():void
     {
+        // pops the last saved state and adopts it
+
+        // this is the error that makes it back out to the caller. if
+        // this is thrown, show's over
         if (stateStack.length == 0) throw new HTMLCleanLexError("Exhausted lex attempts");
 
         var lexerState:LexerState = stateStack.pop();
@@ -749,28 +964,34 @@ public class HTMLCleanLexer
 
     private function getTopStateNote():String
     {
+        // peeks at the most recent saved state and returns its .note
+        // property.
         var topState:LexerState = stateStack[stateStack.length - 1];
         return topState.note;
     }
 
     private static function getEntityRepr(char:String):String
     {
+        // just a short alias
         return HTMLReference.instance.getEntityRepr(char);
-    }
-
-    private static function isNameChar(char:String):Boolean
-    {
-        return isNameStartChar(char) ||
-               (char >= "0" && char <= "9") ||
-               char == "-" || char == "." ||
-               char == ":";    // allow xml namespaces
     }
 
     private static function isNameStartChar(char:String):Boolean
     {
+        // characters allowed as the first char of an
+        // HTML/XML name
         return (char >= "A" && char <= "Z") ||
                (char >= "a" && char <= "z") ||
                char == "_";
+    }
+
+    private static function isNameChar(char:String):Boolean
+    {
+        // characters that are legal anywhere in an HTML/XML name
+        return isNameStartChar(char) ||
+               (char >= "0" && char <= "9") ||
+               char == "-" || char == "." ||
+               char == ":";    // allow xml namespaces
     }
 
     private static function isEntityStartChar(char:String):Boolean
@@ -805,7 +1026,10 @@ internal class LexerState
         this.state = state;
         this.quote = quote;
         this.currentToken = currentToken.clone();
+
+        // make a deep copy of the tokenStream array
         this.tokenStream = tokenStream.map(cloneToken);
+
         this.note = note;
     }
 
