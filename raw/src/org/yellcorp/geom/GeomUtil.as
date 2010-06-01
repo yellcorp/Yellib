@@ -63,5 +63,26 @@ public class GeomUtil
             return (a.x == b.x && a.y == b.y);
         }
     }
+
+    public static function clampPointToRect(point:Point, rect:Rectangle):void
+    {
+        if (point.x < rect.left)
+        {
+            point.x = rect.left;
+        }
+        else if (point.x > rect.right)
+        {
+            point.x = rect.right;
+        }
+
+        if (point.y < rect.top)
+        {
+            point.y = rect.top;
+        }
+        else if (point.y > rect.bottom)
+        {
+            point.y = rect.bottom;
+        }
+    }
 }
 }

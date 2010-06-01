@@ -49,6 +49,16 @@ public class DisplayUtil
         return real;
     }
 
+    public static function getAllChildren(container:DisplayObjectContainer):Array
+    {
+        var children:Array = [ ];
+        for (var i:int = 0; i < container.numChildren; i++)
+        {
+            children.push(container.getChildAt(i));
+        }
+        return children;
+    }
+
     public static function removeAllChildren(container:DisplayObjectContainer):void
     {
         while (container.numChildren > 0)
