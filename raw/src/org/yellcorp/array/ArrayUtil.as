@@ -108,7 +108,7 @@ public class ArrayUtil
         return result;
     }
 
-    public static function findFirst(array:Array, boolFunction:Function):int
+    public static function indexOf(array:Array, boolFunction:Function):int
     {
         var i:int;
         if (!array) return -1;
@@ -129,7 +129,7 @@ public class ArrayUtil
         return -1;
     }
 
-    public static function findLast(array:Array, boolFunction:Function):int
+    public static function lastIndexOf(array:Array, boolFunction:Function):int
     {
         var i:int;
         if (!array) return -1;
@@ -148,6 +148,18 @@ public class ArrayUtil
             }
         }
         return -1;
+    }
+
+    public static function getFirst(array:Array, boolFunction:Function):*
+    {
+        var index:int = indexOf(array, boolFunction);
+        return index >= 0 ? array[index] : null;
+    }
+
+    public static function getLast(array:Array, boolFunction:Function):*
+    {
+        var index:int = lastIndexOf(array, boolFunction);
+        return index >= 0 ? array[index] : null;
     }
 
     /**
