@@ -27,5 +27,21 @@ public class XMLUtil
 
         return string;
     }
+
+    public static function getTagPath(tag:XML):String
+    {
+        var names:Array = [ ];
+        var index:int;
+        var nodeName:String;
+        while (tag)
+        {
+            nodeName = String(tag.name());
+            index = tag.childIndex();
+            if (index >= 0) nodeName += "[" + index + "]";
+            names.push(nodeName);
+            tag = tag.parent();
+        }
+        return names.reverse().join("/");
+    }
 }
 }
