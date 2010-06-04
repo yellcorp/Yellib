@@ -63,7 +63,7 @@ public class SchemaValidator
             saveError(sve, node.parent());
         }
 
-        var nextSchema:SchemaElement = getChildSchemaNode(node.localName());
+        var nextSchema:SchemaElement = getChildSchemaNode(node.name());
 
         schemaStack.push(nextSchema);
         stateStack.push(createState(nextSchema));
@@ -97,7 +97,7 @@ public class SchemaValidator
         stateStack.top.onText(node);
     }
 
-    private function getChildSchemaNode(localName:String):SchemaElement
+    private function getChildSchemaNode(name:QName):SchemaElement
     {
         var current:SchemaElement = schemaStack.top;
         if (current == null)
@@ -106,7 +106,7 @@ public class SchemaValidator
         }
         else
         {
-            return current.children.getByName(localName);
+            return current.children.getByName(name);
         }
     }
 

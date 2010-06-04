@@ -15,11 +15,14 @@ public class RootContentValidator implements ContentValidator
 
     public function onChildElement(node:XML):void
     {
-        if (node.localName() != root.name)
+        // note: QNames do non-strict equality comparison (==) by value.
+        // So different instances of a QName with the same URIs and
+        // localNames are true for == and false for ===
+        if (node.name() != root.name)
         {
             throw new ContentValidationError(
                 "Root element incorrectly named. Expected " +
-                root.name + " got " + node.localName()
+                root.name + " got " + node.name()
             );
         }
     }

@@ -3,13 +3,13 @@ package org.yellcorp.xml.validator.core
 import org.yellcorp.xml.validator.errors.AttributeValidationError;
 import org.yellcorp.xml.validator.types.SchemaAttribute;
 import org.yellcorp.xml.validator.types.SchemaAttributeSet;
-import org.yellcorp.xml.validator.utils.NameCounter;
+import org.yellcorp.xml.validator.utils.QNameCounter;
 
 
 public class TagAttributeValidator implements AttributeValidator
 {
     private var attributes:SchemaAttributeSet;
-    private var nameCounter:NameCounter;
+    private var nameCounter:QNameCounter;
 
     public function TagAttributeValidator(attributes:SchemaAttributeSet)
     {
@@ -18,7 +18,7 @@ public class TagAttributeValidator implements AttributeValidator
 
     public function validate(node:XML):void
     {
-        nameCounter = new NameCounter();
+        nameCounter = new QNameCounter();
         countPresent(node);
         checkAbsent();
     }
@@ -26,12 +26,12 @@ public class TagAttributeValidator implements AttributeValidator
     private function countPresent(node:XML):void
     {
         var attr:XML;
-        var name:String;
+        var name:QName;
 
         for each (attr in node.attributes())
         {
-            name = attr.localName();
-            if (attributes.hasName(name))
+            name = attr.name();
+            if (attributes.getByName(name))
             {
                 nameCounter.inc(name);
             }

@@ -1,4 +1,4 @@
-package test.schema
+package scratch.schema
 {
 public class VHADataSchema
 {

@@ -3,26 +3,26 @@ package org.yellcorp.xml.validator.core
 import org.yellcorp.xml.validator.errors.ContentValidationError;
 import org.yellcorp.xml.validator.types.SchemaElement;
 import org.yellcorp.xml.validator.types.SchemaElementSet;
-import org.yellcorp.xml.validator.utils.NameCounter;
+import org.yellcorp.xml.validator.utils.QNameCounter;
 import org.yellcorp.xml.validator.utils.Range;
 
 
 public class UnorderedContentValidator implements ContentValidator
 {
     private var children:SchemaElementSet;
-    private var nameCounter:NameCounter;
+    private var nameCounter:QNameCounter;
 
     public function UnorderedContentValidator(children:SchemaElementSet)
     {
         this.children = children;
-        nameCounter = new NameCounter();
+        nameCounter = new QNameCounter();
     }
 
     public function onChildElement(node:XML):void
     {
-        var name:String = node.localName();
+        var name:QName = node.name();
 
-        if (children.hasName(name))
+        if (children.getByName(name))
         {
             nameCounter.inc(name);
         }

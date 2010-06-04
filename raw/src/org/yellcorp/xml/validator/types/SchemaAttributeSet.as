@@ -1,18 +1,22 @@
 package org.yellcorp.xml.validator.types
 {
+import org.yellcorp.map.QNameMap;
+import org.yellcorp.xml.validator.utils.NamespacePrefixMap;
+
+
 public class SchemaAttributeSet
 {
     private var _byOrder:Array;
-    private var _byName:Object;
+    private var _byName:QNameMap;
 
-    public function SchemaAttributeSet(jsonAttrArray:Array)
+    public function SchemaAttributeSet(jsonAttrArray:Array, parentNamespaces:NamespacePrefixMap)
     {
         clear();
         if (jsonAttrArray)
         {
             for (var i:int = 0; i < jsonAttrArray.length; i++)
             {
-                add(new SchemaAttribute(jsonAttrArray[i]));
+                add(new SchemaAttribute(jsonAttrArray[i], parentNamespaces));
             }
         }
     }
@@ -20,19 +24,19 @@ public class SchemaAttributeSet
     public function clear():void
     {
         _byOrder = [ ];
-        _byName = { };
+        _byName = new QNameMap();
     }
 
     public function add(attribute:SchemaAttribute):void
     {
-        if (hasName(attribute.name))
+        if (_byName.hasKey(attribute.name))
         {
             throw new ArgumentError("Attribute '" + attribute.name + "' already defined");
         }
         else
         {
             _byOrder.push(attribute);
-            _byName[attribute.name] = attribute;
+            _byName.setValue(attribute.name, attribute);
         }
     }
 
@@ -46,14 +50,9 @@ public class SchemaAttributeSet
         return _byOrder[index];
     }
 
-    public function getByName(name:String):SchemaAttribute
+    public function getByName(name:QName):SchemaAttribute
     {
-        return _byName[name];
-    }
-
-    public function hasName(name:String):Boolean
-    {
-        return _byName.hasOwnProperty(name);
+        return _byName.getValue(name);
     }
 }
 }

@@ -1,22 +1,25 @@
 package org.yellcorp.xml.validator.types
 {
+import org.yellcorp.xml.validator.utils.NamespacePrefixMap;
 import org.yellcorp.xml.validator.utils.Range;
 
 
 public class SchemaElement
 {
-    public var name:String;
+    public var name:QName;
     public var count:Range;
     private var _attributes:SchemaAttributeSet;
     private var _children:SchemaElementSet;
+    private var namespaces:NamespacePrefixMap;
 
-    public function SchemaElement(jsonSchema:Object)
+    public function SchemaElement(jsonSchema:Object, parentNamespaces:NamespacePrefixMap = null)
     {
-        name = jsonSchema["name"];
-        count = toRange(jsonSchema["count"]);
+        namespaces = joinNSMaps(jsonSchema["namespaces"], parentNamespaces);
+        name = namespaces.parseName(require(jsonSchema, "name"));
+        count = toRange(require(jsonSchema, "count"));
 
-        _attributes = new SchemaAttributeSet(jsonSchema["attributes"]);
-        _children = new SchemaElementSet(jsonSchema["children"]);
+        _attributes = new SchemaAttributeSet(jsonSchema["attributes"], namespaces);
+        _children = new SchemaElementSet(jsonSchema["children"], namespaces);
     }
 
     public function get attributes():SchemaAttributeSet
@@ -43,6 +46,27 @@ public class SchemaElement
         {
             throw ArgumentError("Bad range element count");
         }
+    }
+
+    private static function joinNSMaps(nsPrefixMap:*, parentNamespaces:NamespacePrefixMap):NamespacePrefixMap
+    {
+        if (!nsPrefixMap && parentNamespaces)
+        {
+            return parentNamespaces;
+        }
+        else
+        {
+            return new NamespacePrefixMap(nsPrefixMap, parentNamespaces);
+        }
+    }
+
+    private static function require(map:Object, property:String):*
+    {
+        if (!map.hasOwnProperty(property))
+        {
+            throw new ArgumentError("Missing required property '" + property + "'");
+        }
+        return map[property];
     }
 }
 }

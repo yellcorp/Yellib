@@ -1,4 +1,4 @@
-package test.schema
+package scratch.schema
 {
 import org.yellcorp.env.ResizableStage;
 import org.yellcorp.xml.validator.SchemaValidator;
