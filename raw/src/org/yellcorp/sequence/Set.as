@@ -6,11 +6,11 @@ public class Set {
     private var dict:Dictionary;
     private var _length:uint;
 
-    public function Set(initialMembers:Array = null)
+    public function Set(initialMembers:* = null)
     {
         clear();
 
-        if (initialMembers && initialMembers.length > 0)
+        if (initialMembers)
             addIterable(initialMembers);
     }
 
@@ -66,6 +66,15 @@ public class Set {
         }
 
         return wasPresent;
+    }
+
+    public function pop():*
+    {
+        var item:*;
+        if (_length == 0) return null;
+        for each (item in dict) break;
+        delete dict[item];
+        return item;
     }
 
     public function removeIterable(iterable:*):void
