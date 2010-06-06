@@ -1,36 +1,27 @@
-package org.yellcorp.text
+package scratch.text.markov
 {
-public class LipsumGenerator
+import org.yellcorp.text.markov.TextGenerator;
+import org.yellcorp.text.markov.TextSampler;
+
+import flash.display.Sprite;
+
+
+public class TestMarkovText extends Sprite
 {
-    private static var $words:Array;
-
-    public static function generateWords(i:int):String
+    public function TestMarkovText()
     {
-        return getWords().slice(0, i).join(" ");
+        var sampler:TextSampler = new TextSampler(4);
+        var generator:TextGenerator;
+        var text:String = getLoremIpsum();
+
+        sampler.sampleText(text);
+        generator = new TextGenerator(sampler.getTextStats());
+        trace(generator.generateText(600));
     }
 
-    public static function countWords(n:int):String
+    private function getLoremIpsum():String
     {
-        var i:int;
-        var words:Array = [ ];
-
-        for (i = 1; i <= n; i++)
-        {
-            words.push(EnglishUtil.spellInteger(i));
-        }
-        return words.join(" ");
-    }
-
-    private static function getWords():Array
-    {
-        if (!$words)
-        {
-            $words = rawtextx.toString().split(" ");
-        }
-        return $words;
-    }
-
-    private static var rawtextx:XML = <rawtextx>lorem ipsum dolor sit amet consetetur sadipscing elitr sed diam nonumy
+        var text:XML = <text>lorem ipsum dolor sit amet consetetur sadipscing elitr sed diam nonumy
 eirmod tempor invidunt ut labore et dolore magna aliquyam erat sed diam
 voluptua at vero eos et accusam et justo duo dolores et ea rebum stet clita
 kasd gubergren no sea takimata sanctus est lorem ipsum dolor sit amet lorem
@@ -91,7 +82,9 @@ lorem ipsum dolor sit amet lorem ipsum dolor sit amet consetetur sadipscing
 elitr sed diam nonumy eirmod tempor invidunt ut labore et dolore magna
 aliquyam erat sed diam voluptua at vero eos et accusam et justo duo dolores
 et ea rebum stet clita kasd gubergren no sea takimata sanctus est lorem
-ipsum dolor sit amet</rawtextx>;
+ipsum dolor sit amet</text>;
 
+            return text.toString().replace(/\s+/g, " ");
+        }
     }
 }
