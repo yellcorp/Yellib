@@ -1,7 +1,7 @@
 package scratch
 {
 import org.yellcorp.env.ConsoleApp;
-import org.yellcorp.util.NamespaceOptimizer;
+import org.yellcorp.xml.nso.NamespaceOptimizer;
 
 
 public class TestNso extends ConsoleApp
@@ -15,10 +15,7 @@ public class TestNso extends ConsoleApp
     private function run():void
     {
         var nso:NamespaceOptimizer = new NamespaceOptimizer();
-
-        nso.minPrefixLength = 1;
-        nso.original = getTestDoc1();
-        trace(nso.optimized);
+        trace(nso.optimize(getTestDoc1()));
     }
 
     private function getTestDoc1():XML
