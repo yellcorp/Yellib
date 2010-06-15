@@ -103,9 +103,7 @@ public class Set {
 
     public function clone():Set
     {
-        var newSet:Set = new Set();
-        newSet.addIterable(dict);
-        return newSet;
+        return new Set(this);
     }
 
     public function toArray():Array

@@ -1,5 +1,8 @@
 package org.yellcorp.array
 {
+import flash.utils.Dictionary;
+
+
 public class ArrayUtil
 {
     public static function zip(... arrays):Array
@@ -70,19 +73,25 @@ public class ArrayUtil
         return acc;
     }
 
-    public static function reorder(array:Array, indices:Array):Array
+    public static function pick(arrayOrObject:*, indices:Array):Array
     {
         var i:int;
-        var reordered:Array;
-
-        reordered = new Array(indices.length);
+        var picked:Array = [ ];
 
         for (i = 0; i < indices.length; i++)
         {
-            reordered[i] = array[indices[i]];
+            picked.push(arrayOrObject[indices[i]]);
         }
+        return picked;
+    }
 
-        return reordered;
+    public static function mapToProperty(array:Array, property:*):Array
+    {
+        var mapper:Function = function (m:*, i:int, a:Array):*
+        {
+            return m[property];
+        };
+        return array.map(mapper);
     }
 
     public static function count(array:Array, boolFunction:Function = null):int
@@ -160,6 +169,29 @@ public class ArrayUtil
     {
         var index:int = lastIndexOf(array, boolFunction);
         return index >= 0 ? array[index] : null;
+    }
+
+    public static function unique(array:Array):Array
+    {
+        var result:Array = [ ];
+        var member:*;
+        var dict:Dictionary = new Dictionary();
+        var i:int;
+
+        for (i = 0; i < array.length; i++)
+        {
+            member = array[i];
+            if (member !== null && member !== undefined)
+            {
+                dict[member] = member;
+            }
+        }
+        for each (member in dict)
+        {
+            result.push(member);
+        }
+        dict = null;
+        return result;
     }
 
     /**
