@@ -1,6 +1,6 @@
 package org.yellcorp.error
 {
-public class CausedError extends Error
+public class CausedError extends Error implements ErrorChain
 {
     public var cause:Error;
 
@@ -10,7 +10,7 @@ public class CausedError extends Error
         super(message || cause.message, id);
     }
 
-    public function getErrorChain():Array
+    public function getCauses():Array
     {
         var chain:Array = [ this ];
         var currentError:Error = this;

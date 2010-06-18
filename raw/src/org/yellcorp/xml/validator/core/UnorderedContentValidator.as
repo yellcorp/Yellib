@@ -1,10 +1,10 @@
 package org.yellcorp.xml.validator.core
 {
+import org.yellcorp.math.Range;
 import org.yellcorp.xml.validator.errors.ContentValidationError;
 import org.yellcorp.xml.validator.types.SchemaElement;
 import org.yellcorp.xml.validator.types.SchemaElementSet;
 import org.yellcorp.xml.validator.utils.QNameCounter;
-import org.yellcorp.xml.validator.utils.Range;
 
 
 public class UnorderedContentValidator implements ContentValidator
@@ -49,7 +49,7 @@ public class UnorderedContentValidator implements ContentValidator
             occurrenceRange = schemaElement.count;
             actualCount = nameCounter.getCount(schemaElement.name);
 
-            if (!occurrenceRange.verify(actualCount))
+            if (!occurrenceRange.contains(actualCount))
             {
                 throw new ContentValidationError(
                     "Wrong number of " + schemaElement.name +

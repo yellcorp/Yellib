@@ -1,12 +1,14 @@
 package org.yellcorp.events
 {
+import org.yellcorp.error.ErrorChain;
+
 import flash.events.AsyncErrorEvent;
 import flash.events.ErrorEvent;
 import flash.events.Event;
 import flash.events.TextEvent;
 
 
-public class CausedErrorEvent extends ErrorEvent
+public class CausedErrorEvent extends ErrorEvent implements ErrorChain
 {
     public var cause:Event;
 
@@ -16,7 +18,7 @@ public class CausedErrorEvent extends ErrorEvent
         super(type, bubbles, cancelable, text || getText(cause));
     }
 
-    public function getEventChain():Array
+    public function getCauses():Array
     {
         var chain:Array = [ this ];
         var currentEvent:Event = this;
@@ -46,7 +48,7 @@ public class CausedErrorEvent extends ErrorEvent
 
     protected function baseToString(className:String):String
     {
-        return formatToString(className, "cause");
+        return formatToString(className);
     }
 
     private static function coerceCause(cause:*):Event

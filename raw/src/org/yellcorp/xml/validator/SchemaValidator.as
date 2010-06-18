@@ -118,7 +118,10 @@ public class SchemaValidator
         if (node)
         {
             av = new TagAttributeValidator(node.attributes);
-            cv = new UnorderedContentValidator(node.children);
+            if (!node.anyChildren)
+            {
+                cv = new UnorderedContentValidator(node.children);
+            }
         }
 
         return new ValidatorState(node, av, cv);
