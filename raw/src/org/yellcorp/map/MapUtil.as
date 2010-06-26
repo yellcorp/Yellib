@@ -28,7 +28,7 @@ public class MapUtil
     public static function setFromKeysValues(keys:Array, values:Array, target:* = null):*
     {
         if (target === null) target = { };
-        for (var i:int = 0;i < keys.length; i++)
+        for (var i:int = 0; i < keys.length; i++)
         {
             target[keys[i]] = values[i];
         }
@@ -56,7 +56,7 @@ public class MapUtil
     public static function setFromInterleaved(keysValues:Array, target:* = null):*
     {
         if (target === null) target = { };
-        for (var i:int = 0;i < keysValues.length; i += 2)
+        for (var i:int = 0; i < keysValues.length; i += 2)
         {
             target[keysValues[i]] = keysValues[i + 1];
         }

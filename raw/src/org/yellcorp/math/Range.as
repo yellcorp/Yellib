@@ -80,6 +80,16 @@ public class Range
         setWithinFunc();
     }
 
+    public function get difference():Number
+    {
+        return _max - _min;
+    }
+
+    public function param(t:Number):Number
+    {
+        return _min + t * (_max - _min);
+    }
+
     public function toString():String
     {
         return ( _minInclusive ? "[" : "(" ) +

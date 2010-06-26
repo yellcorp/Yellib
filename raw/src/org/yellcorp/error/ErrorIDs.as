@@ -17,5 +17,17 @@ public class ErrorIDs
     public static const XML_ERROR_MAX:uint = 1097;
 
     public static const SANDBOX_LOCAL_SPECIFIED_SECURITY_DOMAIN:uint = 2142;
+
+    public static function isXMLError(e:Error):Boolean
+    {
+        return e is TypeError &&
+               isXMLErrorID(e.errorID);
+    }
+
+    public static function isXMLErrorID(id:int):Boolean
+    {
+        return id >= XML_ERROR_MIN &&
+               id <= XML_ERROR_MAX;
+    }
 }
 }

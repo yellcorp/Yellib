@@ -37,10 +37,11 @@ public class StringUtil
     }
 
 
-    public static function padLeft(inStr:String, totalWidth:uint,
+    public static function padLeft(value:*, totalWidth:uint,
                                    padChar:String = " ",
                                    truncate:Boolean = false):String
     {
+        var inStr:String = value;
         if (inStr.length >= totalWidth)
         {
             return truncate ? inStr.substr(inStr.length - totalWidth)
@@ -53,10 +54,11 @@ public class StringUtil
     }
 
 
-    public static function padRight(inStr:String, totalWidth:uint,
+    public static function padRight(value:*, totalWidth:uint,
                                     padChar:String = " ",
                                     truncate:Boolean = false):String
     {
+        var inStr:String = value;
         if (inStr.length >= totalWidth)
         {
             return truncate ? inStr.substr(0, totalWidth)
@@ -75,7 +77,6 @@ public class StringUtil
     }
 
 
-    // these can be handy for making E4X expressions a little more succinct
     public static function startsWith(query:String, start:String, caseSensitive:Boolean = true):Boolean
     {
         if (!caseSensitive)
@@ -95,6 +96,73 @@ public class StringUtil
             end = end.toLocaleUpperCase();
         }
         return query.slice(-end.length) == end;
+    }
+
+
+    /**
+     * Strips <code>sequence</code> from <code>str</code> if
+     * <code>str</code> begins with <code>sequence</code>.
+     */
+    public static function stripStart(str:String, sequence:String, caseSensitive:Boolean = true):String
+    {
+        if (startsWith(str, sequence, caseSensitive))
+        {
+            return str.substr(sequence.length);
+        }
+        else
+        {
+            return str;
+        }
+    }
+
+
+    /**
+     * Strips <code>sequence</code> from <code>str</code> if
+     * <code>str</code> ends with <code>sequence</code>.
+     */
+    public static function stripEnd(str:String, sequence:String, caseSensitive:Boolean = true):String
+    {
+        if (endsWith(str, sequence, caseSensitive))
+        {
+            return str.substr(0, str.length - sequence.length);
+        }
+        else
+        {
+            return str;
+        }
+    }
+
+
+    public static function delimiterJoin(first:String, second:String, delimeter:String, caseSensitive:Boolean = true):String
+    {
+        return stripEnd(first, delimeter, caseSensitive) +
+               delimeter +
+               stripStart(second, delimeter, caseSensitive);
+    }
+
+
+    public static function delimiterJoinArray(values:Array, delimeter:String):String
+    {
+        var filterValues:Array = new Array(values.length);
+        var value:String;
+        var i:int;
+        var valuesLen:int = values.length;
+        var lastValue:int = valuesLen - 1;
+
+        for (i = 0; i < valuesLen; i++)
+        {
+            value = values[i];
+            if (i > 0)
+            {
+                value = stripStart(value, delimeter);
+            }
+            if (i < lastValue)
+            {
+                value = stripEnd(value, delimeter);
+            }
+            filterValues[i] = value;
+        }
+        return filterValues.join(delimeter);
     }
 }
 }

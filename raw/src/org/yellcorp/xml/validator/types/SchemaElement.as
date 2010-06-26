@@ -1,6 +1,7 @@
 package org.yellcorp.xml.validator.types
 {
 import org.yellcorp.math.Range;
+import org.yellcorp.string.StringUtil;
 import org.yellcorp.xml.validator.utils.NamespacePrefixMap;
 
 
@@ -41,6 +42,7 @@ public class SchemaElement
 
     private static function toRange(count:Array):Range
     {
+        count = count.map(castRangeNumber);
         if (count.length == 1)
         {
             return new Range(count[0], count[0], true, true);
@@ -53,6 +55,36 @@ public class SchemaElement
         {
             throw ArgumentError("Bad range element count");
         }
+    }
+
+    private static function castRangeNumber(input:*, i:*, a:*):Number
+    {
+        var asString:String;
+        if (input is Number)
+        {
+            return input;
+        }
+        else
+        {
+            asString = StringUtil.trim(input).toLowerCase();
+            switch (asString)
+            {
+                case "inf" :
+                case "infinity" :
+                case "+infinity" :
+                case "+inf" :
+                case "unlimited" :
+                case "unbounded" :
+                case "number.positive_infinity" :
+                case "positive_infinity" :
+                    return Number.POSITIVE_INFINITY;
+                default :
+                    return Number.NaN;
+            }
+        }
+
+        // compiler complains that a value isn't returned
+        return Number.NaN;
     }
 
     private static function joinNSMaps(nsPrefixMap:*, parentNamespaces:NamespacePrefixMap):NamespacePrefixMap

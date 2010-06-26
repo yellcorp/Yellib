@@ -201,8 +201,8 @@ public class GraphicsShapes
         var dx:Number = toX - fromX;
         var dy:Number = toY - fromY;
 
-        var headCenterX:Number = fromX + headLengthFactor * dx;
-        var headCenterY:Number = fromY + headLengthFactor * dy;
+        var headCenterX:Number = fromX + (1 - headLengthFactor) * dx;
+        var headCenterY:Number = fromY + (1 - headLengthFactor) * dy;
 
         var headdx:Number = -dy * headHalfWidthFactor;
         var headdy:Number = dx * headHalfWidthFactor;

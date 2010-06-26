@@ -8,6 +8,33 @@ public class EnglishUtil
     private static var powerWords:Array = ["thousand", "million", "billion", "trillion", "quadrillion", "quintillion"];
 
     /**
+     * Formats a list as part of an English sentence.  Accepts
+     * <code>clauses</code> as an Array of Strings, inserts
+     * <code>conj</code> between the last pair, and joins the rest with
+     * <code>punct</code>, which defaults to a comma and space.
+     *
+     * @param clauses An array of strings
+     * @param conj    String to insert between the last pair in <code>clauses</code>
+     * @param punct   String to insert between all other pairs.
+     * @return        The formatted String
+     */
+    public static function joinList(clauses:Array, conj:String, punct:String = ", "):String
+    {
+        if (!clauses)
+        {
+            return "";
+        }
+        else if (clauses.length <= 2)
+        {
+            return clauses.join(conj);
+        }
+        else
+        {
+            return clauses.slice(0, -1).join(punct) + conj + clauses[clauses.length - 1];
+        }
+    }
+
+    /**
      * Spells an integer as a natural language English phrase.
      *
      * @param num The integer to spell.

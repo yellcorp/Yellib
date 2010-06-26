@@ -1,8 +1,13 @@
-package org.yellcorp.sequence {
+package org.yellcorp.sequence
+{
+import org.yellcorp.iterators.readonly.ArrayIterator;
+import org.yellcorp.iterators.readonly.Iterator;
+
 import flash.utils.Dictionary;
 
 
-public class Set {
+public class Set
+{
     private var dict:Dictionary;
     private var _length:uint;
 
@@ -126,6 +131,11 @@ public class Set {
     public function get length():uint
     {
         return _length;
+    }
+
+    public function get iterator():Iterator
+    {
+        return new ArrayIterator(toArray());
     }
 
     public static function union(left:Set, right:Set):Set

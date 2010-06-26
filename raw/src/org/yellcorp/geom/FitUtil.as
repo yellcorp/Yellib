@@ -137,9 +137,6 @@ public class FitUtil
         outMatrix.tx = target.left - source.left;
         outMatrix.ty = target.top - source.top;
         outMatrix.a = target.width / source.width;
-        trace('target.width: ' + (target.width));
-        trace('source.width: ' + (source.width));
-        trace('target.width / source.width: ' + (target.width / source.width));
         outMatrix.b =
         outMatrix.c = 0;
         outMatrix.d = target.height / source.height;

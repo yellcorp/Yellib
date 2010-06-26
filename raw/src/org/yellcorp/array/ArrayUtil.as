@@ -170,8 +170,7 @@ public class ArrayUtil
      * Given an <code>Array</code> of objects, return the specified
      * property for each one.
      *
-     * @example Example using an Object:
-     * <listing version="3.0">
+     * @example <listing version="3.0">
      * var things:Array = [
      *     { width:  320, height: 240 },
      *     { width:  640, height: 480 },
@@ -183,12 +182,43 @@ public class ArrayUtil
      *
      * @param array    An array of objects.
      * @param property The name of the property to return from each object.
+     * @return         A new <code>Array</code> of each object's property
+     *                 value.
      */
     public static function mapToProperty(array:Array, property:*):Array
     {
         var mapper:Function = function (m:*, i:int, a:Array):*
         {
             return m[property];
+        };
+        return array.map(mapper);
+    }
+
+    /**
+     * Given an <code>Array</code> of objects, calls the specified method
+     * on each one and return a new array of the results.
+     *
+     * @example <listing version="3.0">
+     * var numbers:Array = [ 102, 153, 204 ];
+     *
+     * var decimal:Array = ArrayUtil.mapToMethod(numbers, "toString");
+     * // decimal == [ "102", "153", "204" ];
+     *
+     * var hex:Array = ArrayUtil.mapToMethod(numbers, "toString", [ 16 ]);
+     * // hex == [ "66", "99", "cc" ];
+     *
+     * @param array     An array of objects.
+     * @param method    The name of the method to call on each object.
+     * @param arguments An array of arguments to pass to each method. If
+     *                  omitted, passes no arguments.
+     * @return          A new <code>Array</code> of the results of each
+     *                  method call.
+     */
+    public static function mapToMethod(array:Array, methodName:String, arguments:Array = null):Array
+    {
+        var mapper:Function = function (m:*, i:int, a:Array):*
+        {
+            return m[methodName].apply(m, arguments);
         };
         return array.map(mapper);
     }
@@ -374,8 +404,6 @@ public class ArrayUtil
      * Helper function: Wraps a 1-argument function with a function
      * signature suitable for passing to the 3-argument functional methods
      * of Array.
-     *
-     * // TODO: work out if this is actually even needed
      *
      * @see Array#every
      * @see Array#filter
