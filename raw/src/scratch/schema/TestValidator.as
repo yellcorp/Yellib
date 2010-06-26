@@ -10,7 +10,7 @@ public class TestValidator extends ResizableStage
     public function TestValidator()
     {
         var v:SchemaValidator = new SchemaValidator(
-            new SchemaElement(VHADataSchema.schema));
+            new SchemaElement(localDataSchema));
 
         if (v.validate(vhaDataSample))
         {
