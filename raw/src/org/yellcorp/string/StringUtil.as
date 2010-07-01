@@ -141,7 +141,7 @@ public class StringUtil
     }
 
 
-    public static function delimiterJoinArray(values:Array, delimeter:String):String
+    public static function delimiterJoinArray(values:Array, delimeter:String, caseSensitive:Boolean = true):String
     {
         var filterValues:Array = new Array(values.length);
         var value:String;
@@ -154,11 +154,11 @@ public class StringUtil
             value = values[i];
             if (i > 0)
             {
-                value = stripStart(value, delimeter);
+                value = stripStart(value, delimeter, caseSensitive);
             }
             if (i < lastValue)
             {
-                value = stripEnd(value, delimeter);
+                value = stripEnd(value, delimeter, caseSensitive);
             }
             filterValues[i] = value;
         }
