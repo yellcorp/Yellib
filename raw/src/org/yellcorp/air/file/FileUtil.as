@@ -1,6 +1,7 @@
 package org.yellcorp.air.file
 {
 import org.yellcorp.binary.ByteUtils;
+import org.yellcorp.regexp.RegExpUtil;
 
 import flash.filesystem.File;
 import flash.filesystem.FileMode;
@@ -9,6 +10,16 @@ import flash.filesystem.FileStream;
 
 public class FileUtil
 {
+    private static var _globMatch:RegExp;
+    private static const globCharToRegExp:Object = {
+        "**" : ".*",
+        "*"  : "[^\\/\\\\]*",
+        "?"  : "[^\\/\\\\]",
+        "."  : "\\.",
+        "/"  : "[\\/\\\\]",
+        "\\" : "[\\/\\\\]"
+    };
+
     public static function readXMLFromFile(file:File):XML
     // throws Error, SecurityError, IOError, EOFError, TypeError
     {
@@ -27,6 +38,39 @@ public class FileUtil
             stream = null;
         }
         return xml;
+    }
+
+    /**
+     * Convert DOS/Unix-style glob to RegExp.  Supported metacharacters:
+     * *  Match 0 or more non-delimiter characters
+     * ?  Match 1 non-delimiter character
+     * ** Match 0 or more characters, including delimiters
+     *
+     * . (full-stop / period) is treated as a literal.
+     * / and \ match either path delimiter.
+     *
+     * All other characters are passed through unchanged and unescaped.
+     */
+    public static function globToRegExp(glob:String, caseSensitive:Boolean = false):RegExp
+    {
+        var regExpString:String = glob.replace(getGlobMatch(), subGlobChar);
+
+        return new RegExp(regExpString, caseSensitive ? "" : "i");
+    }
+
+    private static function getGlobMatch():RegExp
+    {
+        if (!_globMatch)
+        {
+            _globMatch = RegExpUtil.createAlternates(
+            [ "**", "*", "?", ".", "/", "\\" ], false, "g");
+        }
+        return _globMatch;
+    }
+
+    private static function subGlobChar(globChar:String, ...rest):String
+    {
+        return globCharToRegExp[globChar] || globChar;
     }
 }
 }
