@@ -16,6 +16,11 @@ import flash.system.LoaderContext;
 import flash.utils.ByteArray;
 
 
+[Event(name="complete", type="flash.events.Event")]
+[Event(name="open", type="flash.events.Event")]
+[Event(name="httpStatus", type="flash.events.HTTPStatusEvent")]
+[Event(name="progress", type="flash.events.ProgressEvent")]
+[Event(name="ioError", type="flash.events.IOErrorEvent")]
 public class BitmapLoader extends EventDispatcher implements Destructor
 {
     public static const FP9_MAX_AXIS:uint = 2880;
