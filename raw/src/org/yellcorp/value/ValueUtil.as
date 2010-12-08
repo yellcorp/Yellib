@@ -1,14 +1,9 @@
-package org.yellcorp.object
+package org.yellcorp.value
 {
 /**
- * Helper functions for turning null values into something more useful.
- *
- * If you're looking for functions to manipulate dynamic
- * <code>Object</code> instances, see org.yellcorp.map.MapUtil.
- *
- * @see org.yellcorp.map.MapUtil
+ * Helper functions for turning null or undefined values into something more useful.
  */
-public class ObjectUtil
+public class ValueUtil
 {
     /**
      * Returns the first argument that isn't <code>null</code> or
