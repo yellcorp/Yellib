@@ -118,11 +118,14 @@ public class BaseDisplay extends Sprite implements Displayable
     {
         invalidTokens[token] = true;
 
-        waitingForRender = true;
-        if (stage)
+        if (!waitingForRender)
         {
-            stage.invalidate();
-            addEventListener(Event.ENTER_FRAME, onNextFrame, false, 0, true);
+            waitingForRender = true;
+            if (stage)
+            {
+                stage.invalidate();
+                addEventListener(Event.ENTER_FRAME, onNextFrame, false, 0, true);
+            }
         }
     }
 
