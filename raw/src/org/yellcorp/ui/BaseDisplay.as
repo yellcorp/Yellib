@@ -8,17 +8,25 @@ import flash.utils.getQualifiedClassName;
 
 public class BaseDisplay extends Sprite implements Displayable
 {
+    public static const SIZE:String = "SIZE";
+    public static const SCROLL:String = "SCROLL";
+    public static const STATE:String = "STATE";
+    public static const CONTENT:String = "CONTENT";
+
     protected var _width:Number;
     protected var _height:Number;
-    protected var invalidSize:Boolean;
 
     private var waitingForRender:Boolean;
     private var handlingRender:Boolean;
 
     private var debug:Boolean = false;
 
+    private var invalidTokens:Object;
+
     public function BaseDisplay(initialWidth:Number = 0, initialHeight:Number = 0)
     {
+        invalidTokens = { };
+
         _width = initialWidth;
         _height = initialHeight;
         addEventListener(Event.ADDED_TO_STAGE, _onAddedToStage, false, 0, true);
@@ -38,7 +46,7 @@ public class BaseDisplay extends Sprite implements Displayable
     public override function set width(new_width:Number):void
     {
         _width = new_width;
-        invalidateSize();
+        invalidate(SIZE);
     }
 
     public override function get height():Number
@@ -49,19 +57,19 @@ public class BaseDisplay extends Sprite implements Displayable
     public override function set height(new_height:Number):void
     {
         _height = new_height;
-        invalidateSize();
+        invalidate(SIZE);
     }
 
     public function setSize(w:Number, h:Number):void
     {
         _width = w;
         _height = h;
-        invalidateSize();
+        invalidate(SIZE);
     }
 
     public function forceRedraw():void
     {
-        invalidateSize();
+        invalidate(SIZE);
         draw();
     }
 
@@ -106,20 +114,31 @@ public class BaseDisplay extends Sprite implements Displayable
         }
     }
 
-    protected function invalidateSize():void
+    protected function invalidate(token:String):void
     {
-        invalidSize = true;
-        invalidate();
-    }
+        invalidTokens[token] = true;
 
-    protected function invalidate():void
-    {
         waitingForRender = true;
         if (stage)
         {
             stage.invalidate();
             addEventListener(Event.ENTER_FRAME, onNextFrame, false, 0, true);
         }
+    }
+
+    protected function validate(token:String):void
+    {
+        delete invalidTokens[token];
+    }
+
+    protected function isInvalid(token:String):Boolean
+    {
+        return invalidTokens[token] === true;
+    }
+
+    protected function isValid(token:String):Boolean
+    {
+        return invalidTokens[token] !== true;
     }
 
     protected function onAddedToStage(event:Event):void

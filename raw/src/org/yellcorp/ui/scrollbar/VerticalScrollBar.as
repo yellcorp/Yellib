@@ -49,10 +49,10 @@ public class VerticalScrollBar extends BaseScrollBar
 
     protected override function draw():void
     {
-        if (invalidSize)
+        if (isInvalid(SIZE))
         {
             setTotalSize(height);
-            invalidSize = false;
+            validate(SIZE);
         }
     }
 }
