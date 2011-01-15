@@ -40,6 +40,15 @@ public class FileUtil
         return xml;
     }
 
+    public static function transplant(sourceFile:File, sourceRoot:File, targetRoot:File):File
+    {
+        var relPath:String;
+
+        relPath = sourceRoot.getRelativePath(sourceFile, false);
+
+        return relPath ? targetRoot.resolvePath(relPath) : null;
+    }
+
     /**
      * Convert DOS/Unix-style glob to RegExp.  Supported metacharacters:
      * *  Match 0 or more non-delimiter characters
