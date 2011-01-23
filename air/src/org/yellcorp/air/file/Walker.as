@@ -111,7 +111,7 @@ public class Walker extends EventDispatcher
         enumerateNext();
     }
 
-    private static function cloneFile(file:File, i:*, a:*):File
+    private static function cloneFile(file:File, ...ignored):File
     {
         return new File(file.url);
     }

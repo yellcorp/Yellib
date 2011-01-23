@@ -24,20 +24,36 @@ public class FileUtil
     // throws Error, SecurityError, IOError, EOFError, TypeError
     {
         var stream:FileStream;
-        var xml:XML;
+        var document:XML;
 
         stream = new FileStream();
         stream.open(file, FileMode.READ);
 
         try {
-            xml = ByteUtils.bytesToXML(stream);
+            document = ByteUtils.bytesToXML(stream);
         }
         finally
         {
             stream.close();
             stream = null;
         }
-        return xml;
+        return document;
+    }
+
+    public static function writeXMLToFile(file:File, document:XML):void
+    // throws SecurityError, IOError
+    {
+        var stream:FileStream = new FileStream();
+        stream.open(file, FileMode.WRITE);
+
+        try {
+            stream.writeUTFBytes(document.toXMLString());
+        }
+        finally
+        {
+            stream.close();
+            stream = null;
+        }
     }
 
     public static function transplant(sourceFile:File, sourceRoot:File, targetRoot:File):File

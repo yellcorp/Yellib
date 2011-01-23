@@ -59,7 +59,7 @@ public class WalkFilter
         return filterFunc;
     }
 
-    private static function stripLeadingDots(ext:String, i:*, a:*):String
+    private static function stripLeadingDots(ext:String, ...ignored):String
     {
         return StringUtil.stripStart(ext, ".");
     }
