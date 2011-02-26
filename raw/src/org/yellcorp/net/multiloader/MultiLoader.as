@@ -21,7 +21,9 @@ import flash.utils.Dictionary;
 public class MultiLoader extends EventDispatcher implements Destructor
 {
     public var order:String;
-    public var dispatchUnknownProgress:Boolean;
+
+    private var _errorPolicy:String;
+    private var _dispatchUnknownProgress:Boolean;
 
     private var _concurrent:int;
     private var _started:Boolean;
@@ -34,9 +36,24 @@ public class MultiLoader extends EventDispatcher implements Destructor
     private var completedItems:Set;
     private var errorItems:Set;
 
-    public function MultiLoader(order:String = "fifo")
+    public function MultiLoader(order:String = "fifo", errorPolicy:String = "abort", dispatchUnknownProgress:Boolean = false)
     {
         this.order = order;
+
+        switch (errorPolicy)
+        {
+            case MultiLoaderErrorPolicy.ABORT :
+            case MultiLoaderErrorPolicy.COMPLETE_ALWAYS :
+            case MultiLoaderErrorPolicy.COMPLETE_IF_NO_ERRORS :
+                _errorPolicy = errorPolicy;
+                break;
+            default :
+                _errorPolicy = MultiLoaderErrorPolicy.ABORT;
+                break;
+        }
+
+        _dispatchUnknownProgress = dispatchUnknownProgress;
+
         _concurrent = 1;
         queue = [ ];
         idToItem = { };
@@ -45,6 +62,16 @@ public class MultiLoader extends EventDispatcher implements Destructor
         completedItems = new Set();
         errorItems = new Set();
         super();
+    }
+
+    public function get errorPolicy():String
+    {
+        return _errorPolicy;
+    }
+
+    public function get dispatchUnknownProgress():Boolean
+    {
+        return _dispatchUnknownProgress;
     }
 
     public function destroy():void
@@ -95,13 +122,13 @@ public class MultiLoader extends EventDispatcher implements Destructor
         idToItem[id] = item;
         itemToId[item] = id;
         queue.push(item);
-        if (_started) fillQueue();
+        advance();
     }
 
     public function start():void
     {
         _started = true;
-        fillQueue();
+        advance();
     }
 
     public function get started():Boolean
@@ -117,7 +144,7 @@ public class MultiLoader extends EventDispatcher implements Destructor
     public function set concurrent(concurrent:uint):void
     {
         _concurrent = concurrent;
-        if (_started) fillQueue();
+        advance();
     }
 
     public function get bytesLoaded():uint
@@ -176,9 +203,10 @@ public class MultiLoader extends EventDispatcher implements Destructor
         return errorItems.length;
     }
 
-    public function get complete():Boolean
+    public function get isComplete():Boolean
     {
-        return queueCount == 0 && openCount == 0 && errorCount == 0 && _started;
+        return _started && queueCount == 0 && openCount == 0 &&
+               (_errorPolicy == MultiLoaderErrorPolicy.COMPLETE_ALWAYS || errorCount == 0);
     }
 
     ml_internal function onComplete(item:MultiLoaderItem):void
@@ -186,15 +214,8 @@ public class MultiLoader extends EventDispatcher implements Destructor
         openItems.remove(item);
         completedItems.add(item);
         dispatchEvent(new MultiLoaderItemEvent(MultiLoaderItemEvent.ITEM_COMPLETE, getItemId(item), item, false, false));
-        fillQueue();
-        if (complete)
-        {
-            dispatchComplete();
-        }
-        else
-        {
-            dispatchProgress();
-        }
+        advance();
+        itemFinished();
     }
 
     ml_internal function onOpen(item:MultiLoaderItem):void
@@ -215,19 +236,27 @@ public class MultiLoader extends EventDispatcher implements Destructor
         openItems.remove(item);
         errorItems.add(item);
         dispatchEvent(new MultiLoaderErrorEvent(MultiLoaderErrorEvent.MULTILOADER_ERROR, getItemId(item), item, event));
-        fillQueue();
+        advance();
+        itemFinished();
     }
 
-    private function dispatchComplete():void
+    private function advance():void
     {
-        dispatchEvent(new Event(Event.COMPLETE, false, false));
-    }
-
-    private function dispatchProgress():void
-    {
-        if (dispatchUnknownProgress || bytesTotalKnown)
+        if (_started && shouldContinue())
         {
-            dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, bytesLoaded, bytesTotal));
+            fillQueue();
+        }
+    }
+
+    private function shouldContinue():Boolean
+    {
+        if (_errorPolicy == MultiLoaderErrorPolicy.ABORT)
+        {
+            return errorCount == 0;
+        }
+        else
+        {
+            return true;
         }
     }
 
@@ -256,6 +285,31 @@ public class MultiLoader extends EventDispatcher implements Destructor
     private function getNextItem():MultiLoaderItem
     {
         return order == MultiLoaderOrder.LIFO ? queue.pop() : queue.shift();
+    }
+
+    private function itemFinished() : void
+    {
+        if (isComplete)
+        {
+            dispatchComplete();
+        }
+        else
+        {
+            dispatchProgress();
+        }
+    }
+
+    private function dispatchComplete():void
+    {
+        dispatchEvent(new Event(Event.COMPLETE, false, false));
+    }
+
+    private function dispatchProgress():void
+    {
+        if (_dispatchUnknownProgress || bytesTotalKnown)
+        {
+            dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, bytesLoaded, bytesTotal));
+        }
     }
 }
 }
