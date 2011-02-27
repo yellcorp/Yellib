@@ -1,5 +1,6 @@
 package org.yellcorp.debug
 {
+import org.yellcorp.format.Template;
 import org.yellcorp.string.StringUtil;
 
 import flash.display.DisplayObject;
@@ -45,43 +46,63 @@ public class DebugUtil
         return calls;
     }
 
-    public static function displayTree(container:DisplayObjectContainer, maxLevels:int):String
+    public static function dumpDisplayTree(container:DisplayObjectContainer, maxDepth:int = 0):String
     {
-        return _displayTree(container, container, maxLevels, 0);
+        var lineBuffer:Array = [ ];
+        _dumpDisplayTree(container, container, maxDepth, 0, lineBuffer);
+        return lineBuffer.join("\n");
     }
 
-    private static function _displayTree(
+    private static function _dumpDisplayTree(
         container:DisplayObjectContainer,
         reference:DisplayObjectContainer,
-        maxLevels:int,
-        thislevel:int):String
+        maxDepth:int,
+        currentDepth:int,
+        outLineBuffer:Array):void
     {
         var i:int = 0;
         var len:int = container.numChildren;
         var current:DisplayObject;
         var numPad:int = len.toString().length;
-        var str:String = "";
 
-        for (i = 0;i < len; i++)
+        var formatValues:Object = { };
+
+        formatValues.indent = StringUtil.repeat(" ", currentDepth);
+
+        if (maxDepth > 0 && currentDepth > maxDepth)
         {
-            current = container.getChildAt(i);
-
-            str += StringUtil.repeat(" ", thislevel) /* Child index */
-                 + StringUtil.padRight(i.toString(), numPad) + " " /* Name */
-                 + current.name + " " /* Class */
-                 + describeType(current).@name.toString() + " " /* First native ancestor */
-                 + "(" + searchTypeChain(current, "flash.") + ") " /* Registration point */
-                 + "{" + [current.x, current.y].join(", ") + "} " /* Scale */
-                 + "{" + [current.scaleX, current.scaleY].join(", ") + "} " /* Bounding rectangle */
-                 + current.getRect(container).toString() + " " + "\n";
-
-            if (current is DisplayObjectContainer)
+            outLineBuffer.push(formatValues.indent + "[[Reached maximum depth of " + maxDepth + "]]");
+            return;
+        }
+        else
+        {
+            for (i = 0;i < len; i++)
             {
-                str += _displayTree(current as DisplayObjectContainer, reference, maxLevels, thislevel + 1);
+                current = container.getChildAt(i);
+
+                formatValues.index = StringUtil.padRight(i.toString(), numPad);
+                formatValues.name = current.name;
+
+                formatValues['class'] = getQualifiedClassName(current);
+                formatValues.nativeClass = searchTypeChain(current, "flash.");
+
+                formatValues.x = current.x;
+                formatValues.y = current.y;
+
+                formatValues.scaleX = current.scaleX;
+                formatValues.scaleY = current.scaleY;
+
+                formatValues.rect = current.getRect(container);
+
+                outLineBuffer.push(Template.format("{indent}{index} name:\"{name}\" class:{class}({nativeClass}) pos:({x}, {y}) scale:({scaleX}, {scaleY}) rect:{rect}",
+                        formatValues));
+
+                if (current is DisplayObjectContainer)
+                {
+                    _dumpDisplayTree(current as DisplayObjectContainer, reference, maxDepth, currentDepth + 1, outLineBuffer);
+                }
             }
         }
-
-        return str;
     }
 
     private static function searchTypeChain(query:Object, prefix:String):String
@@ -100,10 +121,12 @@ public class DebugUtil
 
     public static function dumpObject(root:*, maxDepth:int = 3):String
     {
-        return _dumpObject(root, maxDepth, 0);
+        var lineBuffer:Array = [ ];
+        _dumpObject(root, maxDepth, 0, lineBuffer);
+        return lineBuffer.join("\n");
     }
 
-    private static function _dumpObject(obj:*, maxDepth:int, currentDepth:int):String
+    private static function _dumpObject(obj:*, maxDepth:int, currentDepth:int, outLineBuffer:Array):void
     {
         var desc:XML;
         var node:XML;
@@ -113,11 +136,9 @@ public class DebugUtil
         var propName:String;
         var indent:String;
         var className:String;
-        var output:String;
 
         indent = StringUtil.repeat(" ", currentDepth);
 
-        output = "";
         desc = describeType(obj);
         className = desc.@name;
 
@@ -131,10 +152,13 @@ public class DebugUtil
         }
 
         if (currentDepth >= maxDepth)
+        {
             if (evalList.children().length() > 0)
-                return indent + "[[Reached maximum depth of " + maxDepth + "]]\n";
-            else
-                return "";
+            {
+                outLineBuffer.push(indent + "[[Reached maximum depth of " + maxDepth + "]]");
+            }
+            return;
+        }
 
         // no good: if late property evaluation, i.e. name[prop] invokes a getter that
         // throws an exception, try/catch won't actually catch it.  this is likely the
@@ -150,14 +174,11 @@ public class DebugUtil
         for each (node in evalList.*)
         {
             propName = node.@name;
-            output += indent + propName + ":" + node.@type + "=";
-            output += obj[propName];
+            outLineBuffer.push(
+                    indent + propName + ":" + node.@type + "=" + obj[propName]);
 
-            output += "\n";
-            output += _dumpObject(obj[propName], maxDepth, currentDepth+1);
+            _dumpObject(obj[propName], maxDepth, currentDepth + 1, outLineBuffer);
         }
-
-        return output;
     }
 }
 }
