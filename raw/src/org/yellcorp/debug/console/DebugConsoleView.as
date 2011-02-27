@@ -50,7 +50,7 @@ public class DebugConsoleView extends BaseDisplay implements InputEditor
         _inputField.wordWrap = false;
 
         initLayout();
-        invalidateSize();
+        invalidate(SIZE);
     }
 
     public function getInput():String
@@ -102,7 +102,7 @@ public class DebugConsoleView extends BaseDisplay implements InputEditor
 
     protected override function draw():void
     {
-        if (invalidSize)
+        if (isInvalid(SIZE))
         {
             drawLayout();
         }
@@ -135,7 +135,7 @@ public class DebugConsoleView extends BaseDisplay implements InputEditor
         _outputField.width = outputScroll.x - _outputField.x;
         _outputField.height = outputScroll.height;
 
-        invalidSize = false;
+        validate(SIZE);
     }
 
 }

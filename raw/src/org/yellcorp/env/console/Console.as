@@ -48,7 +48,7 @@ public class Console extends BaseDisplay
         if (type > invalidScroll)
         {
             invalidScroll = type;
-            invalidate();
+            invalidate(SCROLL);
         }
     }
 
@@ -68,7 +68,7 @@ public class Console extends BaseDisplay
     protected override function draw():void
     {
         var pin:Boolean;
-        if (invalidSize)
+        if (isInvalid(SIZE))
         {
             pin = isScrollPinned();
             setSizeOn(consoleText, width - scrollbar.width, height);
@@ -76,7 +76,7 @@ public class Console extends BaseDisplay
             scrollbar.x = consoleText.width;
             if (pin) pinScroll();
             invalidateScroll(FIELD);
-            invalidSize = false;
+            validate(SIZE);
         }
 
         if (invalidScroll == FIELD)

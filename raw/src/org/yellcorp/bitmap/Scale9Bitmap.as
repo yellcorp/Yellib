@@ -95,12 +95,12 @@ public class Scale9Bitmap extends BaseDisplay
     public override function set scale9Grid(scalingArea:Rectangle):void
     {
         _scale9Grid = scalingArea;
-        invalidateSize();
+        invalidate(SIZE);
     }
 
     protected override function draw():void
     {
-        if (invalidSize)
+        if (isInvalid(SIZE))
         {
             drawSize();
         }
@@ -108,7 +108,7 @@ public class Scale9Bitmap extends BaseDisplay
 
     protected function drawBitmap():void
     {
-        invalidSize = true;
+        invalidate(SIZE);
     }
 
     protected function drawSize():void
@@ -135,7 +135,7 @@ public class Scale9Bitmap extends BaseDisplay
                 removeChild(bitmapDisplay);
             }
         }
-        invalidSize = false;
+        validate(SIZE);
     }
 
     private function drawLinearScale():void
