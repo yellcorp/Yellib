@@ -1,7 +1,7 @@
 package scratch.schema
 {
 import org.yellcorp.env.ResizableStage;
-import org.yellcorp.format.Template;
+import org.yellcorp.format.template.Template;
 
 
 public class NamespaceTest extends ResizableStage

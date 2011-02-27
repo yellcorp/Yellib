@@ -1,8 +1,9 @@
-package test.yellcorp.format
+package test.yellcorp.format.template
 {
 import asunit.framework.TestCase;
 
-import org.yellcorp.format.Template;
+import org.yellcorp.format.template.Template;
+import org.yellcorp.format.template.TemplateFormatStringError;
 
 
 public class TemplateTest extends TestCase
@@ -11,15 +12,18 @@ public class TemplateTest extends TestCase
     {
         super(testMethod);
     }
+
     public function testEmpty():void
     {
-        assertEquals("Empty string", "", Template.format(""));
+        assertEquals("Empty string", "", Template.format("", null));
     }
+
     public function testNoTokens():void
     {
         var testString:String = "No tokens";
-        assertEquals(testString, Template.format(testString));
+        assertEquals(testString, Template.format(testString, null));
     }
+
     public function testSimpleSingle():void
     {
         assertEquals("Single numeric token",
@@ -38,6 +42,7 @@ public class TemplateTest extends TestCase
                      "ABCD1234",
                      Template.format("{0}1234", [ "ABCD" ]));
     }
+
     public function testSimpleMultiple():void
     {
         assertEquals("Repeated numeric key",
@@ -61,6 +66,7 @@ public class TemplateTest extends TestCase
                      Template.format("{0} start {1} {2} end {3}",
                                      [ "AA", "BB", "CC", "DD"]));
     }
+
     public function testDotEval():void
     {
         assertEquals("Array/Array",
@@ -86,7 +92,42 @@ public class TemplateTest extends TestCase
                                            b: "1234" },
                                       b: {a: "EFGH",
                                             b: "5678" }}));
+
+        assertEquals("Deep",
+                     "YES",
+                     Template.format("{0.a.1.b}",
+                                     [
+                                       {
+                                            a: [
+                                              {a: "WRONG B"},
+                                              {b: "YES"}
+                                            ]
+                                       },
+                                       {
+                                            a: [
+                                              {a: "WRONG A"},
+                                              {b: "WRONG A"}
+                                            ]
+                                       }
+                                     ] ));
+
+        assertEquals("Early undefined",
+                     "PASS",
+                     Template.format("{1.0.0}", [[["FAIL"]]], "PASS"));
+
+        assertEquals("Middle undefined",
+                     "PASS",
+                     Template.format("{0.1.0}", [[["FAIL"]]], "PASS"));
+
+        assertEquals("Late undefined",
+                     "PASS",
+                     Template.format("{0.0.1}", [[["FAIL"]]], "PASS"));
+
+        assertEquals("Overrun",
+                     "PASS",
+                     Template.format("{0.0.0.1}", [[["FAIL"]]], "PASS"));
     }
+
     public function testStringCast():void
     {
         var now:Date = new Date();
@@ -95,6 +136,7 @@ public class TemplateTest extends TestCase
                      expectString,
                      Template.format("Date is {0}", [ now ]));
     }
+
     public function testUnresolved():void
     {
         assertEquals("Default unresolved",
@@ -109,11 +151,12 @@ public class TemplateTest extends TestCase
                                       cc: "1234"},
                                      "[unresolved]"));
     }
+
     public function testUniqueEscape():void
     {
         assertEquals("Simple Escape",
                      "{0}",
-                     Template.format("\\{0}"));
+                     Template.format("\\{0}", null));
         assertEquals("Escape followed by token",
                      "{0}ABCD",
                      Template.format("\\{0}{0}", ["ABCD"]));
@@ -121,6 +164,7 @@ public class TemplateTest extends TestCase
                      "ABCD{0}",
                      Template.format("{0}\\{0}", ["ABCD"]));
     }
+
     public function testDoubledEscape():void
     {
         assertEquals("Simple Escape",
@@ -133,30 +177,44 @@ public class TemplateTest extends TestCase
                      "ABCD{0}",
                      Template.format("{0}{{0}", ["ABCD"], null, "{", "}", "{"));
     }
+
     public function testCustomSequences():void
     {
         assertEquals("Multi-char open",
                      "ABCD ABCD $(0) ABCD",
                      Template.format("$(0) $(0) \\$(0) $(0)", ["ABCD"], null, "$(", ")"));
+
         assertEquals("Multi-char both",
                      "ABCD ABCD [[0]] ABCD",
                      Template.format("[[0]] [[0]] \\[[0]] [[0]]", ["ABCD"], null, "[[", "]]"));
+
         assertEquals("Identical both",
                      "ABCD ABCD %0% ABCD",
                      Template.format("%0% %0% \\%0\\% %0%", ["ABCD"], null, "%", "%"));
+
         assertEquals("Identical all",
                      "ABCD ABCD %0% ABCD",
                      Template.format("%0% %0% %%0%% %0%", ["ABCD"], null, "%", "%", "%"));
+
         assertEquals("Identical multi-char both",
                      "ABCD ABCD $$0$$ ABCD",
                      Template.format("$$0$$ $$0$$ \\$$0\\$$ $$0$$", ["ABCD"], null, "$$", "$$"));
+
+        assertEquals("Escape by doubling first char of multi-char open",
+                     "ABCD ABCD $(0) ABCD",
+                     Template.format("$(0) $(0) $$(0) $(0)", ["ABCD"], null, "$(", ")", "$"));
+
+        assertEquals("Escape by implicit doubling of single char",
+                     "ABCD ABCD <0> ABCD",
+                     Template.format("<0> <0> <<0>> <0>", ["ABCD"], null, "<", ">", ""));
+
+        assertEquals("Escape by implicit doubling of first char of multi-char",
+                     "ABCD ABCD $(0) ABCD",
+                     Template.format("$(0) $(0) $$(0)) $(0)", ["ABCD"], null, "$(", ")", ""));
     }
+
     public function testMisuse():void
     {
-        assertEquals("Ignore unclosed token",
-                     "ABCD {0",
-                     Template.format("{0} {0", [ "ABCD" ]));
-
         assertEquals("Ignore closer without open",
                      "ABCD 0}",
                      Template.format("{0} 0}", [ "ABCD" ]));
@@ -167,18 +225,19 @@ public class TemplateTest extends TestCase
                      "start [unresolved] close",
                      Template.format("start {0 {0} close", [ "ABCD" ], "[unresolved]"));
     }
+
     public function testError():void
     {
-        assertThrows(ArgumentError,
-                     function ():void
-                     {
-                         Template.format("", null, null, "(", ")", "$$");
-                     });
+        assertThrows(TemplateFormatStringError,
+            function ():void {
+                Template.format("{0} {0", [ "ABCD" ]);
+            }
+        );
 
         assertThrows(ArgumentError,
                      function ():void
                      {
-                         Template.format("", null, null, "$(", ")", "$");
+                         Template.format("", null, null, "(", ")", "$$");
                      });
     }
 }

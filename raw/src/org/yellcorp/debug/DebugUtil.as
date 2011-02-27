@@ -1,6 +1,6 @@
 package org.yellcorp.debug
 {
-import org.yellcorp.format.Template;
+import org.yellcorp.format.template.Template;
 import org.yellcorp.string.StringUtil;
 
 import flash.display.DisplayObject;

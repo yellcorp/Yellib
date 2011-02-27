@@ -1,12 +1,8 @@
 package org.yellcorp.regexp
 {
-
-import org.yellcorp.array.ArrayUtil;
-
-
 public class RegExpUtil
 {
-    public static const REGEX_CHARS:RegExp = /(\^|\$|\\|\.|\*|\+|\?|\(|\)|\[|\]|\{|\}|\|)/g;
+    public static const REGEX_CHARS:RegExp = /([\^$.*+?|\\()[\]{}])/g;
 
     public static function createLiteralRegExp(literalString:String, flags:String = ""):RegExp
     {
@@ -18,13 +14,15 @@ public class RegExpUtil
         var escapedAlternates:Array;
         var expression:String;
 
-        escapedAlternates = literalAlternates.map(ArrayUtil.simpleCallback(escapeRegExp));
+        escapedAlternates = literalAlternates.map(escapeRegExp);
         expression = (capturing ? "(" : "(?:") + escapedAlternates.join("|") + ")";
 
         return new RegExp(expression, flags);
     }
 
-    public static function escapeRegExp(literalString:String):String
+    // the extra unused args here are to allow this
+    // function to be passed to Array.map
+    public static function escapeRegExp(literalString:String, index:* = null, array:* = null):String
     {
         return literalString.replace(REGEX_CHARS, "\\$1");
     }

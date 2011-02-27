@@ -1,6 +1,6 @@
 package wip.yellcorp.simplelog
 {
-import org.yellcorp.format.Template;
+import org.yellcorp.format.template.Template;
 
 import flash.utils.getQualifiedClassName;
 
