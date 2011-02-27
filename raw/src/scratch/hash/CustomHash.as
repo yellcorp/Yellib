@@ -16,7 +16,7 @@ public class CustomHash implements IHashable
         this.c = c;
     }
 
-    public function hash():uint
+    public function hash():*
     {
         return uint.MAX_VALUE & uint(a*c);
     }

@@ -10,7 +10,6 @@ import flash.sampler.getSampleCount;
 import flash.sampler.getSamples;
 import flash.sampler.startSampling;
 import flash.sampler.stopSampling;
-import flash.utils.getQualifiedClassName;
 
 
 public class SamplerSession
@@ -34,7 +33,6 @@ public class SamplerSession
         var ds:DeleteObjectSample;
         var lastTime:Number;
 
-        var i:int;
 //            var maxCount:int = 20;
 
             rootTimeNode = new RootSampleTimeNode();

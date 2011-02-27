@@ -99,7 +99,7 @@ public class BitBuffer
             else
             {
                 output <<= bitCount;
-                mask = (1 << bitCount) - 1
+                mask = (1 << bitCount) - 1;
                 output |= currentByte & mask;
                 currentByte >>= bitCount;
                 bitsLeft -= bitCount;
