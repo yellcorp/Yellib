@@ -246,6 +246,10 @@ public class Template
      */
     public static function clearCache():void
     {
+        for each (var p:Parser in parserCache)
+        {
+            p.clearCache();
+        }
         parserCache = { };
     }
 

@@ -25,6 +25,8 @@ internal class Parser
     // parse result
     private var renderers:Array;
 
+    private var rendererCache:Object
+
     public function Parser(open:String, close:String, escapeChar:String)
     {
         _open = open;
@@ -32,6 +34,12 @@ internal class Parser
         _escapeChar = escapeChar || "";
         validate();
         createTokenizer();
+        clearCache();
+    }
+
+    public function clearCache():void
+    {
+        rendererCache = { };
     }
 
     private function validate():void
@@ -57,19 +65,27 @@ internal class Parser
         var currentToken:Token;
         var returnedRenderers:Array;
 
-        reset();
+        returnedRenderers = rendererCache[formatString];
 
-        lexer.start(formatString);
-
-        do
+        if (!returnedRenderers)
         {
-            currentToken = lexer.nextToken();
-            currentState(currentToken);
-        }
-        while (currentToken.type != Token.END);
+            reset();
 
-        returnedRenderers = renderers;
-        renderers = null;
+            lexer.start(formatString);
+
+            do
+            {
+                currentToken = lexer.nextToken();
+                currentState(currentToken);
+            }
+            while (currentToken.type != Token.END);
+
+            returnedRenderers = renderers;
+            renderers = null;
+
+            rendererCache[formatString] = returnedRenderers;
+        }
+
         return returnedRenderers;
     }
 
