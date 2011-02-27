@@ -5,6 +5,7 @@ import org.yellcorp.string.StringUtil;
 
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
+import flash.utils.ByteArray;
 import flash.utils.describeType;
 import flash.utils.getQualifiedClassName;
 
@@ -179,6 +180,82 @@ public class DebugUtil
 
             _dumpObject(obj[propName], maxDepth, currentDepth + 1, outLineBuffer);
         }
+    }
+
+    public static function dumpByteArray(byteArray:ByteArray, bytesPerLine:uint = 16, nonPrintingChar:String = "."):String
+    {
+        var byte:uint;
+        var byteIndex:uint;
+        var endOfLine:uint;
+
+        var lines:Array = [ ];
+        var lineBuffer:Array = new Array(3);
+
+        var valueString:String;
+        var valueBuffer:Array;
+        var valueBufferLength:uint = (bytesPerLine * 3) - 1;
+
+        var charCodeBuffer:Array;
+        var nonPrintingCharCode:uint;
+
+        if (bytesPerLine == 0)
+        {
+            throw new ArgumentError("bytesPerLine must be greater than 0");
+        }
+
+        if (!nonPrintingChar || nonPrintingChar.length != 1)
+        {
+            throw new ArgumentError("nonPrintingChar must be a String of length 1");
+        }
+
+        nonPrintingCharCode = nonPrintingChar.charCodeAt(0);
+
+        while (byteIndex < byteArray.length)
+        {
+            endOfLine = byteIndex + bytesPerLine;
+            if (endOfLine > byteArray.length)
+            {
+                endOfLine = byteArray.length;
+            }
+
+            valueBuffer = [ ];
+            charCodeBuffer = [ ];
+
+            lineBuffer[0] = StringUtil.padLeft(
+                    byteIndex.toString(16).toUpperCase(),
+                    8, "0");
+
+            for (; byteIndex < endOfLine; byteIndex++)
+            {
+                byte = byteArray[byteIndex];
+
+                valueString = byte.toString(16).toUpperCase();
+                valueBuffer.push(byte < 0x10 ? ("0" + valueString) : valueString);
+
+                if ((byte >= 0x20 && byte <= 0x7E) ||
+                        (byte >= 0xA0 && byte <= 0xAC) ||
+                        (byte >= 0xAE && byte <= 0xFF))
+                {
+                    charCodeBuffer.push(byte);
+                }
+                else
+                {
+                    charCodeBuffer.push(nonPrintingCharCode);
+                }
+            }
+
+            lineBuffer[1] = StringUtil.padRight(
+                    valueBuffer.join(" "),
+                    valueBufferLength, " ");
+
+            lineBuffer[2] = StringUtil.padRight(
+                    String.fromCharCode.apply(String, charCodeBuffer),
+                    bytesPerLine, " ");
+
+            lines.push(lineBuffer.join(" "));
+        }
+
+        return lines.join("\n");
     }
 }
 }
