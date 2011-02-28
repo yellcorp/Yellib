@@ -23,6 +23,20 @@ public class StringBuilder
         _length += string.length;
     }
 
+    public function appendv(textArray:Array):void
+    {
+        var string:String = textArray.join("");
+        buffer.push(string);
+        _length += string.length;
+    }
+
+    public function appendva(... textArray):void
+    {
+        var string:String = textArray.join("");
+        buffer.push(string);
+        _length += string.length;
+    }
+
     public function toString():String
     {
         return buffer.join("");
