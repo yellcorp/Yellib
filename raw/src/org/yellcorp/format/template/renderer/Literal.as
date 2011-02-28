@@ -13,5 +13,10 @@ public class Literal implements Renderer
     {
         return string;
     }
+
+    public function toString():String
+    {
+        return '"' + string + '"';
+    }
 }
 }

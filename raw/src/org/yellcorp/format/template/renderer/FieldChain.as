@@ -29,5 +29,15 @@ public class FieldChain implements Renderer
             return null;
         }
     }
+
+    public function toString():String
+    {
+        return "FieldChain([ " + fields.map(quote).join(", ") + " ])";
+    }
+
+    private static function quote(string:String, x:*, y:*):String
+    {
+        return '"' + string + '"';
+    }
 }
 }

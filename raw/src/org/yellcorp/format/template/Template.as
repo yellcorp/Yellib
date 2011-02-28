@@ -1,6 +1,7 @@
 package org.yellcorp.format.template
 {
 import org.yellcorp.format.template.renderer.Renderer;
+import org.yellcorp.string.StringBuilder;
 
 
 /**
@@ -113,7 +114,7 @@ public class Template
     private var _close:String;
     private var _escapeChar:String;
 
-    private var renderers:Array;
+    private var _renderers:Array;
 
     private static var parserCache:Object = { };
 
@@ -175,18 +176,31 @@ public class Template
     public function fill(values:*, notFoundValue:* = ""):String
     {
         var value:*;
-        var buffer:Array = [ ];
+        var buffer:StringBuilder = new StringBuilder();
 
-        for each (var renderer:Renderer in renderers)
+        for each (var renderer:Renderer in _renderers)
         {
             value = renderer.render(values);
             if (value === null || value === undefined)
             {
                 value = notFoundValue;
             }
-            buffer.push(value);
+            buffer.append(value);
         }
-        return buffer.join("");
+        return buffer.toString();
+    }
+
+    /**
+     * Returns an Array of this instance's renderers. Can be useful in
+     * debugging, to see how a format string has been parsed.
+     *
+     * @return An <code>Array</code> of objects of type
+     *         <code>Renderer</code>. Each object's toString() method
+     *         shows what part of the format string it represents.
+     */
+    public function get renderers():Array
+    {
+        return _renderers.splice();
     }
 
     /**
@@ -265,7 +279,7 @@ public class Template
             parserCache[parser.hash] = parser;
         }
 
-        renderers = parser.parse(_format);
+        _renderers = parser.parse(_format);
     }
 }
 }

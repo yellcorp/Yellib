@@ -13,5 +13,10 @@ public class Field implements Renderer
     {
         return fieldMap[fieldName];
     }
+
+    public function toString():String
+    {
+        return 'Field("' + fieldName + '")';
+    }
 }
 }

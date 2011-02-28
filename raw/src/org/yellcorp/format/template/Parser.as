@@ -7,6 +7,7 @@ import org.yellcorp.format.template.lexer.UniversalEscapeLexer;
 import org.yellcorp.format.template.renderer.Field;
 import org.yellcorp.format.template.renderer.FieldChain;
 import org.yellcorp.format.template.renderer.Literal;
+import org.yellcorp.string.StringBuilder;
 
 
 internal class Parser
@@ -17,7 +18,7 @@ internal class Parser
     private var _escapeChar:String;
 
     // parser state
-    private var buffer:Array;
+    private var buffer:StringBuilder;
     private var currentState:Function;
 
     private var lexer:Lexer;
@@ -25,13 +26,16 @@ internal class Parser
     // parse result
     private var renderers:Array;
 
-    private var rendererCache:Object
+    private var rendererCache:Object;
 
     public function Parser(open:String, close:String, escapeChar:String)
     {
         _open = open;
         _close = close;
         _escapeChar = escapeChar || "";
+
+        buffer = new StringBuilder();
+
         validate();
         createTokenizer();
         clearCache();
@@ -136,7 +140,7 @@ internal class Parser
 
     private function reset():void
     {
-        buffer = [ ];
+        buffer.clear();
         currentState = stateText;
         renderers = [ ];
     }
@@ -157,7 +161,7 @@ internal class Parser
                 break;
 
             default :
-                buffer.push(token.text);
+                buffer.append(token.text);
                 break;
         }
     }
@@ -177,14 +181,14 @@ internal class Parser
                 break;
 
             default :
-                buffer.push(token.text);
+                buffer.append(token.text);
                 break;
         }
     }
 
     private function pushLiteral():void
     {
-        var text:String = takeBuffer();
+        var text:String = buffer.take();
 
         if (text.length > 0)
         {
@@ -194,7 +198,7 @@ internal class Parser
 
     private function pushField():void
     {
-        var field:String = takeBuffer();
+        var field:String = buffer.take();
 
         if (field.indexOf(".") >= 0)
         {
@@ -204,13 +208,6 @@ internal class Parser
         {
             renderers.push(new Field(field));
         }
-    }
-
-    private function takeBuffer():String
-    {
-        var concatBuffer:String = buffer.join("");
-        buffer = [];
-        return concatBuffer;
     }
 
     private function parseError(message:String):void
