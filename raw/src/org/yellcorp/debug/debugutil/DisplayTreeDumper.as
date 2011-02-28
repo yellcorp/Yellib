@@ -25,7 +25,7 @@ public class DisplayTreeDumper
     {
         maxDepthMessage = new Template("{index}[[Reached maximum depth of {maxDepth}]]\n");
         propertyMessage = new Template("{indent}{index} name:\"{name}\" " +
-                "class:{class}({nativeClass}) " +
+                "class:{class}{nativeClass} " +
                 "pos:({x}, {y}) " +
                 "scale:({scaleX}, {scaleY}) " +
                 "rect:{rect}\n");
@@ -49,6 +49,7 @@ public class DisplayTreeDumper
         var len:int = container.numChildren;
         var current:DisplayObject;
         var numPad:int = len.toString().length;
+        var nativeClass:String;
 
         var formatValues:Object = {};
 
@@ -71,7 +72,18 @@ public class DisplayTreeDumper
                 formatValues.name = current.name;
 
                 formatValues['class'] = getQualifiedClassName(current);
-                formatValues.nativeClass = searchTypeChain(current, "flash.");
+
+                nativeClass = searchTypeChain(current, "flash.");
+
+                if (nativeClass.length > 0)
+                {
+                    formatValues.nativeClass = "(" + nativeClass + ")";
+                }
+                else
+                {
+                    formatValues.nativeClass = "";
+                }
+
 
                 formatValues.x = current.x;
                 formatValues.y = current.y;
@@ -93,7 +105,14 @@ public class DisplayTreeDumper
 
     private static function searchTypeChain(query:Object, prefix:String):String
     {
-        var supers:XMLList = describeType(query).extendsClass.(
+        var type:XML = describeType(query);
+
+        if (StringUtil.startsWith(type.@name, prefix))
+        {
+            return "";
+        }
+
+        var supers:XMLList = type.extendsClass.(
                 StringUtil.startsWith(@type, prefix));
 
         if (supers.length == 0)
