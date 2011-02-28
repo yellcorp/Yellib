@@ -2,6 +2,7 @@ package org.yellcorp.debug
 {
 import org.yellcorp.debug.debugutil.DisplayTreeDumper;
 import org.yellcorp.debug.debugutil.ObjectDumper;
+import org.yellcorp.string.StringBuilder;
 import org.yellcorp.string.StringUtil;
 
 import flash.display.DisplayObjectContainer;
@@ -48,13 +49,35 @@ public class DebugUtil
 
     public static function dumpDisplayTree(container:DisplayObjectContainer, maxDepth:int = 0):String
     {
-        return new DisplayTreeDumper().dump(container, maxDepth);
+        return getDisplayTreeDumper().dump(container, maxDepth);
+    }
+
+    private static var _displayTreeDumper:DisplayTreeDumper;
+
+    private static function getDisplayTreeDumper():DisplayTreeDumper
+    {
+        if (!_displayTreeDumper)
+        {
+            _displayTreeDumper = new DisplayTreeDumper();
+        }
+        return _displayTreeDumper;
     }
 
 
     public static function dumpObject(root:*, maxDepth:int = 3):String
     {
-        return new ObjectDumper().dump(root, maxDepth);
+        return getObjectDumper().dump(root, maxDepth);
+    }
+
+    private static var _objectDumper:ObjectDumper;
+
+    private static function getObjectDumper():ObjectDumper
+    {
+        if (!_objectDumper)
+        {
+            _objectDumper = new ObjectDumper();
+        }
+        return _objectDumper;
     }
 
 
@@ -64,12 +87,11 @@ public class DebugUtil
         var byteIndex:uint;
         var endOfLine:uint;
 
-        var lines:Array = [ ];
-        var lineBuffer:Array = new Array(3);
+        var outputBuffer:StringBuilder = new StringBuilder();
 
         var valueString:String;
-        var valueBuffer:Array;
-        var valueBufferLength:uint = (bytesPerLine * 3) - 1;
+        var valueBuffer:StringBuilder = new StringBuilder();
+        var valueBufferLength:uint = (bytesPerLine * 3);
 
         var charCodeBuffer:Array;
         var nonPrintingCharCode:uint;
@@ -94,19 +116,21 @@ public class DebugUtil
                 endOfLine = byteArray.length;
             }
 
-            valueBuffer = [ ];
+            valueBuffer.clear();
             charCodeBuffer = [ ];
 
-            lineBuffer[0] = StringUtil.padLeft(
+            outputBuffer.append(StringUtil.padLeft(
                     byteIndex.toString(16).toUpperCase(),
-                    8, "0");
+                    8, "0"));
 
             for (; byteIndex < endOfLine; byteIndex++)
             {
                 byte = byteArray[byteIndex];
 
                 valueString = byte.toString(16).toUpperCase();
-                valueBuffer.push(byte < 0x10 ? ("0" + valueString) : valueString);
+
+                valueBuffer.append(byte < 0x10 ? " 0" : " ");
+                valueBuffer.append(valueString);
 
                 if ((byte >= 0x20 && byte <= 0x7E) ||
                         (byte >= 0xA0 && byte <= 0xAC) ||
@@ -120,18 +144,18 @@ public class DebugUtil
                 }
             }
 
-            lineBuffer[1] = StringUtil.padRight(
-                    valueBuffer.join(" "),
-                    valueBufferLength, " ");
-
-            lineBuffer[2] = StringUtil.padRight(
-                    String.fromCharCode.apply(String, charCodeBuffer),
-                    bytesPerLine, " ");
-
-            lines.push(lineBuffer.join(" "));
+            outputBuffer.appendva(
+                    StringUtil.padRight(
+                        valueBuffer.toString(),
+                        valueBufferLength, " "),
+                    " ",
+                    StringUtil.padRight(
+                        String.fromCharCode.apply(String, charCodeBuffer),
+                        bytesPerLine, " "),
+                    "\n");
         }
 
-        return lines.join("\n");
+        return outputBuffer.toString();
     }
 }
 }
