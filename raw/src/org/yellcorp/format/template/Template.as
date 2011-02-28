@@ -255,8 +255,7 @@ public class Template
     }
 
     /**
-     * Clears the parser cache, which is used to speed up operations that
-     * share the same values for open, close, and escapeChar.
+     * Clears the parser cache.
      */
     public static function clearCache():void
     {
