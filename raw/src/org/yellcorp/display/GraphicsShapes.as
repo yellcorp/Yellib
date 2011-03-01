@@ -9,15 +9,14 @@ public class GraphicsShapes
     drawDashLine(target:Graphics, fromX:Number, fromY:Number,
                  toX:Number, toY:Number, dashIntervals:Array):void
     {
-        var dx:Number;
-        var dy:Number;
-        var ux:Number;
-        var uy:Number;
-        var cx:Number;
-        var cy:Number;
-        var lineDistance:Number;
+        var deltaX:Number, deltaY:Number,
+            unitX:Number, unitY:Number,
+            currentX:Number, currentY:Number,
+            lineDistance:Number;
+
         var sumDistance:Number = 0;
-        var dash:int = 0;
+
+        var dashIndex:int = 0;
 
         if (!dashIntervals || dashIntervals.length < 2)
         {
@@ -25,38 +24,39 @@ public class GraphicsShapes
             target.lineTo(toX, toY);
             return;
         }
-        dx = toX - fromX;
-        dy = toY - fromY;
-        lineDistance = Math.sqrt(dx*dx + dy*dy);
-        ux = dx / lineDistance;
-        uy = dy / lineDistance;
-        cx = fromX;
-        cy = fromY;
-        target.moveTo(cx, cy);
+        deltaX = toX - fromX;
+        deltaY = toY - fromY;
+        lineDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        unitX = deltaX / lineDistance;
+        unitY = deltaY / lineDistance;
+        currentX = fromX;
+        currentY = fromY;
+        target.moveTo(currentX, currentY);
         while (sumDistance < lineDistance)
         {
-            sumDistance += dashIntervals[dash];
+            sumDistance += dashIntervals[dashIndex];
             if (sumDistance < lineDistance)
             {
-                cx += dashIntervals[dash] * ux;
-                cy += dashIntervals[dash] * uy;
+                currentX += dashIntervals[dashIndex] * unitX;
+                currentY += dashIntervals[dashIndex] * unitY;
             }
             else
             {
-                cx = toX;
-                cy = toY;
+                currentX = toX;
+                currentY = toY;
             }
-            if (dash % 2)
+            if (dashIndex & 1)
             {
-                target.moveTo(cx, cy);
+                target.moveTo(currentX, currentY);
             }
             else
             {
-                target.lineTo(cx, cy);
+                target.lineTo(currentX, currentY);
             }
-            if (++dash >= dashIntervals.length)
+            dashIndex++;
+            if (dashIndex >= dashIntervals.length)
             {
-                dash = 0;
+                dashIndex = 0;
             }
         }
     }
@@ -65,7 +65,10 @@ public class GraphicsShapes
     drawPlus(target:Graphics, centreX:Number, centreY:Number,
              halfWidth:Number, halfHeight:Number = Number.NaN):void
     {
-        if (isNaN(halfHeight)) halfHeight = halfWidth;
+        if (isNaN(halfHeight))
+        {
+            halfHeight = halfWidth;
+        }
 
         target.moveTo(centreX - halfWidth, centreY);
         target.lineTo(centreX + halfWidth, centreY);
@@ -77,7 +80,10 @@ public class GraphicsShapes
     drawCross(target:Graphics, centreX:Number, centreY:Number,
               halfWidth:Number, halfHeight:Number = Number.NaN):void
     {
-        if (isNaN(halfHeight)) halfHeight = halfWidth;
+        if (isNaN(halfHeight))
+        {
+            halfHeight = halfWidth;
+        }
 
         target.moveTo(centreX - halfWidth, centreY - halfHeight);
         target.lineTo(centreX + halfWidth, centreY + halfHeight);
@@ -90,12 +96,10 @@ public class GraphicsShapes
             radius:Number, startAngle:Number, endAngle:Number,
             drawRadius:Boolean = false, steps:Number = 6):void
     {
-        var halfStepAngle:Number;
         var secant:Number;
 
-        var currentAngle:Number;
-        var secantAngle:Number;
-        var nextAngle:Number;
+        var halfStepAngle:Number, currentAngle:Number,
+            influenceAngle:Number, nextAngle:Number;
 
         var i:int;
 
@@ -117,11 +121,11 @@ public class GraphicsShapes
 
         for (i = 0; i < steps; i++)
         {
-            secantAngle = currentAngle + halfStepAngle;
-            nextAngle = secantAngle + halfStepAngle;
+            influenceAngle = currentAngle + halfStepAngle;
+            nextAngle = influenceAngle + halfStepAngle;
 
-            target.curveTo(centreX + Math.cos(secantAngle) * secant,
-                           centreY + Math.sin(secantAngle) * secant,
+            target.curveTo(centreX + Math.cos(influenceAngle) * secant,
+                           centreY + Math.sin(influenceAngle) * secant,
                            centreX + Math.cos(nextAngle) * radius,
                            centreY + Math.sin(nextAngle) * radius);
 
@@ -167,7 +171,10 @@ public class GraphicsShapes
         var angleStep:Number;
 
         angleStep = Math.PI * (2 / points);
-        if (isNaN(rotate2)) rotate2 = rotate1 + angleStep * 0.5;
+        if (isNaN(rotate2))
+        {
+            rotate2 = rotate1 + angleStep * 0.5;
+        }
 
         target.moveTo(centreX + Math.cos(rotate1) * radius1,
                       centreY + Math.sin(rotate1) * radius1);
@@ -193,27 +200,33 @@ public class GraphicsShapes
               headHalfWidthFactor:Number = Number.NaN,
               closeHead:Boolean = false):void
     {
-        if (isNaN(headHalfWidthFactor)) headHalfWidthFactor = headLengthFactor * 0.5;
+        var deltaX:Number, deltaY:Number, headDeltaX:Number,
+            headDeltaY:Number, headCenterX:Number, headCenterY:Number;
+
+        if (isNaN(headHalfWidthFactor))
+        {
+            headHalfWidthFactor = headLengthFactor * 0.5;
+        }
 
         target.moveTo(fromX, fromY);
         target.lineTo(toX, toY);
 
-        var dx:Number = toX - fromX;
-        var dy:Number = toY - fromY;
+        deltaX = toX - fromX;
+        deltaY = toY - fromY;
 
-        var headCenterX:Number = fromX + (1 - headLengthFactor) * dx;
-        var headCenterY:Number = fromY + (1 - headLengthFactor) * dy;
+        headCenterX = fromX + (1 - headLengthFactor) * deltaX;
+        headCenterY = fromY + (1 - headLengthFactor) * deltaY;
 
-        var headdx:Number = -dy * headHalfWidthFactor;
-        var headdy:Number = dx * headHalfWidthFactor;
+        headDeltaX = -deltaY * headHalfWidthFactor;
+        headDeltaY = deltaX * headHalfWidthFactor;
 
-        target.moveTo(headCenterX + headdx, headCenterY + headdy);
+        target.moveTo(headCenterX + headDeltaX, headCenterY + headDeltaY);
         target.lineTo(toX, toY);
-        target.lineTo(headCenterX - headdx, headCenterY - headdy);
+        target.lineTo(headCenterX - headDeltaX, headCenterY - headDeltaY);
 
         if (closeHead)
         {
-            target.lineTo(headCenterX + headdx, headCenterY + headdy);
+            target.lineTo(headCenterX + headDeltaX, headCenterY + headDeltaY);
         }
     }
 }
