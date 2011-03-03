@@ -1,4 +1,4 @@
-package org.yellcorp.bitmap
+package org.yellcorp.bitmap.pool
 {
 import org.yellcorp.map.MultiMap;
 

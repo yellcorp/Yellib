@@ -1,4 +1,4 @@
-package org.yellcorp.bitmap
+package org.yellcorp.bitmap.pool
 {
 import flash.display.BitmapData;
 
