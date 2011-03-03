@@ -36,6 +36,8 @@ import flash.utils.Dictionary;
  */
 
 [Event(name="multiloaderError", type="org.yellcorp.net.multiloader.events.MultiLoaderErrorEvent")]
+[Event(name="itemComplete", type="org.yellcorp.net.multiloader.events.MultiLoaderItemEvent")]
+[Event(name="itemStart", type="org.yellcorp.net.multiloader.events.MultiLoaderItemEvent")]
 [Event(name="complete", type="flash.events.Event")]
 [Event(name="progress", type="flash.events.ProgressEvent")]
 public class MultiLoader extends EventDispatcher implements Destructor
@@ -290,7 +292,7 @@ public class MultiLoader extends EventDispatcher implements Destructor
         if (queueCount > 0) return 0;
         for each (var item:MultiLoaderItem in idToItem)
         {
-            if (item.bytesTotal == 0)
+            if (!item.bytesTotalKnown || item.bytesTotal == 0)
             {
                 return 0;
             }
@@ -379,7 +381,10 @@ public class MultiLoader extends EventDispatcher implements Destructor
     {
         openItems.remove(item);
         completedItems.add(item);
-        dispatchEvent(new MultiLoaderItemEvent(MultiLoaderItemEvent.ITEM_COMPLETE, getItemId(item), item, false, false));
+        dispatchEvent(new MultiLoaderItemEvent(
+                MultiLoaderItemEvent.ITEM_COMPLETE,
+                getItemId(item), item, false, false));
+
         advance();
         itemFinished();
     }
@@ -401,7 +406,10 @@ public class MultiLoader extends EventDispatcher implements Destructor
     {
         openItems.remove(item);
         errorItems.add(item);
-        dispatchEvent(new MultiLoaderErrorEvent(MultiLoaderErrorEvent.MULTILOADER_ERROR, getItemId(item), item, event));
+        dispatchEvent(new MultiLoaderErrorEvent(
+                MultiLoaderErrorEvent.MULTILOADER_ERROR,
+                getItemId(item), item, event));
+
         advance();
         itemFinished();
     }
@@ -440,6 +448,10 @@ public class MultiLoader extends EventDispatcher implements Destructor
         try
         {
             item.ml_internal::load();
+
+            dispatchEvent(new MultiLoaderItemEvent(
+                    MultiLoaderItemEvent.ITEM_START,
+                    getItemId(item), item, false, false));
         }
         catch (err:Error)
         {

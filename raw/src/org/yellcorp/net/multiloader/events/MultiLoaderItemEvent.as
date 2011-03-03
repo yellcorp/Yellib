@@ -8,6 +8,8 @@ import flash.events.Event;
 public class MultiLoaderItemEvent extends Event
 {
     public static const ITEM_COMPLETE:String = "itemComplete";
+    public static const ITEM_START:String = "itemStart";
+
     private var _id:String;
     private var _item:MultiLoaderItem;
 
