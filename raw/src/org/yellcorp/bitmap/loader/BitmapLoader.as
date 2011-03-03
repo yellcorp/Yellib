@@ -1,4 +1,4 @@
-package org.yellcorp.bitmap
+package org.yellcorp.bitmap.loader
 {
 import org.yellcorp.mem.Destructor;
 
@@ -11,6 +11,7 @@ import flash.events.HTTPStatusEvent;
 import flash.events.IOErrorEvent;
 import flash.events.ProgressEvent;
 import flash.geom.Matrix;
+import flash.geom.Point;
 import flash.net.URLRequest;
 import flash.system.LoaderContext;
 import flash.utils.ByteArray;
@@ -23,10 +24,6 @@ import flash.utils.ByteArray;
 [Event(name="ioError", type="flash.events.IOErrorEvent")]
 public class BitmapLoader extends EventDispatcher implements Destructor
 {
-    public static const FP9_MAX_AXIS:uint = 2880;
-    public static const FP10_MAX_AXIS:uint = 8192;
-    public static const FP10_MAX_AREA:uint = 16777216;
-
     public var transparent:Boolean;
     public var fillColor:uint;
 
@@ -38,22 +35,25 @@ public class BitmapLoader extends EventDispatcher implements Destructor
 
     private var bmpWidth:Number;
     private var bmpHeight:Number;
+    private var bmpSize:Point;
     private var drawMatrix:Matrix;
 
-    private static var versionChecked:Boolean;
+    private static var resizer:Resizer;
     private static var playerV9:Boolean;
 
     public function BitmapLoader(newTransparent:Boolean = true, newFillColor:uint = 0xFFFFFFFF, newFitMethod:String = "crop")
     {
         super();
+
         transparent = newTransparent;
         fillColor = newFillColor;
         _fitMethod = newFitMethod;
+
+        bmpSize = new Point();
         loader = new Loader();
 
-        if (!versionChecked)
+        if (!resizer)
         {
-            versionChecked = true;
             try {
                 playerV9 = !(loader['unloadAndStop']);
             }
@@ -61,6 +61,7 @@ public class BitmapLoader extends EventDispatcher implements Destructor
             {
                 playerV9 = true;
             }
+            resizer = playerV9 ? new ResizerV9() : new ResizerV10();
         }
         addListeners(loader.contentLoaderInfo);
     }
@@ -159,15 +160,7 @@ public class BitmapLoader extends EventDispatcher implements Destructor
     private function onComplete(event:Event):void
     {
         _loaded = true;
-        if (playerV9)
-        {
-            _isOverSize = contentWidth > FP9_MAX_AXIS || contentHeight > FP9_MAX_AXIS;
-        }
-        else
-        {
-            _isOverSize = contentWidth > FP10_MAX_AXIS || contentHeight > FP10_MAX_AXIS ||
-                          contentWidth * contentHeight > FP10_MAX_AREA;
-        }
+        _isOverSize = resizer.isOversize(contentWidth, contentHeight);
         updateFitMethod();
         dispatchEvent(event);
     }
@@ -179,120 +172,54 @@ public class BitmapLoader extends EventDispatcher implements Destructor
             switch (_fitMethod)
             {
                 case BitmapLoaderFitMethod.NULL :
-                {
-                    bmpWidth = 0;
-                    bmpHeight = 0;
+                    fitNull();
                     return;
-                }
+
                 case BitmapLoaderFitMethod.SCALE :
-                {
-                    if (playerV9)
-                        fitScaleV9();
-                    else
-                        fitScaleV10();
+                    fitScale();
                     return;
-                }
+
                 default :
-                {
-                    if (playerV9)
-                        fitCropV9();
-                    else
-                        fitCropV10();
+                    fitCrop();
                     return;
-                }
             }
         }
         else
         {
-            bmpWidth = contentWidth;
-            bmpHeight = contentHeight;
-            drawMatrix = null;
+            fitNone();
         }
     }
 
-    private function fitScaleV9():void
+    private function fitNull():void
     {
-        var inWidth:Number = contentWidth;
-        var inHeight:Number = contentHeight;
-
-        if (inWidth > inHeight)
-        {
-            bmpWidth = FP9_MAX_AXIS;
-            bmpHeight = Math.round(inHeight * FP9_MAX_AXIS / inWidth);
-        }
-        else
-        {
-            bmpWidth = Math.round(inWidth * FP9_MAX_AXIS / inHeight);
-            bmpHeight = FP9_MAX_AXIS;
-        }
-
-        // recalculate the ratio as rounding changes it very
-        // slightly which would cause semitransparent edges near
-        // the bottom and right borders
-        drawMatrix = new Matrix(bmpWidth / inWidth, 0, 0, bmpHeight / inHeight, 0, 0);
-    }
-
-    private function fitCropV9():void
-    {
-        bmpWidth =  Math.min(FP9_MAX_AXIS, contentWidth);
-        bmpHeight = Math.min(FP9_MAX_AXIS, contentHeight);
+        bmpWidth = 0;
+        bmpHeight = 0;
         drawMatrix = null;
     }
 
-    private function fitScaleV10():void
+    private function fitScale():void
     {
-        var inWidth:Number = contentWidth;
-        var inHeight:Number = contentHeight;
-        var areaScale:Number;
-
-        if (inWidth > FP10_MAX_AXIS || inHeight > FP10_MAX_AXIS)
+        if (!drawMatrix)
         {
-            if (inWidth > inHeight)
-            {
-                bmpWidth = FP10_MAX_AXIS;
-                bmpHeight = inHeight * FP10_MAX_AXIS / inWidth;
-            }
-            else
-            {
-                bmpWidth = inWidth * FP10_MAX_AXIS / inHeight;
-                bmpHeight = FP9_MAX_AXIS;
-            }
+            drawMatrix = new Matrix();
         }
-        // axes now within limits, but area may still be too big
-
-        // round before the area test to get the true final pixel count
-        bmpWidth = Math.round(bmpWidth);
-        bmpHeight = Math.round(bmpHeight);
-
-        if (bmpWidth * bmpHeight > FP10_MAX_AREA)
-        {
-            // but use the original dimensions for calculating the
-            // area scale as it's slightly more accurate
-            areaScale = Math.sqrt(FP10_MAX_AREA / (inWidth * inHeight));
-
-            // floor because a round could bump the total area back
-            // above the limit
-            bmpWidth = Math.floor(inWidth * areaScale);
-            bmpHeight = Math.floor(inHeight * areaScale);
-        }
-        drawMatrix = new Matrix(bmpWidth / inWidth, 0, 0, bmpHeight / inHeight, 0, 0);
+        resizer.fitScale(contentWidth, contentHeight, bmpSize, drawMatrix);
+        bmpWidth = bmpSize.x;
+        bmpHeight = bmpSize.y;
     }
 
-    private function fitCropV10():void
+    private function fitCrop():void
     {
-        var inWidth:Number = contentWidth;
-        var inHeight:Number = contentHeight;
-        var areaScale:Number;
+        resizer.fitCrop(contentWidth, contentHeight, bmpSize);
+        drawMatrix = null;
+        bmpWidth = bmpSize.x;
+        bmpHeight = bmpSize.y;
+    }
 
-        bmpWidth =  Math.min(FP10_MAX_AXIS, contentWidth);
-        bmpHeight = Math.min(FP10_MAX_AXIS, contentHeight);
-
-        if (bmpWidth * bmpHeight > FP10_MAX_AREA)
-        {
-            areaScale = Math.sqrt(FP10_MAX_AREA / (inWidth * inHeight));
-            bmpWidth = Math.floor(inWidth * areaScale);
-            bmpHeight = Math.floor(inHeight * areaScale);
-        }
+    private function fitNone():void
+    {
+        bmpWidth = contentWidth;
+        bmpHeight = contentHeight;
         drawMatrix = null;
     }
 

@@ -1,4 +1,4 @@
-package org.yellcorp.bitmap
+package org.yellcorp.bitmap.loader
 {
 public class BitmapLoaderFitMethod
 {
