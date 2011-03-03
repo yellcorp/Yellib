@@ -7,13 +7,28 @@ import flash.net.URLRequest;
 import flash.utils.ByteArray;
 
 
+/**
+ * Used with MultiLoader to download a binary file from a URL. This is
+ * implemented as a URLLoader with its dataFormat property set to
+ * URLLoaderDataFormat.BINARY.
+ */
 public class BinaryLoaderItem extends BaseURLLoaderItem
 {
+    /**
+     * Creates a BinaryLoaderItem which will make the specified request
+     * when it starts loading.
+     *
+     * @param request The request to issue and download from.
+     */
     public function BinaryLoaderItem(request:URLRequest)
     {
         super(request, URLLoaderDataFormat.BINARY);
     }
-    public function binaryResponse():ByteArray
+
+    /**
+     * The loaded data as a ByteArray.
+     */
+    public function get binaryResponse():ByteArray
     {
         return urlLoader.data;
     }

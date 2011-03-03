@@ -12,7 +12,7 @@ public class TextLoaderItem extends BaseURLLoaderItem
     {
         super(request, URLLoaderDataFormat.TEXT);
     }
-    public function textResponse():String
+    public function get textResponse():String
     {
         return urlLoader.data;
     }

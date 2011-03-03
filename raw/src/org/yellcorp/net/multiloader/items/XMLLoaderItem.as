@@ -15,7 +15,7 @@ public class XMLLoaderItem extends BaseURLLoaderItem
     {
         super(request, URLXMLLoaderDataFormat.XML);
     }
-    public function xmlResponse():XML
+    public function get xmlResponse():XML
     {
         return urlLoader.data;
     }

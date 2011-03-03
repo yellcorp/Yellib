@@ -1,6 +1,6 @@
 package org.yellcorp.net.multiloader.items
 {
-import org.yellcorp.bitmap.BitmapLoader;
+import org.yellcorp.bitmap.loader.BitmapLoader;
 import org.yellcorp.net.multiloader.core.MultiLoaderItem;
 
 import flash.display.BitmapData;
@@ -12,6 +12,11 @@ import flash.net.URLRequest;
 import flash.system.LoaderContext;
 
 
+/**
+ * Used with MultiLoader to download a JPEG, PNG, GIF or SWF file from a
+ * URL, and make it available as an instance of BitmapData.  Implemented
+ * as a Loader, and as such is subject to the same restrictions.
+ */
 public class BitmapLoaderItem extends MultiLoaderItem
 {
     private var _loader:BitmapLoader;
@@ -20,6 +25,22 @@ public class BitmapLoaderItem extends MultiLoaderItem
     public var fillColor:uint;
     public var fitMethod:String;
 
+    /**
+     * Creates a BinaryLoaderItem which will make the specified request
+     * when it starts loading.
+     *
+     * @param request      The request to issue and download from.
+     * @param context      The LoaderContext for the load operation.
+     * @param transparent  Whether to compose the loaded image over a
+     *                     transparent background.
+     * @param fillColor    The background color to compose the loaded image
+     *                     over
+     * @param fitMethod    Resize strategy in case the loaded Bitmap exceeds
+     *                     the allowed dimensions of BitmapData objects
+     *
+     * @see flash.display.BitmapData
+     * @see flash.display.Loader#load
+     */
     public function BitmapLoaderItem(
         request:URLRequest,
         context:LoaderContext = null,
@@ -72,11 +93,22 @@ public class BitmapLoaderItem extends MultiLoaderItem
         _loader.load(request, context);
     }
 
+    /**
+     * The BitmapLoader object used to load the bitmap.
+     */
     public function get loader():BitmapLoader
     {
         return _loader;
     }
 
+    /**
+     * Creates a new copy of the bitmap as a BitmapData object. No reference
+     * is retained to this bitmap by the BitmapLoaderItem - the caller is
+     * considered to own it. It is the caller's responsibility to call
+     * dispose() on it when it is no longer needed.
+     *
+     * @see flash.display.BitmapData#dispose
+     */
     public function getBitmapData():BitmapData
     {
         return _loader.getBitmapData();

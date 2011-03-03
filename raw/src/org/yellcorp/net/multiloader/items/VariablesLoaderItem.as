@@ -13,7 +13,7 @@ public class VariablesLoaderItem extends BaseURLLoaderItem
     {
         super(request, URLLoaderDataFormat.VARIABLES);
     }
-    public function variablesResponse():URLVariables
+    public function get variablesResponse():URLVariables
     {
         return urlLoader.data;
     }
