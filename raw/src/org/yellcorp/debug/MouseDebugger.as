@@ -3,7 +3,9 @@ package org.yellcorp.debug
 import org.yellcorp.display.ViewDebugUtil;
 
 import flash.display.DisplayObject;
+import flash.display.DisplayObjectContainer;
 import flash.display.Graphics;
+import flash.display.InteractiveObject;
 import flash.display.Sprite;
 import flash.display.Stage;
 import flash.events.Event;
@@ -21,12 +23,14 @@ import flash.utils.getQualifiedClassName;
 public class MouseDebugger
 {
     private var canvas:Sprite;
-    private var caption:TextField;
+    private var classNames:TextField;
+    private var instanceNames:TextField;
 
     public function MouseDebugger(canvas:Sprite)
     {
         this.canvas = canvas;
-        caption = createTextField();
+        classNames = createTextField();
+        instanceNames = createTextField();
 
         canvas.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage, false, 0, true);
         canvas.addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage, false, 0, true);
@@ -43,13 +47,14 @@ public class MouseDebugger
         canvas.stage.addEventListener(MouseEvent.MOUSE_OVER, onStageOver);
         canvas.stage.addEventListener(MouseEvent.MOUSE_OUT, onStageOut);
 
-        canvas.stage.addEventListener(Event.RESIZE, onResize);
-        caption.width = canvas.stage.stageWidth;
+        canvas.stage.addEventListener(Event.RESIZE, onStageResize);
+        classNames.width = canvas.stage.stageWidth;
+        instanceNames.width = canvas.stage.stageWidth;
 
-        canvas.addChild(caption);
+        canvas.addChild(classNames);
+        canvas.addChild(instanceNames);
 
-        caption.x = 0;
-        caption.y = 0;
+        layout();
     }
 
     private function onRemovedFromStage(event:Event):void
@@ -58,14 +63,17 @@ public class MouseDebugger
         canvas.removeEventListener(MouseEvent.MOUSE_OUT, onCanvasOut);
         canvas.stage.removeEventListener(MouseEvent.MOUSE_OVER, onStageOver);
         canvas.stage.removeEventListener(MouseEvent.MOUSE_OUT, onStageOut);
-        canvas.stage.removeEventListener(Event.RESIZE, onResize);
+        canvas.stage.removeEventListener(Event.RESIZE, onStageResize);
 
-        canvas.removeChild(caption);
+        canvas.removeChild(classNames);
+        canvas.removeChild(instanceNames);
     }
 
-    private function onResize(event:Event):void
+    private function onStageResize(event:Event):void
     {
-        caption.width = canvas.stage.stageWidth;
+        classNames.width = canvas.stage.stageWidth;
+        instanceNames.width = canvas.stage.stageWidth;
+        layout();
     }
 
     private function onCanvasOver(event:MouseEvent):void
@@ -84,12 +92,14 @@ public class MouseDebugger
         var target:DisplayObject = event.target as DisplayObject;
 
         g.clear();
-        caption.text = "";
+        classNames.text = "";
+        instanceNames.text = "";
 
         if (target)
         {
             canvas.visible = true;
-            drawRectHeirarchy(canvas, target, caption);
+            drawRectHeirarchy(target);
+            layout();
         }
     }
 
@@ -97,12 +107,21 @@ public class MouseDebugger
     {
     }
 
-    private function drawRectHeirarchy(canvas:Sprite, subject:DisplayObject, field:TextField):void
+    private function layout():void
+    {
+        classNames.x = 0;
+        classNames.y = 0;
+
+        instanceNames.x = 0;
+        instanceNames.y = classNames.height;
+    }
+
+    private function drawRectHeirarchy(subject:DisplayObject):void
     {
         var i:int;
         var nodes:Array = [ ];
         var color:uint;
-        var name:String;
+        var text:String;
 
         while (subject && !(subject is Stage))
         {
@@ -115,17 +134,33 @@ public class MouseDebugger
             color = ViewDebugUtil.makeIndexColor(i + 1, 3);
             drawGuide(canvas, nodes[i], color);
 
-            name = getDisplayName(nodes[i]);
+            text = getDisplayName(nodes[i]);
             if (i > 0)
             {
-                name = "." + name;
+                text = "." + text;
             }
+            appendWithColor(classNames, text, color);
 
-            appendWithColor(field, name, color);
+            text = nodes[i].name;
+            if (i > 0)
+            {
+                text = "." + text;
+            }
+            appendWithColor(instanceNames, text, color);
+        }
+
+        if (subject is InteractiveObject)
+        {
+            text = "\nmouseEnabled=" + InteractiveObject(subject).mouseEnabled;
+            if (subject is DisplayObjectContainer)
+            {
+                text += ", mouseChildren=" + DisplayObjectContainer(subject).mouseChildren;
+            }
+            appendWithColor(instanceNames, text, 0xFFFFFF);
         }
     }
 
-    private function appendWithColor(field:TextField, text:String, color:uint):void
+    private static function appendWithColor(field:TextField, text:String, color:uint):void
     {
         field.appendText(text);
         field.setTextFormat(new TextFormat(null, null, color),
@@ -133,7 +168,7 @@ public class MouseDebugger
                 field.text.length);
     }
 
-    private function drawGuide(canvas:Sprite, subject:DisplayObject, color:uint):void
+    private static function drawGuide(canvas:Sprite, subject:DisplayObject, color:uint):void
     {
         var g:Graphics = canvas.graphics;
         var rect:Rectangle;
@@ -147,7 +182,7 @@ public class MouseDebugger
         g.lineTo(rect.left + 16, rect.top);
     }
 
-    private function createTextField():TextField
+    private static function createTextField():TextField
     {
         var t:TextField;
         var tf:TextFormat;
@@ -167,14 +202,19 @@ public class MouseDebugger
         return t;
     }
 
-    private function createStrokeFilter():BitmapFilter
+    private static function createStrokeFilter():BitmapFilter
     {
         return new GlowFilter(0, 1, 2, 2, 4, 1);
     }
 
     private static function getDisplayName(target:DisplayObject):String
     {
-        return getLeafName(getQualifiedClassName(target));
+        var displayName:String = getLeafName(getQualifiedClassName(target));
+        if (target.parent)
+        {
+            displayName += "[" + target.parent.getChildIndex(target) + "]";
+        }
+        return displayName;
     }
 
     private static function getLeafName(className:String):String
