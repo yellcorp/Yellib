@@ -18,7 +18,7 @@ public class StringBuilder
 
     public function append(text:*):void
     {
-        var string:String = (text as String) || text.toString();
+        var string:String = String(text) || "undefined";
         buffer.push(string);
         _length += string.length;
     }
