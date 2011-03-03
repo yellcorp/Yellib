@@ -102,10 +102,10 @@ public class BitmapLoaderItem extends MultiLoaderItem
     }
 
     /**
-     * Creates a new copy of the bitmap as a BitmapData object. No reference
-     * is retained to this bitmap by the BitmapLoaderItem - the caller is
-     * considered to own it. It is the caller's responsibility to call
-     * dispose() on it when it is no longer needed.
+     * Creates a new copy of the loaded bitmap as a BitmapData object. No
+     * reference to this bitmap is retained by the BitmapLoaderItem - it
+     * is the caller's responsibility to call dispose() on it when it is
+     * no longer needed.
      *
      * @see flash.display.BitmapData#dispose
      */

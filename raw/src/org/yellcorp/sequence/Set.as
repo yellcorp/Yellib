@@ -6,6 +6,11 @@ import org.yellcorp.iterators.readonly.Iterator;
 import flash.utils.Dictionary;
 
 
+/**
+ * A collection representing a set: Members are unique, order is not guaranteed.
+ * Null members are not permitted. Member uniqueness is the same criteria as
+ * keys in a flash.utils.Dictionary, that is, strict equality (===).
+ */
 public class Set
 {
     private var dict:Dictionary;

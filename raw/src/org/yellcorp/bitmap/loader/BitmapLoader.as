@@ -130,6 +130,14 @@ public class BitmapLoader extends EventDispatcher implements Destructor
         return _isOverSize;
     }
 
+    /**
+     * Creates a new copy of the loaded bitmap as a BitmapData object. No
+     * reference to this bitmap is retained by the BitmapLoaderItem - it
+     * is the caller's responsibility to call dispose() on it when it is
+     * no longer needed.
+     *
+     * @see flash.display.BitmapData#dispose
+     */
     public function getBitmapData():BitmapData
     {
         var bmp:BitmapData;
