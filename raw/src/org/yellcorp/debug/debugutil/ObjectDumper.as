@@ -40,6 +40,11 @@ public class ObjectDumper
         var dynamicType:String;
         var formatValues:Object = { };
 
+        if (object === undefined)
+        {
+            return;
+        }
+
         formatValues.indent = StringUtil.repeat(" ", currentDepth);
 
         desc = describeType(object);

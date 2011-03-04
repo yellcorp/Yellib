@@ -18,7 +18,10 @@ public class StringBuilder
 
     public function append(text:*):void
     {
-        var string:String = String(text) || "undefined";
+        // Conversion rule: in String(arg), if arg is undefined, then the
+        // returned value is also undefined, instead of the string
+        // "undefined".  All other args return Strings, including null
+        var string:String = text === undefined ? "undefined" : String(text);
         buffer.push(string);
         _length += string.length;
     }
