@@ -37,71 +37,47 @@ public class Statistics
 
     public static function mean(values:Array, weights:Array = null):Number
     {
-        var inVals:Array = values.slice();
-        var outVals:Array;
-        var inWeights:Array = weights ? weights.slice() : [ ];
-        var outWeights:Array;
+        var valueSum:Number = 0;
+        var weightSum:Number = 0;
 
-        var weight1:Number;
-        var weight2:Number;
-
-        var i:uint;
-        var j:uint;
-        var lastOdd:uint;
-        var oddBalance:Boolean = false;
-
-        if (inVals.length == 1)
+        if (!values || values.length == 0)
         {
-            return inVals[0];
+            return Number.NaN;
         }
-
-        while (inVals.length > 1)
+        else if (!weights)
         {
-            outVals = new Array();
-            outWeights = new Array();
-            j = 0;
-            lastOdd = inVals.length - 1;
-            for (i = 0;i < inVals.length; i += 2)
+            for each (var n:Number in values)
             {
-                weight1 = i < inWeights.length ? inWeights[i] : 1;
-                if (i == lastOdd)
-                {
-                    if (oddBalance)
-                    {
-                        outVals.push(inVals[i]);
-                        outWeights.push(weight1);
-                    }
-                    else
-                    {
-                        outVals.unshift(inVals[i]);
-                        outWeights.unshift(weight1);
-                    }
-                    oddBalance = !oddBalance;
-                }
-                else
-                {
-                    weight2 = (i + 1) < inWeights.length ? inWeights[i + 1] : 1;
-                    outVals.push(inVals[i] + inVals[i + 1]);
-                    outWeights.push(weight1 + weight2);
-                }
+                valueSum += n;
             }
-            inVals = outVals;
-            inWeights = outWeights;
+            return valueSum / values.length;
         }
+        else
+        {
+            if (values.length != weights.length)
+            {
+                throw new ArgumentError("If weights argument is specified, it must have the same length as values");
+            }
 
-        return inVals[0] / inWeights[0];
+            for (var i:int = values.length; i >= 0; i--)
+            {
+                valueSum += values[i] * weights[i];
+                weightSum += weights[i];
+            }
+            return valueSum / weightSum;
+        }
     }
 
     public static function variance(values:Array, weights:Array = null):Number
     {
         var valueMean:Number = mean(values, weights);
+        var meanDiff:Number;
         var diffSquared:Array = new Array(values.length);
-        var i:int;
 
-        for (i = 0;i < values.length; i++)
+        for (var i:int = 0;i < values.length; i++)
         {
-            diffSquared[i] = values[i] - valueMean;
-            diffSquared[i] *= diffSquared[i];
+            meanDiff = values[i] - valueMean;
+            diffSquared[i] = meanDiff * meanDiff;
         }
 
         return mean(diffSquared, weights);
