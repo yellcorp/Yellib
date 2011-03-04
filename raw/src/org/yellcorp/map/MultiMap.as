@@ -1,5 +1,7 @@
 package org.yellcorp.map
 {
+import org.yellcorp.iterators.map.MapIterator;
+
 import flash.utils.Dictionary;
 
 
@@ -170,6 +172,16 @@ public class MultiMap
         }
 
         return keyList;
+    }
+
+    /**
+     * Returns a MapIterator that iterates over all the keys in the MultiMap
+     * with the values set to their associated arrays. Changes made to the
+     * array will be reflected in the MultiMap.
+     */
+    public function get iterator():MapIterator
+    {
+        return new MapIterator(dict);
     }
 }
 }
