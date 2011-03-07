@@ -15,6 +15,7 @@ import org.yellcorp.format.c4.format.IntegerFormatOptions;
 import org.yellcorp.format.c4.format.SignSet;
 import org.yellcorp.format.c4.lexer.Lexer;
 import org.yellcorp.format.c4.lexer.Token;
+import org.yellcorp.sequence.Set;
 import org.yellcorp.string.StringBuilder;
 import org.yellcorp.string.StringUtil;
 
@@ -100,6 +101,7 @@ public class Parser
     private function parseFlags():void
     {
         var token:Token = lexer.nextToken();
+        var setFlags:Set = new Set();
         var char:String;
 
         if (token.text)
@@ -107,51 +109,52 @@ public class Parser
             for (var i:int = 0; i < token.text.length; i++)
             {
                 char = token.text.charAt(i);
-                switch (char)
+                if (setFlags.contains(char))
                 {
-                    case '<' :
-                        if (field.arg)
-                        {
-                            tokenError("< flag cannot be used with position specifier", token, i);
-                        }
-                        else
-                        {
-                            field.arg = new RelativeArg(-1);
-                        }
-                        break;
+                    tokenError(char + " flag already set for this field", token.substr(i, 1));
+                }
+                else
+                {
+                    setFlags.add(char);
 
-                    case '-' :
-                        field.leftJustify.setValue(true, token.substr(i, 1));
-                        break;
-
-                    case '#' :
-                        field.alternateForm.setValue(true, token.substr(i, 1));
-                        break;
-
-                    case '+' :
-                        field.positivePrefix.setValue("+", token.substr(i, 1));
-                        break;
-
-                    case ' ' :
-                        field.positivePrefix.setValue(" ", token.substr(i, 1));
-                        break;
-
-                    case '0' :
-                        field.paddingChar.setValue("0", token.substr(i, 1));
-                        break;
-
-                    case ',' :
-                        field.grouping.setValue(true, token.substr(i, 1));
-                        break;
-
-                    case '(' :
-                        field.negativePrefix.setValue("(", token.substr(i, 1));
-                        field.negativeSuffix.setValue(")", token.substr(i, 1));
-                        break;
-
-                    default :
-                        AssertError.assert(false, "Unhandled flag char " + char);
-                        break;
+                    switch (char)
+                    {
+                        case '<' :
+                            if (field.arg)
+                            {
+                                tokenError("< flag cannot be used with position specifier", token.substr(i, 1));
+                            }
+                            else
+                            {
+                                field.arg = new RelativeArg(-1);
+                            }
+                            break;
+                        case '-' :
+                            field.leftJustify.setValue(true, token.substr(i, 1));
+                            break;
+                        case '#' :
+                            field.alternateForm.setValue(true, token.substr(i, 1));
+                            break;
+                        case '+' :
+                            field.positivePrefix.setValue("+", token.substr(i, 1));
+                            break;
+                        case ' ' :
+                            field.positivePrefix.setValue(" ", token.substr(i, 1));
+                            break;
+                        case '0' :
+                            field.paddingChar.setValue("0", token.substr(i, 1));
+                            break;
+                        case ',' :
+                            field.grouping.setValue(true, token.substr(i, 1));
+                            break;
+                        case '(' :
+                            field.negativePrefix.setValue("(", token.substr(i, 1));
+                            field.negativeSuffix.setValue(")", token.substr(i, 1));
+                            break;
+                        default :
+                            AssertError.assert(false, "Unhandled flag char " + char);
+                            break;
+                    }
                 }
             }
         }
@@ -399,10 +402,9 @@ public class Parser
         options.uppercase = field.uppercase.value;
     }
 
-    private function tokenError(message:String, token:Token, tokenTextOffset:int = 0):void
+    private function tokenError(message:String, token:Token):void
     {
-        throw new FormatStringError(message, lexer.text,
-            token.charIndex + tokenTextOffset);
+        throw new FormatStringError(message, lexer.text, token.charIndex);
     }
 }
 }
