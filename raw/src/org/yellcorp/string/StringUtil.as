@@ -164,5 +164,41 @@ public class StringUtil
         }
         return filterValues.join(delimeter);
     }
+
+    public static function isDigit(digit:String, base:int):Boolean
+    {
+        if (digit == "0")
+        {
+            return true;
+        }
+        else if (digit < "0")
+        {
+            return false;
+        }
+        else
+        {
+            var maxDigit:String = (base - 1).toString(base);
+
+            if (digit == maxDigit)
+            {
+                return true;
+            }
+            else if (maxDigit <= "9")
+            {
+                return digit <= maxDigit;
+            }
+            else if (digit <= "9")
+            {
+                return true;
+            }
+            else
+            {
+                maxDigit = maxDigit.toLowerCase();
+                digit = digit.toLowerCase();
+
+                return digit >= 'a' && digit <= maxDigit;
+            }
+        }
+    }
 }
 }
