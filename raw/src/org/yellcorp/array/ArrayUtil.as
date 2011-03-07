@@ -419,16 +419,5 @@ public class ArrayUtil
         }
         return callback;
     }
-
-    public static function makeIntSequence(newLength:uint, start:int = 0, step:int = 1):Array
-    {
-        var i:uint;
-        var sequence:Array = new Array(newLength);
-        for (i = 0; i < newLength; i++)
-        {
-            sequence[i] = start + i * step;
-        }
-        return sequence;
-    }
 }
 }
