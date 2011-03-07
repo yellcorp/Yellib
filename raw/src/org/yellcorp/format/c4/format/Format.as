@@ -146,13 +146,24 @@ public class Format
         {
             rest.append("Infinity");
         }
-        else if (number.integerGrouping)
-        {
-            rest.append(NumberFormatUtil.groupNumberStr(number.integerPart, ".", ",", LOCALE_GROUPING_SIZE));
-        }
         else
         {
-            rest.append(number.integerPart);
+            var intString:String;
+
+            if (number.integerGrouping)
+            {
+                intString = NumberFormatUtil.groupNumberStr(number.integerPart, ".", ",", LOCALE_GROUPING_SIZE);
+            }
+            else
+            {
+                intString = number.integerPart;
+            }
+
+            if (isFinite(number.integerWidth))
+            {
+                intString = StringUtil.padLeft(intString, number.integerWidth, "0");
+            }
+            rest.append(intString);
         }
 
         // point
@@ -164,14 +175,30 @@ public class Format
         // frac part
         if (number.fractionalPart)
         {
-            rest.append(StringUtil.padRight(number.fractionalPart, number.fractionalWidth, "0", true));
+            if (isFinite(number.fractionalWidth))
+            {
+                rest.append(StringUtil.padRight(number.fractionalPart, number.fractionalWidth, "0", true));
+            }
+            else
+            {
+                rest.append(number.fractionalPart);
+            }
         }
 
         if (number.exponent)
         {
             rest.append(number.exponentDelimiter);
             rest.append(number.exponentLeadSign);
-            rest.append(StringUtil.padLeft(number.exponent, number.exponentWidth, "0"));
+
+            if (isFinite(number.exponentWidth))
+            {
+                rest.append(StringUtil.padLeft(number.exponent, number.exponentWidth, "0"));
+            }
+            else
+            {
+                rest.append(number.exponent);
+            }
+
             rest.append(number.exponentTrailSign);
         }
 

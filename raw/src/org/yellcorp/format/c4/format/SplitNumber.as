@@ -8,6 +8,7 @@ public interface SplitNumber
     function get radixPrefix():String;
     function get integerPart():String;
     function get integerGrouping():Boolean;
+    function get integerWidth():Number;
     function get forceFractionalSeparator():Boolean;
     function get fractionalPart():String;
     function get fractionalWidth():Number;

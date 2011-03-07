@@ -3,7 +3,7 @@ package org.yellcorp.format.c4.format
 public class IntegerFormatOptions extends NumberFormatOptions
 {
     public var base:int = 10;
-    public var minDigits:int = 0;
+    public var minDigits:int = 1;
     public var radixPrefix:String = "";
 
     public function IntegerFormatOptions(options:Object = null)

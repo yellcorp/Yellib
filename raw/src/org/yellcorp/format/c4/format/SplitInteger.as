@@ -41,6 +41,11 @@ public class SplitInteger implements SplitNumber
         return options.grouping;
     }
 
+    public function get integerWidth():Number
+    {
+        return options.minDigits;
+    }
+
     public function get forceFractionalSeparator():Boolean
     {
         return false;

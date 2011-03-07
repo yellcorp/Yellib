@@ -82,6 +82,11 @@ public class SplitNativeNumber implements SplitNumber
         return options.grouping;
     }
 
+    public function get integerWidth():Number
+    {
+        return 1;
+    }
+
     public function get forceFractionalSeparator():Boolean
     {
         return options.forceDecimalSeparator;
