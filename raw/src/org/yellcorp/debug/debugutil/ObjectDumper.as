@@ -69,16 +69,17 @@ public class ObjectDumper
             return;
         }
 
-        // no good: if late property evaluation, i.e. name[prop] invokes a getter that
-        // throws an exception, try/catch won't actually catch it.  this is likely the
-        // same problem that says you shouldn't throw in flash.utils.Proxy subclasses
+        // Can't enumerate getters: if late property evaluation, i.e. name[prop] invokes
+        // a getter that throws an exception, try/catch won't actually catch it.  this is
+        // likely the same problem that says you shouldn't throw in flash.utils.Proxy
+        // subclasses
+
+        // avm doesn't set up error handling for [] operator i guess?
 
         /*
         if (optEvalGetters)
             evalList.appendChild(desc.accessor.(@access=="readonly" || @access=="readwrite"));
-             */
-
-        // avm doesn't set up error handling for [] operator i guess?
+        */
 
         for each (node in evalList.*)
         {
