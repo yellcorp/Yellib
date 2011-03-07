@@ -39,6 +39,7 @@ public class ObjectDumper
         var dynamicProp:*;
         var dynamicType:String;
         var formatValues:Object = { };
+        var sortEvalList:Array;
 
         if (object === undefined)
         {
@@ -81,7 +82,14 @@ public class ObjectDumper
             evalList.appendChild(desc.accessor.(@access=="readonly" || @access=="readwrite"));
         */
 
+        sortEvalList = [ ];
         for each (node in evalList.*)
+        {
+            sortEvalList.push(node);
+        }
+        sortEvalList.sortOn("@name");
+
+        for each (node in sortEvalList)
         {
             formatValues.name = node.@name;
             formatValues.type = node.@type;
