@@ -1,6 +1,5 @@
 package org.yellcorp.format.c4.format
 {
-import org.yellcorp.binary.NumberInfo;
 import org.yellcorp.format.NumberFormatUtil;
 import org.yellcorp.string.StringBuilder;
 import org.yellcorp.string.StringUtil;
@@ -10,21 +9,8 @@ public class Format
 {
     private static const ADAPTIVE_FIXED_MINIMUM:Number = 10e-4;
 
-    // make this variable
+    // TODO: make this variable
     private static const LOCALE_GROUPING_SIZE:int = 3;
-
-    public static const NATIVE_NUMBER:RegExp =
-        /(NaN|(-)?(Infinity|(\d+)(\.(\d+))?(e([+-]?)(\d+))?))/i;
-    //   |    |   |         |    |  |      | |      |
-    //   |    |   |         |    |  |      | |      9: Exponent magnitude
-    //   |    |   |         |    |  |      | 8: Exponent sign
-    //   |    |   |         |    |  |      7: Entire exponent
-    //   |    |   |         |    |  6: Fractional digits
-    //   |    |   |         |    5: Fractional part
-    //   |    |   |         4: Integral part
-    //   |    |   3: 'Infinity' or entire number
-    //   |    2: Negative sign
-    //   1: 'NaN' or entire number
 
     public static function formatGeneral(
         value:*,
@@ -71,22 +57,7 @@ public class Format
 
     public static function formatInteger(value:*, options:IntegerFormatOptions):String
     {
-        var numValue:Number = Math.round(value);
-        var negative:Boolean;
-
-        if (numValue < 0)
-        {
-            negative = true;
-            numValue = -numValue;
-        }
-
-        return buildNumberString(isNaN(numValue), isFinite(numValue),
-            negative, options.signs, options.radixPrefix,
-            numValue.toString(options.base),
-            options.grouping,
-            false, "", 0, "", false, null, "", 0,
-            options.minWidth, options.paddingChar, options.leftJustify,
-            options.base, options.uppercase);
+        return buildNumberString(new SplitInteger(value, options));
     }
 
     public static function formatExponential(value:*, options:FloatFormatOptions):String
@@ -137,58 +108,17 @@ public class Format
         return formatNumberString(text, options);
     }
 
-    public static function formatNumberString(numberString:String, options:FloatFormatOptions):String
+    private static function formatNumberString(numberString:String, options:FloatFormatOptions):String
     {
-        var match:Object = NATIVE_NUMBER.exec(numberString);
-
-        var nan:Boolean = match[1] && match[1] == "NaN";
-        var infinite:Boolean = match[3] && match[3] == "Infinity";
-        var finite:Boolean = !(nan || infinite);
-
-        return buildNumberString(
-            nan,
-            finite,
-            match[2] == "-",
-            options.signs,
-            "",
-            match[4],
-            options.grouping,
-            options.forceDecimalSeparator,
-            match[6],
-            options.fracWidth,
-            options.exponentDelimiter,
-            match[8] == "-",
-            options.exponentSigns,
-            match[9],
-            options.exponentWidth,
-            options.minWidth,
-            options.paddingChar,
-            options.leftJustify,
-            10,
-            options.uppercase);
+        return buildNumberString(new SplitNativeNumber(numberString, options));
     }
 
-    private static function buildNumberString(
-        nan:Boolean,
-        finite:Boolean,
-        negative:Boolean,
-        signs:SignSet,
-        radixPrefix:String,
-        integerPart:String,
-        grouping:Boolean,
-        forcePoint:Boolean,
-        fracPart:String,
-        fracWidth:uint,
-        exponentDelimiter:String,
-        exponentNegative:Boolean,
-        exponentSigns:SignSet,
-        exponent:String,
-        exponentWidth:uint,
-        minWidth:Number,
-        paddingChar:String,
-        leftJustify:Boolean,
-        base:int,
-        uppercase:Boolean):String
+    public static function formatHexFloat(value:*, options:HexFloatFormatOptions):String
+    {
+        return buildNumberString(new SplitHexFloat(value, options));
+    }
+
+    private static function buildNumberString(number:SplitNumber):String
     {
         var beforeString:StringBuilder = new StringBuilder();
         var beforeInteger:StringBuilder = new StringBuilder();
@@ -199,58 +129,58 @@ public class Format
         // [leadPad] [leadSign] [radixPrefix] [integerPadding] [integerPart] [.] [fractionalPart] [e] [expSign] [exponent] [trailSign] [trailPad]
 
         // leading sign
-        if (!nan)
+        if (!number.isNotANumber)
         {
-            beforeInteger.append(signs.getPair(negative).lead);
+            beforeInteger.append(number.leadSign);
         }
 
         // radix prefix
-        beforeInteger.append(radixPrefix);
+        beforeInteger.append(number.radixPrefix);
 
         // integer
-        if (nan)
+        if (number.isNotANumber)
         {
             rest.append("NaN");
         }
-        else if (!finite)
+        else if (!number.isFiniteNumber)
         {
             rest.append("Infinity");
         }
-        else if (grouping)
+        else if (number.integerGrouping)
         {
-            rest.append(NumberFormatUtil.groupNumberStr(integerPart, ".", ",", LOCALE_GROUPING_SIZE));
+            rest.append(NumberFormatUtil.groupNumberStr(number.integerPart, ".", ",", LOCALE_GROUPING_SIZE));
         }
         else
         {
-            rest.append(integerPart);
+            rest.append(number.integerPart);
         }
 
         // point
-        if (fracPart || forcePoint)
+        if (number.fractionalPart || number.forceFractionalSeparator)
         {
             rest.append(".");
         }
 
         // frac part
-        if (fracPart)
+        if (number.fractionalPart)
         {
-            rest.append(StringUtil.padRight(fracPart, fracWidth, "0", true));
+            rest.append(StringUtil.padRight(number.fractionalPart, number.fractionalWidth, "0", true));
         }
 
-        if (exponent)
+        if (number.exponent)
         {
-            rest.append(exponentDelimiter);
-            rest.append(exponentSigns.getPair(exponentNegative).lead);
-            rest.append(StringUtil.padLeft(exponent, exponentWidth, "0"));
-            rest.append(exponentSigns.getPair(exponentNegative).trail);
+            rest.append(number.exponentDelimiter);
+            rest.append(number.exponentLeadSign);
+            rest.append(StringUtil.padLeft(number.exponent, number.exponentWidth, "0"));
+            rest.append(number.exponentTrailSign);
         }
 
-        if (!nan && negative)
+        if (!number.isNotANumber)
         {
-            rest.append(signs.getPair(negative).trail);
+            rest.append(number.trailSign);
         }
 
-        var remainingChars:int = minWidth - beforeInteger.length - rest.length;
+        var remainingChars:int = number.minWidth - beforeInteger.length - rest.length;
 
         if (remainingChars > 0)
         {
@@ -272,14 +202,16 @@ public class Format
             // D rest.append(repeat(" "))
             // E beforeInteger.append(repeat(paddingChar))
 
-
-            if (StringUtil.isDigit(paddingChar, base))
+            if (StringUtil.isDigit(number.paddingCharacter, number.base))
             {
-                if (finite)
+                if (number.isFiniteNumber)
                 {
-                    beforeInteger.append(StringUtil.repeat(paddingChar, remainingChars));
+                    // never left-justify numeric padding. put it before integer part
+                    beforeInteger.append(StringUtil.repeat(number.paddingCharacter, remainingChars));
                 }
-                else if (leftJustify)
+                // don't pad "NaN" or "Infinity" with a numeric character
+                // fall back to space
+                else if (number.leftJustify)
                 {
                     rest.append(StringUtil.repeat(" ", remainingChars));
                 }
@@ -290,69 +222,20 @@ public class Format
             }
             else
             {
-                if (leftJustify)
+                if (number.leftJustify)
                 {
-                    rest.append(StringUtil.repeat(paddingChar, remainingChars));
+                    rest.append(StringUtil.repeat(number.paddingCharacter, remainingChars));
                 }
                 else
                 {
-                    beforeString.append(StringUtil.repeat(paddingChar, remainingChars));
+                    beforeString.append(StringUtil.repeat(number.paddingCharacter, remainingChars));
                 }
             }
         }
 
         var result:String = beforeString.toString() + beforeInteger.toString() + rest.toString();
 
-        return uppercase ? result.toUpperCase() : result;
-    }
-
-    public static function formatHexFloat(value:*, options:HexFloatFormatOptions):String
-    {
-        var numValue:Number = value;
-
-        if (isFinite(numValue) && numValue != 0)
-        {
-            return formatHexFloatFinite(numValue, options);
-        }
-        else
-        {
-            return formatHexFloatQuick(numValue, options);
-        }
-    }
-
-    private static function formatHexFloatQuick(numValue:Number, options:HexFloatFormatOptions):String
-    {
-        return buildNumberString(isNaN(numValue), isFinite(numValue), numValue < 0,
-            options.signs, "0x", "0", options.grouping,
-            options.forceDecimalSeparator, "0", options.fracWidth,
-            options.exponentDelimiter, false, options.exponentSigns, "0",
-            options.exponentWidth, options.minWidth, options.paddingChar,
-            options.leftJustify, 16, options.uppercase);
-    }
-
-    private static function formatHexFloatFinite(numValue:Number, options:HexFloatFormatOptions):String
-    {
-        var numberInfo:NumberInfo = new NumberInfo(numValue);
-        var integerPart:String;
-        var fracPart:StringBuilder = new StringBuilder();
-
-        integerPart = numberInfo.subnormal ? "0" : "1";
-
-        for (var f:int = 0; f < options.fracWidth && f < numberInfo.mantissaLength; f++)
-        {
-            fracPart.append(numberInfo.getMantissaHalfByte(f).toString(16));
-        }
-
-        var exponentNegative:Boolean = numberInfo.exponent < 0;
-        var exponent:String = (exponentNegative ? -numberInfo.exponent : numberInfo.exponent).toString(10);
-
-        return buildNumberString(isNaN(numValue), isFinite(numValue), numValue < 0,
-            options.signs, "0x", integerPart, options.grouping,
-            options.forceDecimalSeparator, fracPart.toString(),
-            options.fracWidth, options.exponentDelimiter, exponentNegative,
-            options.exponentSigns, exponent, options.exponentWidth,
-            options.minWidth, options.paddingChar, options.leftJustify,
-            16, options.uppercase);
+        return number.uppercase ? result.toUpperCase() : result;
     }
 }
 }
