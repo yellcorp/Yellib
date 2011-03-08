@@ -11,7 +11,7 @@ import org.yellcorp.string.StringUtil;
 
 public class Format
 {
-    private static const ADAPTIVE_FIXED_MINIMUM:Number = 10e-4;
+    private static const PRECISION_FIXED_MINIMUM:Number = 10e-4;
 
     // TODO: make this variable
     private static const LOCALE_GROUPING_SIZE:int = 3;
@@ -55,7 +55,7 @@ public class Format
         }
         else
         {
-            return formatGeneral(value, gOpts);
+            return formatGeneral(String(value).charAt(0), gOpts);
         }
     }
 
@@ -80,36 +80,30 @@ public class Format
         return formatNumberString(text, options);
     }
 
-    public static function formatAdaptiveFloat(value:*, options:FloatFormatOptions):String
+    public static function formatPrecision(value:*, options:FloatFormatOptions):String
     {
         var numValue:Number = value;
-        var precision:int = options.fracWidth;
+        var modOptions:FloatFormatOptions;
         var text:String;
 
-        if (isFinite(numValue))
+        modOptions = new FloatFormatOptions(options);
+        if (numValue < Format.PRECISION_FIXED_MINIMUM)
         {
-            options = new FloatFormatOptions(options);
-
-            if (options.fracWidth > 1)
-            {
-                options.fracWidth -= 1;
-            }
-            else
-            {
-                options.fracWidth = 1;
-            }
-
-            if (numValue < ADAPTIVE_FIXED_MINIMUM || numValue >= Math.pow(10, precision))
-            {
-                text = numValue.toExponential(options.fracWidth);
-            }
-            else
-            {
-                text = numValue.toFixed(options.fracWidth);
-            }
+            modOptions.fracWidth--;
+            return formatExponential(numValue, modOptions);
         }
+        else
+        {
+            if (modOptions.fracWidth < 1)
+            {
+                modOptions.fracWidth = 1;
+            }
 
-        return formatNumberString(text, options);
+            text = numValue.toPrecision(modOptions.fracWidth);
+
+            modOptions.fracWidth = Number.NaN;
+            return formatNumberString(text, modOptions);
+        }
     }
 
     private static function formatNumberString(numberString:String, options:FloatFormatOptions):String
@@ -128,8 +122,10 @@ public class Format
         var beforeInteger:StringBuilder = new StringBuilder();
         var rest:StringBuilder = new StringBuilder();
 
+        var intString:String;
+
         //                                                                   forceFracSep
-        //           |--!nan--| |--!finite--| |---!finite----|               |-| |---fraction---| |-------exponent-------| |--!nan---|
+        //           |--!nan--| |--finite---| |----finite----|               |-| |---fraction---| |-------exponent-------| |--!nan---|
         // [leadPad] [leadSign] [radixPrefix] [integerPadding] [integerPart] [.] [fractionalPart] [e] [expSign] [exponent] [trailSign] [trailPad]
 
         // leading sign
@@ -137,9 +133,6 @@ public class Format
         {
             beforeInteger.append(number.leadSign);
         }
-
-        // radix prefix
-        beforeInteger.append(number.radixPrefix);
 
         // integer
         if (number.isNotANumber)
@@ -152,8 +145,6 @@ public class Format
         }
         else
         {
-            var intString:String;
-
             if (number.integerGrouping)
             {
                 intString = NumberFormatUtil.groupNumberStr(number.integerPart, ".", ",", LOCALE_GROUPING_SIZE);
@@ -163,47 +154,56 @@ public class Format
                 intString = number.integerPart;
             }
 
+            // render the intString first to know whether to insert the
+            // radix prefix. this a general solution to specifically
+            // stop '0' in octal rendering as '00'
+            if (number.radixPrefix &&
+                !StringUtil.startsWith(intString, number.radixPrefix))
+            {
+                beforeInteger.append(number.radixPrefix);
+            }
+
             if (isFinite(number.integerWidth))
             {
                 intString = StringUtil.padLeft(intString, number.integerWidth, "0");
             }
             rest.append(intString);
-        }
 
-        // point
-        if (number.fractionalPart || number.forceFractionalSeparator)
-        {
-            rest.append(".");
-        }
-
-        // frac part
-        if (number.fractionalPart)
-        {
-            if (isFinite(number.fractionalWidth))
+            // point
+            if (number.fractionalPart || number.forceFractionalSeparator)
             {
-                rest.append(StringUtil.padRight(number.fractionalPart, number.fractionalWidth, "0", true));
-            }
-            else
-            {
-                rest.append(number.fractionalPart);
-            }
-        }
-
-        if (number.exponent)
-        {
-            rest.append(number.exponentDelimiter);
-            rest.append(number.exponentLeadSign);
-
-            if (isFinite(number.exponentWidth))
-            {
-                rest.append(StringUtil.padLeft(number.exponent, number.exponentWidth, "0"));
-            }
-            else
-            {
-                rest.append(number.exponent);
+                rest.append(".");
             }
 
-            rest.append(number.exponentTrailSign);
+            // frac part
+            if (number.fractionalPart)
+            {
+                if (isFinite(number.fractionalWidth))
+                {
+                    rest.append(StringUtil.padRight(number.fractionalPart, number.fractionalWidth, "0", true));
+                }
+                else
+                {
+                    rest.append(number.fractionalPart);
+                }
+            }
+
+            if (number.exponent)
+            {
+                rest.append(number.exponentDelimiter);
+                rest.append(number.exponentLeadSign);
+
+                if (isFinite(number.exponentWidth))
+                {
+                    rest.append(StringUtil.padLeft(number.exponent, number.exponentWidth, "0"));
+                }
+                else
+                {
+                    rest.append(number.exponent);
+                }
+
+                rest.append(number.exponentTrailSign);
+            }
         }
 
         if (!number.isNotANumber)

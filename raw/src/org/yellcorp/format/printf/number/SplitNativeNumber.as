@@ -120,7 +120,7 @@ public class SplitNativeNumber implements SplitNumber
 
     public function get exponentTrailSign():String
     {
-        return options.exponentSigns.getPair(_isNegativeExponent).lead;
+        return options.exponentSigns.getPair(_isNegativeExponent).trail;
     }
 
     public function get exponentWidth():Number

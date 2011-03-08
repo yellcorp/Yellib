@@ -36,7 +36,7 @@ public class SplitInteger implements SplitNumber
 
     public function get integerPart():String
     {
-        return value.toString(options.base);
+        return Math.abs(value).toString(options.base);
     }
 
     public function get integerGrouping():Boolean

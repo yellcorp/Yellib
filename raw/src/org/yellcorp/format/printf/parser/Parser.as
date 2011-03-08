@@ -255,16 +255,40 @@ public class Parser
 
         case 'e' :
         case 'E' :
-            output.append(formatExponential());
+            try {
+                output.append(formatExponential());
+            }
+            catch (re:RangeError)
+            {
+                throw new FormatTokenError(
+                    "Number following . must be in the range 0-20 for exponential formatting",
+                    token);
+            }
             break;
 
         case 'f' :
-            output.append(formatFixed());
+            try {
+                output.append(formatFixed());
+            }
+            catch (re:RangeError)
+            {
+                throw new FormatTokenError(
+                    "Number following . must be in the range 0-20 for fixed formatting",
+                    token);
+            }
             break;
 
         case 'g' :
         case 'G' :
-            output.append(formatAdaptiveFloat());
+            try {
+                output.append(formatPrecision());
+            }
+            catch (re:RangeError)
+            {
+                throw new FormatTokenError(
+                    "Number following . must be in the range 0-21 for precision formatting",
+                    token);
+            }
             break;
 
         case 'a' :
@@ -281,6 +305,7 @@ public class Parser
 
     private function parseDateConversion(token:Token):void
     {
+        // TODO: dates!
     }
 
     private function formatBoolean():String
@@ -333,7 +358,7 @@ public class Parser
         var options:FloatFormatOptions = new FloatFormatOptions();
         field.resolve(context, true);
         options.setFromFlags(field);
-        return Format.formatExponential(uint(field.argValue.getValue()), options);
+        return Format.formatExponential(field.argValue.getValue(), options);
     }
 
     private function formatFixed():String
@@ -344,12 +369,12 @@ public class Parser
         return Format.formatFixed(field.argValue.getValue(), options);
     }
 
-    private function formatAdaptiveFloat():String
+    private function formatPrecision():String
     {
         var options:FloatFormatOptions = new FloatFormatOptions();
         field.resolve(context, true);
         options.setFromFlags(field);
-        return Format.formatAdaptiveFloat(field.argValue.getValue(), options);
+        return Format.formatPrecision(field.argValue.getValue(), options);
     }
 
     private function formatHexFloat():String

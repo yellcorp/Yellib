@@ -2,7 +2,7 @@ package org.yellcorp.format.printf.format
 {
 public class FloatFormatOptions extends NumberFormatOptions
 {
-    public var fracWidth:int = 0;
+    public var fracWidth:Number = 6;
     public var forceDecimalSeparator:Boolean = false;
 
     public var exponentWidth:uint = 2;
@@ -32,7 +32,7 @@ public class FloatFormatOptions extends NumberFormatOptions
 
     public override function setFromFlags(flags:Flags):void
     {
-        fracWidth = flags.precision || 0;
+        fracWidth = isNaN(flags.precision) ? 6 : flags.precision;
         forceDecimalSeparator = flags.alternateForm;
     }
 }
