@@ -33,12 +33,12 @@ public class DynamicValue
         setResolver(new ConstantArg(value), token);
     }
 
-    public function setAbsoluteIndexValue(index:int, token:Token):void
+    public function setAbsoluteIndexArg(index:int, token:Token):void
     {
         setResolver(new AbsoluteArg(index), token);
     }
 
-    public function setRelativeIndexValue(index:int, token:Token):void
+    public function setRelativeIndexArg(index:int, token:Token):void
     {
         setResolver(new RelativeArg(index), token);
     }

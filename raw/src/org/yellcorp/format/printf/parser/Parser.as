@@ -95,7 +95,7 @@ public class Parser
 
             argPosition = parseInt(token.text.slice(0, -1));
 
-            field.argValue.setAbsoluteIndexValue(argPosition, token);
+            field.argValue.setAbsoluteIndexArg(argPosition, token);
         }
     }
 
@@ -129,7 +129,7 @@ public class Parser
                     }
                     else
                     {
-                        field.argValue.setRelativeIndexValue(-1,
+                        field.argValue.setRelativeIndexArg(-1,
                             token.substr(i, 1));
                     }
                     break;

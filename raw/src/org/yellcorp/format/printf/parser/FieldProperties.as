@@ -45,7 +45,7 @@ public class FieldProperties implements Flags
     {
         if (consumesArg && !argValue.isSet)
         {
-            argValue.setRelativeIndexValue(0, null);
+            argValue.setRelativeIndexArg(0, null);
         }
         else if (!consumesArg && argValue.isSet)
         {
