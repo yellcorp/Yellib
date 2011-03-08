@@ -3,6 +3,7 @@ package org.yellcorp.format.printf.parser
 import org.yellcorp.error.AssertError;
 import org.yellcorp.format.printf.context.RenderContext;
 import org.yellcorp.format.printf.errors.FormatStringError;
+import org.yellcorp.format.printf.errors.FormatTokenError;
 import org.yellcorp.format.printf.format.CommonFormatOptions;
 import org.yellcorp.format.printf.format.FloatFormatOptions;
 import org.yellcorp.format.printf.format.Format;
@@ -29,14 +30,23 @@ public class Parser
     public function Parser()
     {
         lexer = new Lexer();
-        field = new FieldProperties();
         output = new StringBuilder();
     }
 
-    public function sprintf(format:String, ... args):String
+    public function format(formatString:String, args:Array):String
     {
         context = new RenderContext(args);
-        parse(format);
+
+        try {
+            parse(formatString);
+        }
+        catch (tokenError:FormatTokenError)
+        {
+            throw new FormatStringError(
+                tokenError.message,
+                formatString,
+                tokenError.token.charIndex);
+        }
         return output.toString();
     }
 
@@ -44,6 +54,7 @@ public class Parser
     {
         output.clear();
         lexer.start(text);
+        field = new FieldProperties();
 
         while (!lexer.atEnd)
         {
@@ -107,56 +118,59 @@ public class Parser
                 char = token.text.charAt(i);
                 if (setFlags.contains(char))
                 {
-                    tokenError(char + " flag already set for this field", token.substr(i, 1));
+                    throw new FormatTokenError(
+                        char + " flag already set for this field",
+                        token.substr(i, 1));
                 }
-                else
+                setFlags.add(char);
+
+                switch (char)
                 {
-                    setFlags.add(char);
-
-                    switch (char)
+                case '<' :
+                    if (field.argValue.isSet)
                     {
-                        case '<' :
-                            if (field.argValue)
-                            {
-                                tokenError("< flag cannot be used with position specifier", token.substr(i, 1));
-                            }
-                            else
-                            {
-                                field.argValue.setRelativeIndexValue(-1,  token.substr(i, 1));
-                            }
-                            break;
-                        case '-' :
-                            field.leftJustify = true;
-                            break;
-
-                        case '#' :
-                            field.alternateForm = true;
-                            break;
-
-                        case '+' :
-                            field.positivePlus = true;
-                            break;
-
-                        case ' ' :
-                            field.positiveSpace = true;
-                            break;
-
-                        case '0' :
-                            field.zeroPad = true;
-                            break;
-
-                        case ',' :
-                            field.grouping = true;
-                            break;
-
-                        case '(' :
-                            field.negativeParens = true;
-                            break;
-
-                        default :
-                            AssertError.assert(false, "Unhandled flag char " + char);
-                            break;
+                        throw new FormatTokenError(
+                            "< flag cannot be used with position specifier",
+                            token.substr(i, 1));
                     }
+                    else
+                    {
+                        field.argValue.setRelativeIndexValue(-1,
+                            token.substr(i, 1));
+                    }
+                    break;
+
+                case '-' :
+                    field.leftJustify = true;
+                    break;
+
+                case '#' :
+                    field.alternateForm = true;
+                    break;
+
+                case '+' :
+                    field.positivePlus = true;
+                    break;
+
+                case ' ' :
+                    field.positiveSpace = true;
+                    break;
+
+                case '0' :
+                    field.zeroPad = true;
+                    break;
+
+                case ',' :
+                    field.grouping = true;
+                    break;
+
+                case '(' :
+                    field.negativeParens = true;
+                    break;
+
+                default :
+                    AssertError.assert(false, "Unhandled flag char " + char);
+                    break;
                 }
             }
         }
@@ -196,7 +210,9 @@ public class Parser
 
         if (!token.text)
         {
-            tokenError("Encountered field without conversion specifier", token);
+            throw new FormatTokenError(
+                "Encountered field without conversion specifier",
+                token);
         }
 
         convChar = token.text.charAt(0);
@@ -207,65 +223,65 @@ public class Parser
 
         switch (convChar)
         {
-            case '%' :
-                output.append("%");
-                break;
+        case '%' :
+            output.append("%");
+            break;
 
-            case 'n' :
-                output.append("\n");
-                break;
+        case 'n' :
+            output.append("\n");
+            break;
 
-            case 'b' :
-            case 'B' :
-                output.append(formatBoolean());
-                break;
+        case 'b' :
+        case 'B' :
+            output.append(formatBoolean());
+            break;
 
-            case 's' :
-            case 'S' :
-                output.append(formatString());
-                break;
+        case 's' :
+        case 'S' :
+            output.append(formatString());
+            break;
 
-            case 'c' :
-            case 'C' :
-                output.append(formatChar());
-                break;
+        case 'c' :
+        case 'C' :
+            output.append(formatChar());
+            break;
 
-            case 'd' :
-                output.append(formatSignedInt(10));
-                break;
+        case 'd' :
+            output.append(formatSignedInt(10));
+            break;
 
-            case 'o' :
-                output.append(formatUnsignedInt(8));
-                break;
+        case 'o' :
+            output.append(formatUnsignedInt(8));
+            break;
 
-            case 'x' :
-            case 'X' :
-                output.append(formatUnsignedInt(16));
-                break;
+        case 'x' :
+        case 'X' :
+            output.append(formatUnsignedInt(16));
+            break;
 
-            case 'e' :
-            case 'E' :
-                output.append(formatExponential());
-                break;
+        case 'e' :
+        case 'E' :
+            output.append(formatExponential());
+            break;
 
-            case 'f' :
-                output.append(formatFixed());
-                break;
+        case 'f' :
+            output.append(formatFixed());
+            break;
 
-            case 'g' :
-            case 'G' :
-                output.append(formatAdaptiveFloat());
-                break;
+        case 'g' :
+        case 'G' :
+            output.append(formatAdaptiveFloat());
+            break;
 
-            case 'a' :
-            case 'A' :
-                output.append(formatHexFloat());
-                break;
+        case 'a' :
+        case 'A' :
+            output.append(formatHexFloat());
+            break;
 
-            case 't' :
-            case 'T' :
-                parseDateConversion(token);
-                break;
+        case 't' :
+        case 'T' :
+            parseDateConversion(token);
+            break;
         }
     }
 
@@ -348,11 +364,6 @@ public class Parser
         field.resolve(context, true);
         options.setFromFlags(field);
         return Format.formatHexFloat(field.argValue.getValue(), options);
-    }
-
-    private function tokenError(message:String, token:Token):void
-    {
-        throw new FormatStringError(message, lexer.text, token.charIndex);
     }
 }
 }
