@@ -2,7 +2,7 @@ package org.yellcorp.format.printf.number
 {
 import org.yellcorp.binary.NumberInfo;
 import org.yellcorp.format.printf.format.HexFloatFormatOptions;
-import org.yellcorp.string.StringBuilder;
+import org.yellcorp.string.StringUtil;
 
 
 public class SplitHexFloat implements SplitNumber
@@ -10,7 +10,6 @@ public class SplitHexFloat implements SplitNumber
     private var value:Number;
     private var _valueInfo:NumberInfo;
     private var options:HexFloatFormatOptions;
-    private var _fractionalPart:String = null;
 
     public function SplitHexFloat(value:*, options:HexFloatFormatOptions)
     {
@@ -40,7 +39,7 @@ public class SplitHexFloat implements SplitNumber
 
     public function get integerPart():String
     {
-        return getValueInfo().subnormal ? "0" : "1";
+        return getValueInfo().getIntegerPart();
     }
 
     public function get integerGrouping():Boolean
@@ -60,18 +59,16 @@ public class SplitHexFloat implements SplitNumber
 
     public function get fractionalPart():String
     {
-        var builder:StringBuilder;
+        var frac:String = getValueInfo().getFractionalPart();
 
-        if (_fractionalPart === null)
+        if (isFinite(options.fracWidth))
         {
-            builder = new StringBuilder();
-            for (var f:int = 0; f < options.fracWidth && f < getValueInfo().mantissaLength; f++)
-            {
-                builder.append(getValueInfo().getMantissaHalfByte(f).toString(16));
-            }
-            _fractionalPart = builder.toString();
+            return StringUtil.padRight(frac, options.fracWidth, "0", true);
         }
-        return _fractionalPart;
+        else
+        {
+            return frac;
+        }
     }
 
     public function get fractionalWidth():Number

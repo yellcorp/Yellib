@@ -120,10 +120,71 @@ public class NumberInfo
         return _value.toString();
     }
 
-    public function toRoundTripString():String
+    public function getIntegerPart():String
+    {
+        if (_zero || _subnormal)
+        {
+            return "0";
+        }
+        else
+        {
+            return "1";
+        }
+    }
+
+    public function getFractionalPart():String
     {
         var hexString:StringBuilder;
         var zeroBuffer:StringBuilder;
+
+        if (_zero || zeroMantissa)
+        {
+            return "0";
+        }
+        else
+        {
+            hexString = new StringBuilder();
+            zeroBuffer = new StringBuilder();
+
+            for each (var n:uint in mantissa)
+            {
+                if (n == 0)
+                {
+                    zeroBuffer.append("0");
+                }
+                else
+                {
+                    if (zeroBuffer.length > 0)
+                    {
+                        hexString.append(zeroBuffer.toString());
+                        zeroBuffer.clear();
+                    }
+                    hexString.append(n.toString(16));
+                }
+            }
+            return hexString.toString();
+        }
+    }
+
+    public function getExponent():String
+    {
+        if (_zero)
+        {
+            return "0";
+        }
+        else if (_subnormal)
+        {
+            return "-1022";
+        }
+        else
+        {
+            return _exponent.toString(10);
+        }
+    }
+
+    public function toRoundTripString():String
+    {
+        var string:StringBuilder;
 
         if (_nan)
         {
@@ -135,51 +196,20 @@ public class NumberInfo
         }
         else
         {
-            hexString = new StringBuilder();
-            zeroBuffer = new StringBuilder();
+            string = new StringBuilder();
 
             if (_negative)
             {
-                hexString.append("-");
+                string.append("-");
             }
-            hexString.append("0x");
-            if (_zero)
-            {
-                hexString.append("0.0p0");
-            }
-            else
-            {
-                hexString.append(_subnormal ? "0." : "1.");
-
-                if (zeroMantissa)
-                {
-                    hexString.append("0");
-                }
-                else
-                {
-                    for each (var n:uint in mantissa)
-                    {
-                        if (n == 0)
-                        {
-                            zeroBuffer.append("0");
-                        }
-                        else
-                        {
-                            if (zeroBuffer.length > 0)
-                            {
-                                hexString.append(zeroBuffer.toString());
-                                zeroBuffer.clear();
-                            }
-                            hexString.append(n.toString(16));
-                        }
-                    }
-                }
-
-                hexString.append("p");
-                hexString.append(_subnormal ? "-1022" : _exponent.toString(10));
-            }
+            string.append("0x");
+            string.append(getIntegerPart());
+            string.append(".");
+            string.append(getFractionalPart());
+            string.append("p");
+            string.append(getExponent());
         }
-        return hexString.toString();
+        return string.toString();
     }
 
     private static function readMantissa(bytes:ByteArray, firstByte:uint):Array
