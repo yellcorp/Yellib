@@ -70,6 +70,12 @@ public class Parser
         }
         else
         {
+            var percent:int = token.text.indexOf("%");
+            if (percent >= 0)
+            {
+                throw new FormatTokenError("Malformed field specifier",
+                    token.substr(percent, 1));
+            }
             output.append(token.text);
         }
     }

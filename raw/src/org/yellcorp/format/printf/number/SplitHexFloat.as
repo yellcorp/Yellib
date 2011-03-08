@@ -39,7 +39,7 @@ public class SplitHexFloat implements SplitNumber
 
     public function get integerPart():String
     {
-        return getValueInfo().getIntegerPart();
+        return valueInfo.getIntegerString();
     }
 
     public function get integerGrouping():Boolean
@@ -59,7 +59,7 @@ public class SplitHexFloat implements SplitNumber
 
     public function get fractionalPart():String
     {
-        var frac:String = getValueInfo().getFractionalPart();
+        var frac:String = valueInfo.getFractionalString();
 
         if (isFinite(options.fracWidth))
         {
@@ -73,6 +73,7 @@ public class SplitHexFloat implements SplitNumber
 
     public function get fractionalWidth():Number
     {
+        // TODO: Limit max 13
         return options.fracWidth;
     }
 
@@ -83,17 +84,28 @@ public class SplitHexFloat implements SplitNumber
 
     public function get exponentLeadSign():String
     {
-        return options.signs.getPair(getValueInfo().exponent < 0).lead;
+        return options.exponentSigns.getPair(valueInfo.getExponentSign() == "-").lead;
     }
 
     public function get exponent():String
     {
-        return Math.abs(getValueInfo().exponent).toString(10);
+        if (valueInfo.zero)
+        {
+            return "0";
+        }
+        else if (valueInfo.subnormal)
+        {
+            return "1022";
+        }
+        else
+        {
+            return Math.abs(valueInfo.exponent).toString(10);
+        }
     }
 
     public function get exponentTrailSign():String
     {
-        return options.signs.getPair(getValueInfo().exponent < 0).trail;
+        return options.exponentSigns.getPair(valueInfo.getExponentSign() == "-").trail;
     }
 
     public function get exponentWidth():Number
@@ -131,7 +143,7 @@ public class SplitHexFloat implements SplitNumber
         return options.uppercase;
     }
 
-    private function getValueInfo():NumberInfo
+    private function get valueInfo():NumberInfo
     {
         if (!_valueInfo)
         {

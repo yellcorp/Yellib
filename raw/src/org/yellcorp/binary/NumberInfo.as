@@ -120,7 +120,7 @@ public class NumberInfo
         return _value.toString();
     }
 
-    public function getIntegerPart():String
+    public function getIntegerString():String
     {
         if (_zero || _subnormal)
         {
@@ -132,7 +132,7 @@ public class NumberInfo
         }
     }
 
-    public function getFractionalPart():String
+    public function getFractionalString():String
     {
         var hexString:StringBuilder;
         var zeroBuffer:StringBuilder;
@@ -166,7 +166,19 @@ public class NumberInfo
         }
     }
 
-    public function getExponent():String
+    public function getExponentSign():String
+    {
+        if (_zero || _exponent >= 0)
+        {
+            return "";
+        }
+        else
+        {
+            return "-";
+        }
+    }
+
+    public function getExponentString():String
     {
         if (_zero)
         {
@@ -174,11 +186,11 @@ public class NumberInfo
         }
         else if (_subnormal)
         {
-            return "-1022";
+            return "1022";
         }
         else
         {
-            return _exponent.toString(10);
+            return Math.abs(_exponent).toString(10);
         }
     }
 
@@ -203,11 +215,12 @@ public class NumberInfo
                 string.append("-");
             }
             string.append("0x");
-            string.append(getIntegerPart());
+            string.append(getIntegerString());
             string.append(".");
-            string.append(getFractionalPart());
+            string.append(getFractionalString());
             string.append("p");
-            string.append(getExponent());
+            string.append(getExponentSign());
+            string.append(getExponentString());
         }
         return string.toString();
     }

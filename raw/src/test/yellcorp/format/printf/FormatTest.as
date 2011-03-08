@@ -6,6 +6,7 @@ import org.yellcorp.format.printf.format.CommonFormatOptions;
 import org.yellcorp.format.printf.format.FloatFormatOptions;
 import org.yellcorp.format.printf.format.Format;
 import org.yellcorp.format.printf.format.GeneralFormatOptions;
+import org.yellcorp.format.printf.format.HexFloatFormatOptions;
 import org.yellcorp.format.printf.format.IntegerFormatOptions;
 import org.yellcorp.format.printf.format.SignSet;
 
@@ -17,7 +18,7 @@ public class FormatTest extends TestCase
         super(testMethod);
     }
 
-    public function testGeneral():void
+    public function general():void
     {
         var g:GeneralFormatOptions;
 
@@ -84,7 +85,7 @@ public class FormatTest extends TestCase
         assertEquals("UNDEFINED", Format.formatGeneral(undefined, g));
     }
 
-    public function testChar():void
+    public function char():void
     {
         var c:CommonFormatOptions;
 
@@ -122,7 +123,7 @@ public class FormatTest extends TestCase
         assertEquals("B", Format.formatChar(0x62, c));
     }
 
-    public function testInteger():void
+    public function integer():void
     {
         var i:IntegerFormatOptions;
 
@@ -142,9 +143,18 @@ public class FormatTest extends TestCase
         assertEquals("-1", Format.formatInteger(-1.5, i));
         assertEquals("-2", Format.formatInteger(-1.6, i));
 
+        i.signs.positive.lead = "+";
+        assertEquals("NaN", Format.formatInteger(undefined, i));
+        assertEquals("+Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
+        assertEquals("-Infinity", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
+        assertEquals("+0", Format.formatInteger(0, i));
+        assertEquals("+1", Format.formatInteger(1, i));
+        assertEquals("-1", Format.formatInteger(-1, i));
+
+        i = new IntegerFormatOptions();
         i.paddingChar = " ";
         i.minWidth = 5;
-        assertEquals("  NaN", Format.formatInteger(undefined, i));
+        assertEquals("  NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("-Infinity", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
         assertEquals("    0", Format.formatInteger(0, i));
@@ -155,7 +165,7 @@ public class FormatTest extends TestCase
 
         i.minDigits = 3;
         i.minWidth = 6;
-        assertEquals("   NaN", Format.formatInteger(undefined, i));
+        assertEquals("   NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("-Infinity", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
         assertEquals("   000", Format.formatInteger(0, i));
@@ -169,7 +179,7 @@ public class FormatTest extends TestCase
         i.minDigits = 1;
         i.minWidth = 10;
         i.paddingChar = "0";
-        assertEquals("       NaN", Format.formatInteger(undefined, i));
+        assertEquals("       NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("  Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals(" -Infinity", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
         assertEquals("0000000000", Format.formatInteger(0, i));
@@ -179,7 +189,7 @@ public class FormatTest extends TestCase
         assertEquals("-000100000", Format.formatInteger(-100000, i));
 
         i.leftJustify = true;
-        assertEquals("NaN       ", Format.formatInteger(undefined, i));
+        assertEquals("NaN       ", Format.formatInteger(Number.NaN, i));
         assertEquals("0000000000", Format.formatInteger(null, i));
         assertEquals("Infinity  ", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("-Infinity ", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
@@ -191,7 +201,7 @@ public class FormatTest extends TestCase
 
         i.leftJustify = false;
         i.paddingChar = "/";
-        assertEquals("///////NaN", Format.formatInteger(undefined, i));
+        assertEquals("///////NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("/////////0", Format.formatInteger(null, i));
         assertEquals("//Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("/-Infinity", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
@@ -203,7 +213,7 @@ public class FormatTest extends TestCase
 
         i = new IntegerFormatOptions();
         i.grouping = true;
-        assertEquals("NaN", Format.formatInteger(undefined, i));
+        assertEquals("NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("0", Format.formatInteger(0, i));
         assertEquals("1", Format.formatInteger(1, i));
         assertEquals("100", Format.formatInteger(100, i));
@@ -252,7 +262,7 @@ public class FormatTest extends TestCase
 
         i = new IntegerFormatOptions();
         i.signs = new SignSet("+", "", "(", ")");
-        assertEquals("NaN", Format.formatInteger(undefined, i));
+        assertEquals("NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("+Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("(Infinity)", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
         assertEquals("+0", Format.formatInteger(0, i));
@@ -260,7 +270,7 @@ public class FormatTest extends TestCase
         assertEquals("(1)", Format.formatInteger(-1, i));
 
         i.minWidth = 6;
-        assertEquals("   NaN", Format.formatInteger(undefined, i));
+        assertEquals("   NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("+Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("(Infinity)", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
         assertEquals("    +0", Format.formatInteger(0, i));
@@ -273,7 +283,7 @@ public class FormatTest extends TestCase
 
         i = new IntegerFormatOptions();
         i.base = 16;
-        assertEquals("NaN", Format.formatInteger(undefined, i));
+        assertEquals("NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("-Infinity", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
         assertEquals("0", Format.formatInteger(0, i));
@@ -285,7 +295,7 @@ public class FormatTest extends TestCase
         assertEquals("-100", Format.formatInteger(-256, i));
 
         i.radixPrefix = "0x";
-        assertEquals("NaN", Format.formatInteger(undefined, i));
+        assertEquals("NaN", Format.formatInteger(Number.NaN, i));
         assertEquals("Infinity", Format.formatInteger(Number.POSITIVE_INFINITY, i));
         assertEquals("-Infinity", Format.formatInteger(Number.NEGATIVE_INFINITY, i));
         assertEquals("0x0", Format.formatInteger(0, i));
@@ -335,10 +345,10 @@ public class FormatTest extends TestCase
         assertEquals("-010", Format.formatInteger(-8, i));
     }
 
-    public function testFixed():void
+    public function fixed():void
     {
         var f:FloatFormatOptions = new FloatFormatOptions();
-        assertEquals("NaN", Format.formatFixed(undefined, f));
+        assertEquals("NaN", Format.formatFixed(Number.NaN, f));
         assertEquals("Infinity", Format.formatFixed(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatFixed(Number.NEGATIVE_INFINITY, f));
         assertEquals("0.000000", Format.formatFixed(0, f));
@@ -347,7 +357,7 @@ public class FormatTest extends TestCase
         assertEquals("3.141593", Format.formatFixed(Math.PI, f));
 
         f.fracWidth = 3;
-        assertEquals("NaN", Format.formatFixed(undefined, f));
+        assertEquals("NaN", Format.formatFixed(Number.NaN, f));
         assertEquals("Infinity", Format.formatFixed(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatFixed(Number.NEGATIVE_INFINITY, f));
         assertEquals("0.000", Format.formatFixed(0, f));
@@ -356,7 +366,7 @@ public class FormatTest extends TestCase
         assertEquals("3.142", Format.formatFixed(Math.PI, f));
 
         f.minWidth = 7;
-        assertEquals("    NaN", Format.formatFixed(undefined, f));
+        assertEquals("    NaN", Format.formatFixed(Number.NaN, f));
         assertEquals("Infinity", Format.formatFixed(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatFixed(Number.NEGATIVE_INFINITY, f));
         assertEquals("  0.000", Format.formatFixed(0, f));
@@ -367,7 +377,7 @@ public class FormatTest extends TestCase
         assertEquals("  3.142", Format.formatFixed(Math.PI, f));
 
         f.leftJustify = true;
-        assertEquals("NaN    ", Format.formatFixed(undefined, f));
+        assertEquals("NaN    ", Format.formatFixed(Number.NaN, f));
         assertEquals("Infinity", Format.formatFixed(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatFixed(Number.NEGATIVE_INFINITY, f));
         assertEquals("0.000  ", Format.formatFixed(0, f));
@@ -378,7 +388,7 @@ public class FormatTest extends TestCase
         assertEquals("3.142  ", Format.formatFixed(Math.PI, f));
 
         f.paddingChar = "0";
-        assertEquals("NaN    ", Format.formatFixed(undefined, f));
+        assertEquals("NaN    ", Format.formatFixed(Number.NaN, f));
         assertEquals("Infinity", Format.formatFixed(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatFixed(Number.NEGATIVE_INFINITY, f));
         assertEquals("000.000", Format.formatFixed(0, f));
@@ -390,7 +400,7 @@ public class FormatTest extends TestCase
 
         f = new FloatFormatOptions();
         f.fracWidth = 0;
-        assertEquals("NaN", Format.formatFixed(undefined, f));
+        assertEquals("NaN", Format.formatFixed(Number.NaN, f));
         assertEquals("Infinity", Format.formatFixed(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatFixed(Number.NEGATIVE_INFINITY, f));
         assertEquals("0", Format.formatFixed(0, f));
@@ -399,7 +409,7 @@ public class FormatTest extends TestCase
         assertEquals("3", Format.formatFixed(Math.PI, f));
 
         f.forceDecimalSeparator = true;
-        assertEquals("NaN", Format.formatFixed(undefined, f));
+        assertEquals("NaN", Format.formatFixed(Number.NaN, f));
         assertEquals("Infinity", Format.formatFixed(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatFixed(Number.NEGATIVE_INFINITY, f));
         assertEquals("0.", Format.formatFixed(0, f));
@@ -413,12 +423,12 @@ public class FormatTest extends TestCase
         assertEquals("30,000.1234", Format.formatFixed(30000.1234, f));
     }
 
-    public function testExponential():void
+    public function exponential():void
     {
         var f:FloatFormatOptions = new FloatFormatOptions();
         f.fracWidth = 3;
 
-        assertEquals("NaN", Format.formatExponential(undefined, f));
+        assertEquals("NaN", Format.formatExponential(Number.NaN, f));
         assertEquals("Infinity", Format.formatExponential(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatExponential(Number.NEGATIVE_INFINITY, f));
         assertEquals("1.000", Format.formatExponential(1, f));
@@ -437,12 +447,12 @@ public class FormatTest extends TestCase
         assertEquals("3.210 x 10^-003", Format.formatExponential(0.00321, f));
     }
 
-    public function testPrecision():void
+    public function precision():void
     {
         var f:FloatFormatOptions = new FloatFormatOptions();
         f.fracWidth = 4;
 
-        assertEquals("NaN", Format.formatPrecision(undefined, f));
+        assertEquals("NaN", Format.formatPrecision(Number.NaN, f));
         assertEquals("Infinity", Format.formatPrecision(Number.POSITIVE_INFINITY, f));
         assertEquals("-Infinity", Format.formatPrecision(Number.NEGATIVE_INFINITY, f));
         assertEquals("1.000", Format.formatPrecision(1, f));
@@ -460,6 +470,37 @@ public class FormatTest extends TestCase
         assertEquals("0.04322", Format.formatPrecision(0.043215, f));
         assertEquals("0.4321", Format.formatPrecision(0.43215, f));
         assertEquals("4.322", Format.formatPrecision(4.3215, f));
+    }
+
+    public function hexFloat():void
+    {
+        var h:HexFloatFormatOptions;
+
+        h = new HexFloatFormatOptions();
+
+        assertEquals("NaN", Format.formatHexFloat(Number.NaN, h));
+        assertEquals("Infinity", Format.formatHexFloat(Number.POSITIVE_INFINITY, h));
+        assertEquals("-Infinity", Format.formatHexFloat(Number.NEGATIVE_INFINITY, h));
+        assertEquals("0x0.0p0", Format.formatHexFloat(0, h));
+        assertEquals("0x1.0p0", Format.formatHexFloat(1, h));
+        assertEquals("0x1.8p1", Format.formatHexFloat(3, h));
+        assertEquals("-0x1.4p2", Format.formatHexFloat(-5, h));
+        assertEquals("0x1.0p-3", Format.formatHexFloat(.125, h));
+        assertEquals("-0x1.0p0", Format.formatHexFloat(-1, h));
+        assertEquals("0x1.fffffffffffffp1023", Format.formatHexFloat(Number.MAX_VALUE, h));
+        assertEquals("0x0.0000000000001p-1022", Format.formatHexFloat(Number.MIN_VALUE, h));
+
+        h.fracWidth = 3;
+        assertEquals("0x0.000p0", Format.formatHexFloat(0, h));
+        assertEquals("0x1.000p0", Format.formatHexFloat(1, h));
+        assertEquals("0x1.800p1", Format.formatHexFloat(3, h));
+        assertEquals("-0x1.400p2", Format.formatHexFloat(-5, h));
+        assertEquals("0x1.000p-3", Format.formatHexFloat(.125, h));
+        assertEquals("0x1.fffp1023", Format.formatHexFloat(Number.MAX_VALUE, h));
+        assertEquals("0x0.000p-1022", Format.formatHexFloat(Number.MIN_VALUE, h));
+
+        h.exponentSigns.positive.lead = "+";
+        assertEquals("0x1.fffp+1023", Format.formatHexFloat(Number.MAX_VALUE, h));
     }
 }
 }
