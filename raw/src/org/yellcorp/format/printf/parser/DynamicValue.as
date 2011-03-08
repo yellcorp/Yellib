@@ -45,7 +45,13 @@ public class DynamicValue
 
     public function resolve(context:RenderContext):void
     {
-        _resolver.resolve(context);
+        try {
+            _resolver.resolve(context);
+        }
+        catch (rangeError:RangeError)
+        {
+            throw new FormatTokenError(rangeError.message, _token);
+        }
     }
 
     public function getValue(defaultValue:* = null):*

@@ -1,7 +1,7 @@
 package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.error.AssertError;
-import org.yellcorp.format.printf.FormatStringError;
+import org.yellcorp.format.printf.FormatError;
 import org.yellcorp.format.printf.context.RenderContext;
 import org.yellcorp.format.printf.format.CommonFormatOptions;
 import org.yellcorp.format.printf.format.FloatFormatOptions;
@@ -38,7 +38,7 @@ public class Parser
         }
         catch (tokenError:FormatTokenError)
         {
-            throw new FormatStringError(
+            throw new FormatError(
                 tokenError.message,
                 formatString,
                 tokenError.token.charIndex);

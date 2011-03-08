@@ -13,13 +13,29 @@ public class RenderContext
     public function getRelativeIndexArg(offset:int):*
     {
         index += offset;
-        return args[index++];
+        return getCurrentArg();
     }
 
     public function getAbsoluteIndexArg(position:int):*
     {
         index = position;
         return args[index++];
+    }
+
+    private function getCurrentArg():*
+    {
+        if (index < 0)
+        {
+            throw new RangeError("Tried to read from before start of argument list");
+        }
+        else if (index >= args.length)
+        {
+            throw new RangeError("Tried to read from beyond end of argument list");
+        }
+        else
+        {
+            return args[index++];
+        }
     }
 }
 }

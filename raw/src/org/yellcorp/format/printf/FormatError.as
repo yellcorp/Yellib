@@ -1,12 +1,12 @@
 package org.yellcorp.format.printf
 {
-public class FormatStringError extends Error
+public class FormatError extends Error
 {
     private var _formatString:String;
     private var _charIndex:int;
     private var _specimen:String;
 
-    public function FormatStringError(message:String, formatString:String, charIndex:int = -1)
+    public function FormatError(message:String, formatString:String, charIndex:int = -1)
     {
         _formatString = formatString;
         _charIndex = charIndex;
