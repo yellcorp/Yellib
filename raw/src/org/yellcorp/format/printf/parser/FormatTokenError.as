@@ -1,4 +1,4 @@
-package org.yellcorp.format.printf.errors
+package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.format.printf.lexer.Token;
 

@@ -1,7 +1,6 @@
 package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.format.printf.context.RenderContext;
-import org.yellcorp.format.printf.errors.FormatTokenError;
 import org.yellcorp.format.printf.format.Flags;
 
 

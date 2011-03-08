@@ -1,4 +1,4 @@
-package org.yellcorp.format.printf.errors
+package org.yellcorp.format.printf
 {
 public class FormatStringError extends Error
 {

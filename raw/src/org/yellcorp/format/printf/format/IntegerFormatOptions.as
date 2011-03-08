@@ -38,11 +38,13 @@ public class IntegerFormatOptions extends NumberFormatOptions
                 case 8:
                     radixPrefix = "0";
                     break;
+
                 case 16:
                     radixPrefix = "0x";
                     break;
+
                 default:
-                    // TODO: alternate form not supported
+                    // ignore
                     break;
             }
         }

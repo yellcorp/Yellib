@@ -1,9 +1,8 @@
 package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.error.AssertError;
+import org.yellcorp.format.printf.FormatStringError;
 import org.yellcorp.format.printf.context.RenderContext;
-import org.yellcorp.format.printf.errors.FormatStringError;
-import org.yellcorp.format.printf.errors.FormatTokenError;
 import org.yellcorp.format.printf.format.CommonFormatOptions;
 import org.yellcorp.format.printf.format.FloatFormatOptions;
 import org.yellcorp.format.printf.format.Format;
