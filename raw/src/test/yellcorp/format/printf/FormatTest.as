@@ -18,7 +18,7 @@ public class FormatTest extends TestCase
         super(testMethod);
     }
 
-    public function general():void
+    public function testGeneral():void
     {
         var g:GeneralFormatOptions;
 
@@ -85,7 +85,7 @@ public class FormatTest extends TestCase
         assertEquals("UNDEFINED", Format.formatGeneral(undefined, g));
     }
 
-    public function char():void
+    public function testChar():void
     {
         var c:CommonFormatOptions;
 
@@ -123,7 +123,7 @@ public class FormatTest extends TestCase
         assertEquals("B", Format.formatChar(0x62, c));
     }
 
-    public function integer():void
+    public function testInteger():void
     {
         var i:IntegerFormatOptions;
 
@@ -345,7 +345,7 @@ public class FormatTest extends TestCase
         assertEquals("-010", Format.formatInteger(-8, i));
     }
 
-    public function fixed():void
+    public function testFixed():void
     {
         var f:FloatFormatOptions = new FloatFormatOptions();
         assertEquals("NaN", Format.formatFixed(Number.NaN, f));
@@ -423,7 +423,7 @@ public class FormatTest extends TestCase
         assertEquals("30,000.1234", Format.formatFixed(30000.1234, f));
     }
 
-    public function exponential():void
+    public function testExponential():void
     {
         var f:FloatFormatOptions = new FloatFormatOptions();
         f.fracWidth = 3;
@@ -447,7 +447,7 @@ public class FormatTest extends TestCase
         assertEquals("3.210 x 10^-003", Format.formatExponential(0.00321, f));
     }
 
-    public function precision():void
+    public function testPrecision():void
     {
         var f:FloatFormatOptions = new FloatFormatOptions();
         f.fracWidth = 4;
@@ -472,7 +472,7 @@ public class FormatTest extends TestCase
         assertEquals("4.322", Format.formatPrecision(4.3215, f));
     }
 
-    public function hexFloat():void
+    public function testHexFloat():void
     {
         var h:HexFloatFormatOptions;
 

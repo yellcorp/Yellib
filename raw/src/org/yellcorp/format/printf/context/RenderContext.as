@@ -3,11 +3,12 @@ package org.yellcorp.format.printf.context
 public class RenderContext
 {
     private var args:Array;
-    private var index:Number;
+    private var index:int;
 
     public function RenderContext(args:Array)
     {
-        this.args = args;
+        this.args = args || [ ];
+        index = 0;
     }
 
     public function getRelativeIndexArg(offset:int):*
@@ -26,11 +27,11 @@ public class RenderContext
     {
         if (index < 0)
         {
-            throw new RangeError("Tried to read from before start of argument list");
+            throw new ContextError("Tried to read from before start of argument list");
         }
         else if (index >= args.length)
         {
-            throw new RangeError("Tried to read from beyond end of argument list");
+            throw new ContextError("Tried to read from beyond end of argument list");
         }
         else
         {

@@ -13,7 +13,6 @@ public class DynamicValue
     private var _resolver:Resolver;
     private var _token:Token;
     private var _isSet:Boolean;
-    private var _value:*;
 
     public function DynamicValue()
     {
@@ -23,7 +22,6 @@ public class DynamicValue
     public function clear():void
     {
         _resolver = new ConstantArg(null);
-        _value = undefined;
         _token = null;
         _isSet = false;
     }
@@ -56,7 +54,7 @@ public class DynamicValue
 
     public function getValue(defaultValue:* = null):*
     {
-        return _isSet ? _value : defaultValue;
+        return _isSet ? _resolver.value : defaultValue;
     }
 
     public function get token():Token

@@ -2,21 +2,15 @@ package org.yellcorp.format.printf
 {
 public class FormatError extends Error
 {
-    private var _formatString:String;
     private var _charIndex:int;
     private var _specimen:String;
 
-    public function FormatError(message:String, formatString:String, charIndex:int = -1)
+    public function FormatError(message:String, specimen:String, charIndex:int = -1)
     {
-        _formatString = formatString;
+        super(message);
         _charIndex = charIndex;
         _specimen = specimen;
-        super(message);
-    }
-
-    public function get formatString():String
-    {
-        return _formatString;
+        name = "FormatError";
     }
 
     public function get charIndex():int

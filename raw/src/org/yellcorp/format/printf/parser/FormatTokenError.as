@@ -11,6 +11,7 @@ public class FormatTokenError extends Error
     {
         super(message);
         _token = token;
+        name = "FormatTokenError";
     }
 
     public function get token():Token

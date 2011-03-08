@@ -2,6 +2,7 @@ package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.error.AssertError;
 import org.yellcorp.format.printf.FormatError;
+import org.yellcorp.format.printf.context.ContextError;
 import org.yellcorp.format.printf.context.RenderContext;
 import org.yellcorp.format.printf.format.CommonFormatOptions;
 import org.yellcorp.format.printf.format.FloatFormatOptions;
@@ -41,7 +42,7 @@ public class Parser
             throw new FormatError(
                 tokenError.message,
                 formatString,
-                tokenError.token.charIndex);
+                tokenError.token ? tokenError.token.charIndex : -1);
         }
         return output.toString();
     }
@@ -82,11 +83,29 @@ public class Parser
 
     private function parseField():void
     {
+        var precisionChar:int;
+        var conversionChar:int;
+
         parsePosition();
         parseFlags();
         parseWidth();
+
+        precisionChar = lexer.currentChar + 1;
         parsePrecision();
-        parseConversion();
+
+        conversionChar = lexer.currentChar + 1;
+
+        try {
+            parseConversion();
+        }
+        catch (ce:ContextError)
+        {
+            throw new FormatError(ce.message, lexer.text, conversionChar);
+        }
+        catch (pe:PrecisionRangeError)
+        {
+            throw new FormatError(pe.message, lexer.text, precisionChar);
+        }
     }
 
     private function parsePosition():void
@@ -266,9 +285,8 @@ public class Parser
             }
             catch (re:RangeError)
             {
-                throw new FormatTokenError(
-                    "Number following . must be in the range 0-20 for exponential formatting",
-                    token);
+                throw new PrecisionRangeError(
+                    "Number following . must be in the range 0-20 for exponential formatting");
             }
             break;
 
@@ -278,9 +296,8 @@ public class Parser
             }
             catch (re:RangeError)
             {
-                throw new FormatTokenError(
-                    "Number following . must be in the range 0-20 for fixed formatting",
-                    token);
+                throw new PrecisionRangeError(
+                    "Number following . must be in the range 0-20 for fixed formatting");
             }
             break;
 
@@ -291,9 +308,8 @@ public class Parser
             }
             catch (re:RangeError)
             {
-                throw new FormatTokenError(
-                    "Number following . must be in the range 0-21 for precision formatting",
-                    token);
+                throw new PrecisionRangeError(
+                    "Number following . must be in the range 0-21 for precision formatting");
             }
             break;
 

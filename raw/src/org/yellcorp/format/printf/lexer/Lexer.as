@@ -22,7 +22,6 @@ public class Lexer
 
     public function nextToken():Token
     {
-        var currentText:String;
         var token:Token;
 
         if (currentToken >= textTokens.length)
@@ -31,7 +30,7 @@ public class Lexer
         }
         else
         {
-            currentText = textTokens[currentToken];
+            token = makeToken(textTokens[currentToken]);
             currentToken++;
         }
         _currentChar += token.text.length;
