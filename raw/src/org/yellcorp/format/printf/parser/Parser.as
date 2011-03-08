@@ -19,10 +19,7 @@ import org.yellcorp.string.StringUtil;
 
 public class Parser
 {
-    public static const ARG_PTR:int = 0;
-
     private var lexer:Lexer;
-    private var code:Array;
     private var field:FieldProperties;
     private var output:StringBuilder;
     private var context:RenderContext;
@@ -50,7 +47,7 @@ public class Parser
         return output.toString();
     }
 
-    private function parse(text:String):Array
+    private function parse(text:String):void
     {
         output.clear();
         lexer.start(text);
@@ -60,8 +57,6 @@ public class Parser
         {
             parseToken();
         }
-
-        return code;
     }
 
     private function parseToken():void
