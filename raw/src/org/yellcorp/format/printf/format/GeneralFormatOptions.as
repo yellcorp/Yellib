@@ -2,7 +2,7 @@ package org.yellcorp.format.printf.format
 {
 public class GeneralFormatOptions extends CommonFormatOptions
 {
-    public var maxWidth:int = int.MAX_VALUE;
+    public var maxWidth:int;
 
     public function GeneralFormatOptions(options:Object = null)
     {
@@ -26,6 +26,12 @@ public class GeneralFormatOptions extends CommonFormatOptions
         super.setFromFlags(flags);
         // not supported: positive*, negative*, zeroPad, grouping
         maxWidth = isNaN(flags.precision) ? int.MAX_VALUE : flags.precision;
+    }
+
+    protected override function setDefaults():void
+    {
+        super.setDefaults();
+        maxWidth = int.MAX_VALUE;
     }
 }
 }

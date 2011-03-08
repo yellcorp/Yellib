@@ -2,9 +2,9 @@ package org.yellcorp.format.printf.format
 {
 public class NumberFormatOptions extends CommonFormatOptions
 {
-    public var paddingChar:String = " ";
-    public var grouping:Boolean = false;
-    public var signs:SignSet = new SignSet("", "", "-", "");
+    public var paddingChar:String;
+    public var grouping:Boolean;
+    public var signs:SignSet;
 
     public function NumberFormatOptions(options:Object = null)
     {
@@ -49,6 +49,14 @@ public class NumberFormatOptions extends CommonFormatOptions
         {
             signs.positive.setSigns("(", ")");
         }
+    }
+
+    protected override function setDefaults():void
+    {
+        super.setDefaults();
+        paddingChar = " ";
+        grouping = false;
+        signs = new SignSet("", "", "-", "");
     }
 }
 }

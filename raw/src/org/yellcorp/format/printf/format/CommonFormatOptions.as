@@ -2,12 +2,13 @@ package org.yellcorp.format.printf.format
 {
 public class CommonFormatOptions
 {
-    public var minWidth:int = 0;
-    public var leftJustify:Boolean = false;
-    public var uppercase:Boolean = false;
+    public var minWidth:int;
+    public var leftJustify:Boolean;
+    public var uppercase:Boolean;
 
     public function CommonFormatOptions(options:Object = null)
     {
+        setDefaults();
         if (options is CommonFormatOptions)
         {
             copyFrom(CommonFormatOptions(options));
@@ -33,6 +34,13 @@ public class CommonFormatOptions
         minWidth = flags.width;
         leftJustify = flags.leftJustify;
         uppercase = flags.uppercase;
+    }
+
+    protected function setDefaults():void
+    {
+        minWidth = 0;
+        leftJustify = false;
+        uppercase = false;
     }
 }
 }

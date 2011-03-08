@@ -2,12 +2,12 @@ package org.yellcorp.format.printf.format
 {
 public class FloatFormatOptions extends NumberFormatOptions
 {
-    public var fracWidth:Number = 6;
-    public var forceDecimalSeparator:Boolean = false;
+    public var fracWidth:Number;
+    public var forceDecimalSeparator:Boolean;
 
-    public var exponentWidth:uint = 2;
-    public var exponentDelimiter:String = "e";
-    public var exponentSigns:SignSet = new SignSet("+", "", "-", "");
+    public var exponentWidth:uint;
+    public var exponentDelimiter:String;
+    public var exponentSigns:SignSet;
 
     public function FloatFormatOptions(options:Object = null)
     {
@@ -34,6 +34,16 @@ public class FloatFormatOptions extends NumberFormatOptions
     {
         fracWidth = isNaN(flags.precision) ? 6 : flags.precision;
         forceDecimalSeparator = flags.alternateForm;
+    }
+
+    protected override function setDefaults():void
+    {
+        super.setDefaults();
+        fracWidth = 6;
+        forceDecimalSeparator = false;
+        exponentWidth = 2;
+        exponentDelimiter = "e";
+        exponentSigns = new SignSet("+", "", "-", "");
     }
 }
 }

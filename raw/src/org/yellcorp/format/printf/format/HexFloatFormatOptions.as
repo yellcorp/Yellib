@@ -2,12 +2,10 @@ package org.yellcorp.format.printf.format
 {
 public class HexFloatFormatOptions extends FloatFormatOptions
 {
-    public var radixPrefix:String = "0x";
+    public var radixPrefix:String;
 
     public function HexFloatFormatOptions(options:Object = null)
     {
-        exponentDelimiter = "p";
-        exponentSigns = new SignSet("", "", "-", "");
         super(options);
     }
 
@@ -21,6 +19,16 @@ public class HexFloatFormatOptions extends FloatFormatOptions
         {
             radixPrefix = hexOpts.radixPrefix;
         }
+    }
+
+    protected override function setDefaults():void
+    {
+        super.setDefaults();
+        fracWidth = Number.NaN;
+        exponentDelimiter = "p";
+        exponentSigns = new SignSet("", "", "-", "");
+        exponentWidth = 1;
+        radixPrefix = "0x";
     }
 }
 }

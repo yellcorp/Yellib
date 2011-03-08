@@ -2,9 +2,9 @@ package org.yellcorp.format.printf.format
 {
 public class IntegerFormatOptions extends NumberFormatOptions
 {
-    public var base:int = 10;
-    public var minDigits:int = 1;
-    public var radixPrefix:String = "";
+    public var base:int;
+    public var minDigits:int;
+    public var radixPrefix:String;
 
     public function IntegerFormatOptions(options:Object = null)
     {
@@ -48,6 +48,14 @@ public class IntegerFormatOptions extends NumberFormatOptions
                     break;
             }
         }
+    }
+
+    protected override function setDefaults():void
+    {
+        super.setDefaults();
+        base = 10;
+        minDigits = 1;
+        radixPrefix = "";
     }
 }
 }
