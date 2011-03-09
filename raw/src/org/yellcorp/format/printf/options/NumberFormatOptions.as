@@ -1,4 +1,4 @@
-package org.yellcorp.format.printf.format
+package org.yellcorp.format.printf.options
 {
 public class NumberFormatOptions extends CommonFormatOptions
 {

@@ -1,6 +1,6 @@
 package org.yellcorp.format.printf.number
 {
-import org.yellcorp.format.printf.format.IntegerFormatOptions;
+import org.yellcorp.format.printf.options.IntegerFormatOptions;
 
 
 public class SplitInteger implements SplitNumber

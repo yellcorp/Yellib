@@ -2,13 +2,13 @@ package test.yellcorp.format.printf
 {
 import asunit.framework.TestCase;
 
-import org.yellcorp.format.printf.format.CommonFormatOptions;
-import org.yellcorp.format.printf.format.FloatFormatOptions;
-import org.yellcorp.format.printf.format.Format;
-import org.yellcorp.format.printf.format.GeneralFormatOptions;
-import org.yellcorp.format.printf.format.HexFloatFormatOptions;
-import org.yellcorp.format.printf.format.IntegerFormatOptions;
-import org.yellcorp.format.printf.format.SignSet;
+import org.yellcorp.format.printf.Format;
+import org.yellcorp.format.printf.options.CommonFormatOptions;
+import org.yellcorp.format.printf.options.FloatFormatOptions;
+import org.yellcorp.format.printf.options.GeneralFormatOptions;
+import org.yellcorp.format.printf.options.HexFloatFormatOptions;
+import org.yellcorp.format.printf.options.IntegerFormatOptions;
+import org.yellcorp.format.printf.options.SignSet;
 
 
 public class FormatTest extends TestCase

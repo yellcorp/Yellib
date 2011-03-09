@@ -1,7 +1,7 @@
 package org.yellcorp.format.printf.number
 {
 import org.yellcorp.binary.NumberInfo;
-import org.yellcorp.format.printf.format.HexFloatFormatOptions;
+import org.yellcorp.format.printf.options.HexFloatFormatOptions;
 import org.yellcorp.string.StringUtil;
 
 

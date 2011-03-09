@@ -1,7 +1,7 @@
 package org.yellcorp.format.printf.number
 {
 import org.yellcorp.error.AssertError;
-import org.yellcorp.format.printf.format.FloatFormatOptions;
+import org.yellcorp.format.printf.options.FloatFormatOptions;
 
 
 public class SplitNativeNumber implements SplitNumber

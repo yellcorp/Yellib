@@ -1,10 +1,15 @@
-package org.yellcorp.format.printf.format
+package org.yellcorp.format.printf
 {
 import org.yellcorp.format.NumberFormatUtil;
 import org.yellcorp.format.printf.number.SplitHexFloat;
 import org.yellcorp.format.printf.number.SplitInteger;
 import org.yellcorp.format.printf.number.SplitNativeNumber;
 import org.yellcorp.format.printf.number.SplitNumber;
+import org.yellcorp.format.printf.options.CommonFormatOptions;
+import org.yellcorp.format.printf.options.FloatFormatOptions;
+import org.yellcorp.format.printf.options.GeneralFormatOptions;
+import org.yellcorp.format.printf.options.HexFloatFormatOptions;
+import org.yellcorp.format.printf.options.IntegerFormatOptions;
 import org.yellcorp.string.StringBuilder;
 import org.yellcorp.string.StringUtil;
 

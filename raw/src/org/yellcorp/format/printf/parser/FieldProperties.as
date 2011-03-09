@@ -1,7 +1,7 @@
 package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.format.printf.context.RenderContext;
-import org.yellcorp.format.printf.format.Flags;
+import org.yellcorp.format.printf.options.Flags;
 
 
 public class FieldProperties implements Flags
