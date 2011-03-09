@@ -1,5 +1,7 @@
 package org.yellcorp.format
 {
+import org.yellcorp.string.StringUtil;
+
 
 public class DateFormatUtil
 {
@@ -22,6 +24,27 @@ public class DateFormatUtil
             return hours - 12;
         else
             return hours;
+    }
+
+    public static function formatTimezoneOffset(offsetMinutes:Number):String
+    {
+        var laterThanUTC:Boolean;
+        var modMinutes:int;
+        var hours:int;
+
+        if (offsetMinutes < 0)
+        {
+            laterThanUTC = true;
+            offsetMinutes = -offsetMinutes;
+        }
+
+        modMinutes = offsetMinutes % 60;
+        hours = Math.floor(offsetMinutes / 60);
+
+        // note the sign will be flipped wrt offsetMinutes
+        return (laterThanUTC ? "+" : "-") +
+               StringUtil.padLeft(hours, 2, "0") +
+               StringUtil.padLeft(modMinutes, 2, "0");
     }
 }
 }

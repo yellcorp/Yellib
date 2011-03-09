@@ -245,5 +245,11 @@ public class DateUtil
         var epoch:Number = Math.round(date1.time + t * (date2.time - date1.time));
         return new Date(epoch);
     }
+
+    public static function getDayOfYear(date:Date):int
+    {
+        var yearStart:Date = new Date(date.fullYear, 0, 1, 0, 0, 0, 0);
+        return Math.floor((date.time - yearStart.time) / TimeUnits.DAY) + 1;
+    }
 }
 }
