@@ -25,19 +25,21 @@ public class StringUtil
     }
 
 
-    public static function repeat(str:String, times:uint):String
+    public static function repeat(str:String, times:int):String
     {
         var result:String = "";
-        do
+        if (times > 0)
         {
-            if (times & 1) result += str;
-        } while ((times >>= 1) && (str += str));
-
+            do
+            {
+                if (times & 1) result += str;
+            } while ((times >>= 1) && (str += str));
+        }
         return result;
     }
 
 
-    public static function padLeft(value:*, totalWidth:uint,
+    public static function padLeft(value:*, totalWidth:int,
                                    padChar:String = " ",
                                    truncate:Boolean = false):String
     {
@@ -54,7 +56,7 @@ public class StringUtil
     }
 
 
-    public static function padRight(value:*, totalWidth:uint,
+    public static function padRight(value:*, totalWidth:int,
                                     padChar:String = " ",
                                     truncate:Boolean = false):String
     {
