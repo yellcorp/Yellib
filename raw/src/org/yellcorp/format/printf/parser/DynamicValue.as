@@ -5,7 +5,7 @@ import org.yellcorp.format.printf.context.ConstantArg;
 import org.yellcorp.format.printf.context.RelativeArg;
 import org.yellcorp.format.printf.context.RenderContext;
 import org.yellcorp.format.printf.context.Resolver;
-import org.yellcorp.format.printf.lexer.Token;
+import org.yellcorp.format.relexer.Token;
 
 
 public class DynamicValue

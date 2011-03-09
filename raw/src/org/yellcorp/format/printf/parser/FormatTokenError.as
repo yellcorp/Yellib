@@ -1,6 +1,6 @@
 package org.yellcorp.format.printf.parser
 {
-import org.yellcorp.format.printf.lexer.Token;
+import org.yellcorp.format.relexer.Token;
 
 
 public class FormatTokenError extends Error

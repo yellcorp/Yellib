@@ -1,4 +1,4 @@
-package org.yellcorp.format.printf.lexer
+package org.yellcorp.format.relexer
 {
 public class Token
 {

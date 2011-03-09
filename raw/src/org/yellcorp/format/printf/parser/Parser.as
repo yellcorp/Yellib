@@ -7,13 +7,13 @@ import org.yellcorp.format.printf.Format;
 import org.yellcorp.format.printf.FormatError;
 import org.yellcorp.format.printf.context.ContextError;
 import org.yellcorp.format.printf.context.RenderContext;
-import org.yellcorp.format.printf.lexer.Lexer;
-import org.yellcorp.format.printf.lexer.Token;
 import org.yellcorp.format.printf.options.CommonFormatOptions;
 import org.yellcorp.format.printf.options.FloatFormatOptions;
 import org.yellcorp.format.printf.options.GeneralFormatOptions;
 import org.yellcorp.format.printf.options.HexFloatFormatOptions;
 import org.yellcorp.format.printf.options.IntegerFormatOptions;
+import org.yellcorp.format.relexer.Lexer;
+import org.yellcorp.format.relexer.Token;
 import org.yellcorp.locale.Locale;
 import org.yellcorp.locale.Locale_en;
 import org.yellcorp.string.StringBuilder;
@@ -21,16 +21,18 @@ import org.yellcorp.string.StringBuilder;
 
 public class Parser
 {
-    private var lexer:Lexer;
+    private static var _tokenPattern:RegExp;
+
     private var field:FieldProperties;
     private var output:StringBuilder;
     private var context:RenderContext;
+    private var lexer:Lexer;
 
     private var _locale:Locale;
 
     public function Parser()
     {
-        lexer = new Lexer();
+        lexer = new Lexer(getTokenPattern());
         field = new FieldProperties();
         output = new StringBuilder();
     }
@@ -601,6 +603,46 @@ public class Parser
         options.setFromLocale(locale);
         options.setFromFlags(field);
         return Format.formatHexFloat(field.argValue.getValue(), options);
+    }
+
+    private static function getTokenPattern():RegExp
+    {
+        if (!_tokenPattern)
+        {
+            _tokenPattern = buildTokenPattern();
+        }
+        return _tokenPattern;
+    }
+
+    private static function buildTokenPattern():RegExp
+    {
+        // a sequence of digits, followed by $
+        var positionArg:String = "(\\d+\\$)?";
+
+        // flags. resolved: < is a flag. java documentation showing
+        // < before $ is wrong
+        var flags:String =       "([-#+ 0,(<]+)?";
+        var width:String =       "(\\d+)?";
+        var precision:String =   "(\\.\\d+)?";
+
+        var singleConversions:String = "[bBsScCdoxXeEfgGaAn%]";
+        var datePrefix:String = "[tT]";
+        var dateConversions:String = "[HIklMSLNpzZsQBbhAaCYyjmdeRTrDFc]";
+
+        var expr:String =
+            "(%)" +         // group 1
+            positionArg +   // 2
+            flags +            // 3
+            width +         // 4
+            precision +     // 5
+            "(" +           // 6
+                singleConversions +
+            "|" +
+                datePrefix +
+                dateConversions +
+            ")";
+
+        return new RegExp(expr);
     }
 }
 }
