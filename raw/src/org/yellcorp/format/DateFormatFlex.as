@@ -84,7 +84,7 @@ public class DateFormatFlex
             case 'A' :
             {
                 // am/pm
-                return locale.getDayHalf(date.hours < 12 ? 0 : 1);
+                return locale.getDayHalf(date.hours);
             }
             case 'J' :
             {

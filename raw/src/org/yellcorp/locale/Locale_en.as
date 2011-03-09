@@ -39,7 +39,7 @@ public class Locale_en implements Locale
 
     public function getDayHalf(i:int):String
     {
-        return i == 0 ? "AM" : "PM";
+        return i < 12 ? "AM" : "PM";
     }
 
     public function getOrdinalSuffix(number:Number):String

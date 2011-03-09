@@ -6,7 +6,7 @@ public interface Locale
     function getMonthName(month:Number):String;
     function getDayNameShort(weekday:Number):String;
     function getDayName(weekday:Number):String;
-    function getDayHalf(i:int):String;
+    function getDayHalf(hourOfDay:int):String;
 
     /**
      * Returns the ordinal suffix for a given number.
