@@ -16,7 +16,6 @@ import org.yellcorp.format.printf.options.HexFloatFormatOptions;
 import org.yellcorp.format.printf.options.IntegerFormatOptions;
 import org.yellcorp.locale.Locale;
 import org.yellcorp.locale.Locale_en;
-import org.yellcorp.sequence.Set;
 import org.yellcorp.string.StringBuilder;
 
 
@@ -132,7 +131,7 @@ public class Parser
     private function parseFlags():void
     {
         var token:Token = lexer.nextToken();
-        var setFlags:Set = new Set();
+        var setFlags:Object = { };
         var char:String;
 
         if (token.text)
@@ -140,13 +139,16 @@ public class Parser
             for (var i:int = 0; i < token.text.length; i++)
             {
                 char = token.text.charAt(i);
-                if (setFlags.contains(char))
+                if (setFlags[char])
                 {
                     throw new FormatTokenError(
-                        char + " flag already set for this field",
+                        "Flag '" + char + "' already set for this field",
                         token.substr(i, 1));
                 }
-                setFlags.add(char);
+                else
+                {
+                    setFlags[char] = true;
+                }
 
                 switch (char)
                 {
@@ -154,7 +156,7 @@ public class Parser
                     if (field.argValue.isSet)
                     {
                         throw new FormatTokenError(
-                            "< flag cannot be used with position specifier",
+                            "Flag '<' cannot be used with position specifier",
                             token.substr(i, 1));
                     }
                     else
@@ -193,7 +195,7 @@ public class Parser
                     break;
 
                 default :
-                    AssertError.assert(false, "Unhandled flag char " + char);
+                    AssertError.assert(false, "Unhandled flag char '" + char + "'");
                     break;
                 }
             }
@@ -291,7 +293,7 @@ public class Parser
             catch (re:RangeError)
             {
                 throw new PrecisionRangeError(
-                    "Number following . must be in the range 0,20 for exponential formatting");
+                    "Number following '.' must be in the range 0,20 for exponential formatting");
             }
             break;
 
@@ -302,7 +304,7 @@ public class Parser
             catch (re:RangeError)
             {
                 throw new PrecisionRangeError(
-                    "Number following . must be in the range 0,20 for fixed formatting");
+                    "Number following '.' must be in the range 0,20 for fixed formatting");
             }
             break;
 
@@ -314,7 +316,7 @@ public class Parser
             catch (re:RangeError)
             {
                 throw new PrecisionRangeError(
-                    "Number following . must be in the range 0,21 for precision formatting");
+                    "Number following '.' must be in the range 0,21 for precision formatting");
             }
             break;
 
