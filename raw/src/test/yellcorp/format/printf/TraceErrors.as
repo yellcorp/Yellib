@@ -17,6 +17,7 @@ public class TraceErrors extends Sprite
         try { Printf.sprintf("%s_%s", "00"); } catch (fe:FormatStringError) { traceError(fe); }
         try { Printf.sprintf("%<s", "00"); } catch (fe:FormatStringError) { traceError(fe); }
         try { Printf.sprintf("%0$s %1$s", "00"); } catch (fe:FormatStringError) { traceError(fe); }
+        try { Printf.sprintf("%1$s %2$s", "00"); } catch (fe:FormatStringError) { traceError(fe); }
         try { Printf.sprintf("%++d" , 5); } catch (fe:FormatStringError) { traceError(fe); }
         try { Printf.sprintf("%.21e", 0); } catch (fe:FormatStringError) { traceError(fe); }
         try { Printf.sprintf("%.21f", 0); } catch (fe:FormatStringError) { traceError(fe); }

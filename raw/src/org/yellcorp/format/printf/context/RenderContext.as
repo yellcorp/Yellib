@@ -3,28 +3,32 @@ package org.yellcorp.format.printf.context
 public class RenderContext
 {
     private var args:Array;
-    private var index:int;
+    private var implicitCounter:int = 0;
+    private var lastIndex:int = -1;
 
     public function RenderContext(args:Array)
     {
         this.args = args || [ ];
-        index = 0;
     }
 
-    public function getRelativeIndexArg(offset:int):*
+    public function getArgAtIndex(index:int):*
     {
-        index += offset;
-        return getCurrentArg();
+        return getArg(index);
     }
 
-    public function getAbsoluteIndexArg(position:int):*
+    public function getImplicitArg():*
     {
-        index = position;
-        return getCurrentArg();
+        return getArg(implicitCounter++);
     }
 
-    private function getCurrentArg():*
+    public function getLastArg():*
     {
+        return getArg(lastIndex);
+    }
+
+    private function getArg(index:int):*
+    {
+        lastIndex = index;
         if (index < 0)
         {
             throw new ContextError("Tried to read from before start of argument list");
@@ -35,7 +39,7 @@ public class RenderContext
         }
         else
         {
-            return args[index++];
+            return args[index];
         }
     }
 }

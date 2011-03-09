@@ -1,18 +1,16 @@
 package org.yellcorp.format.printf.context
 {
-public class RelativeArg implements Resolver
+public class LastArg implements Resolver
 {
-    private var _offset:int;
     private var _value:*;
 
-    public function RelativeArg(offset:int)
+    public function LastArg()
     {
-        _offset = offset;
     }
 
     public function resolve(context:RenderContext):void
     {
-        _value = context.getRelativeIndexArg(_offset);
+        _value = context.getLastArg();
     }
 
     public function get value():*

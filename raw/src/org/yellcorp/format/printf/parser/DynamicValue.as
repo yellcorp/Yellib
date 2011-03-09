@@ -2,7 +2,8 @@ package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.format.printf.context.AbsoluteArg;
 import org.yellcorp.format.printf.context.ConstantArg;
-import org.yellcorp.format.printf.context.RelativeArg;
+import org.yellcorp.format.printf.context.ImplicitArg;
+import org.yellcorp.format.printf.context.LastArg;
 import org.yellcorp.format.printf.context.RenderContext;
 import org.yellcorp.format.printf.context.Resolver;
 import org.yellcorp.format.relexer.Token;
@@ -36,9 +37,14 @@ public class DynamicValue
         setResolver(new AbsoluteArg(index), token);
     }
 
-    public function setRelativeIndexArg(index:int, token:Token):void
+    public function setLastArg(token:Token):void
     {
-        setResolver(new RelativeArg(index), token);
+        setResolver(new LastArg(), token);
+    }
+
+    public function setImplicitArg(token:Token):void
+    {
+        setResolver(new ImplicitArg(), token);
     }
 
     public function resolve(context:RenderContext):void

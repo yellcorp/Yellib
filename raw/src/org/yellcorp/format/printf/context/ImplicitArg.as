@@ -1,18 +1,16 @@
 package org.yellcorp.format.printf.context
 {
-public class AbsoluteArg implements Resolver
+public class ImplicitArg implements Resolver
 {
-    private var _index:int;
     private var _value:*;
 
-    public function AbsoluteArg(index:int)
+    public function ImplicitArg()
     {
-        _index = index;
     }
 
     public function resolve(context:RenderContext):void
     {
-        _value = context.getArgAtIndex(_index);
+        _value = context.getImplicitArg();
     }
 
     public function get value():*

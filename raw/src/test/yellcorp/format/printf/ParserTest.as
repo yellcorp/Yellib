@@ -41,30 +41,36 @@ public class ParserTest extends TestCase
 
     public function testPosition():void
     {
-        assertEquals("00", Printf.sprintf("%0$s", "00"));
-        assertEquals("00", Printf.sprintf("%0$s", "00", "11"));
+        assertEquals("11", Printf.sprintf("%1$s", "11"));
+        assertEquals("11", Printf.sprintf("%1$s", "11", "22"));
 
-        assertEquals("0011", Printf.sprintf("%0$s%1$s", "00", "11"));
-        assertEquals("1100", Printf.sprintf("%1$s%0$s", "00", "11"));
-        assertEquals("11_00", Printf.sprintf("%1$s_%0$s", "00", "11"));
+        assertEquals("1122", Printf.sprintf("%1$s%2$s", "11", "22"));
+        assertEquals("2211", Printf.sprintf("%2$s%1$s", "11", "22"));
+        assertEquals("22_11", Printf.sprintf("%2$s_%1$s", "11", "22"));
 
-        assertEquals("00", Printf.sprintf("%0$s", "00"));
-        assertEquals("11_22", Printf.sprintf("%1$s_%s", "00", "11", "22"));
-        assertEquals("00_00_00", Printf.sprintf("%s_%<s_%<s", "00"));
-        assertEquals("00_00_11", Printf.sprintf("%s_%<s_%s", "00", "11", "22"));
-        assertEquals("11_11_22", Printf.sprintf("%1$s_%<s_%s", "00", "11", "22"));
+        // taken from java.util.Formatter docs
+        assertEquals("b a a b", Printf.sprintf("%2$s %s %<s %s", "a", "b", "c", "d"));
+
+        assertEquals("22_11", Printf.sprintf("%2$s_%s", "11", "22", "33"));
+        assertEquals("11_11_11", Printf.sprintf("%s_%<s_%<s", "11"));
+        assertEquals("11_11_22", Printf.sprintf("%s_%<s_%s", "11", "22", "33"));
+        assertEquals("11_11_33_22_33", Printf.sprintf("%s_%<s_%3$s_%s_%s", "11", "22", "33"));
 
         // error if walking off either end of the array
         assertThrows(FormatStringError, function ():void {
-            Printf.sprintf("%s_%s", "00");
+            Printf.sprintf("%s_%s", "11");
         });
 
         assertThrows(FormatStringError, function ():void {
-            Printf.sprintf("%<s", "00");
+            Printf.sprintf("%<s", "11");
         });
 
         assertThrows(FormatStringError, function ():void {
-            Printf.sprintf("%0$s %1$s", "00");
+            Printf.sprintf("%0$s %1$s", "11");
+        });
+
+        assertThrows(FormatStringError, function ():void {
+            Printf.sprintf("%1$s %2$s", "11");
         });
     }
 

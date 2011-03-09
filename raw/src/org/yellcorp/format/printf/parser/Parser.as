@@ -108,10 +108,10 @@ public class Parser
         parseFlags();
         parseWidth();
 
-        precisionChar = lexer.currentChar + 1;
+        precisionChar = lexer.currentChar;
         parsePrecision();
 
-        conversionChar = lexer.currentChar + 1;
+        conversionChar = lexer.currentChar;
 
         try {
             parseConversion();
@@ -138,7 +138,14 @@ public class Parser
 
             argPosition = parseInt(token.text.slice(0, -1));
 
-            field.argValue.setAbsoluteIndexArg(argPosition, token);
+            if (argPosition == 0)
+            {
+                throw new FormatTokenError(
+                    "Position is a 1-based value and therefore must be greater than zero",
+                    token);
+            }
+
+            field.argValue.setAbsoluteIndexArg(argPosition - 1, token);
         }
     }
 
@@ -175,8 +182,7 @@ public class Parser
                     }
                     else
                     {
-                        field.argValue.setRelativeIndexArg(-1,
-                            token.substr(i, 1));
+                        field.argValue.setLastArg(token.substr(i, 1));
                     }
                     break;
 
