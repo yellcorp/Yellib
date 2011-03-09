@@ -1,6 +1,5 @@
 package org.yellcorp.format.printf.number
 {
-import org.yellcorp.error.AssertError;
 import org.yellcorp.format.NativeNumberString;
 import org.yellcorp.format.printf.options.FloatFormatOptions;
 
@@ -16,7 +15,10 @@ public class SplitNativeNumber implements SplitNumber
         this.options = options;
         number = new NativeNumberString(numberString);
 
-        AssertError.assert(number.isNumericString, "Not a valid number string");
+        if (!number.isNumericString)
+        {
+            throw new Error("Internal error: not a valid number string: " + numberString);
+        }
     }
 
     public function get isNotANumber():Boolean

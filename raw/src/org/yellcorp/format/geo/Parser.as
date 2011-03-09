@@ -1,6 +1,5 @@
 package org.yellcorp.format.geo
 {
-import org.yellcorp.error.AssertError;
 import org.yellcorp.format.FormatStringError;
 import org.yellcorp.format.geo.renderer.Literal;
 import org.yellcorp.format.geo.renderer.NumberRenderer;
@@ -76,9 +75,6 @@ internal class Parser
 
         if (token.text)
         {
-            AssertError.assert(/^\./.test(token.text),
-                "Precision token doesn't begin with .");
-
             field.precision = parseInt(token.text.substr(1));
         }
     }

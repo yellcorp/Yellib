@@ -1,7 +1,6 @@
 package org.yellcorp.format.printf.parser
 {
 import org.yellcorp.date.DateUtil;
-import org.yellcorp.error.AssertError;
 import org.yellcorp.format.DateFormatUtil;
 import org.yellcorp.format.FormatStringError;
 import org.yellcorp.format.printf.Format;
@@ -133,9 +132,6 @@ public class Parser
 
         if (token.text)
         {
-            AssertError.assert(/\$$/.test(token.text),
-                "Position token doesn't end with $");
-
             argPosition = parseInt(token.text.slice(0, -1));
 
             if (argPosition == 0)
@@ -215,7 +211,9 @@ public class Parser
                     break;
 
                 default :
-                    AssertError.assert(false, "Unhandled flag char '" + char + "'");
+                    throw new FormatTokenError(
+                        "Interal error: Flag char not handled: " + char,
+                        token.substr(i, 1));
                     break;
                 }
             }
@@ -241,9 +239,6 @@ public class Parser
 
         if (token.text)
         {
-            AssertError.assert(/^\./.test(token.text),
-                "Precision token doesn't begin with .");
-
             precision = parseInt(token.text.substr(1));
             field.precisionValue.setConstantValue(precision, token);
         }
@@ -356,9 +351,6 @@ public class Parser
     {
         var dateChar:String;
         var dateValue:Date;
-
-        AssertError.assert(/^t.$/i.test(token.text),
-            "Date conversion token doesn't match /^t.$/");
 
         dateChar = token.text.charAt(1);
         field.resolve(context, true);
