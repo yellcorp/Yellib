@@ -43,46 +43,37 @@ public class RegExpUtil
      */
     public static function changeFlags(regExp:RegExp, flagsToSet:String, flagsToUnset:String = ""):RegExp
     {
-        var unspecFlags:Object = {g: true, i: true, s: true, m: true, x: true};
-        var newFlagString:String = "";
+        var copyFlags:Object = {g: true, i: true, s: true, m: true, x: true};
+        var newFlags:Array = [ ];
         var i:int;
         var char:String;
-        var copy:Boolean;
 
         for (i = 0; i < flagsToSet.length; i++)
         {
             char = flagsToSet.charAt(i);
-            if (unspecFlags[char])
+            if (copyFlags[char])
             {
-                delete unspecFlags[char];
-                newFlagString += char;
+                delete copyFlags[char];
+                newFlags.push(char);
             }
         }
 
         for (i = 0; i < flagsToUnset.length; i++)
         {
             char = flagsToSet.charAt(i);
-            if (unspecFlags[char])
+            if (copyFlags[char])
             {
-                delete unspecFlags[char];
+                delete copyFlags[char];
             }
         }
 
-        for (char in unspecFlags)
-        {
-            copy = false;
-            switch (char)
-            {
-                case 'g' : copy = regExp.global; break;
-                case 'i' : copy = regExp.ignoreCase; break;
-                case 's' : copy = regExp.dotall; break;
-                case 'm' : copy = regExp.multiline; break;
-                case 'x' : copy = regExp.extended; break;
-            }
-            if (copy) newFlagString += char;
-        }
+        if (regExp.global     && copyFlags["g"]) newFlags.push("g");
+        if (regExp.ignoreCase && copyFlags["i"]) newFlags.push("i");
+        if (regExp.dotall     && copyFlags["s"]) newFlags.push("s");
+        if (regExp.multiline  && copyFlags["m"]) newFlags.push("m");
+        if (regExp.extended   && copyFlags["x"]) newFlags.push("x");
 
-        return new RegExp(regExp.source, newFlagString);
+        return new RegExp(regExp.source, newFlags.join(""));
     }
 }
 }
