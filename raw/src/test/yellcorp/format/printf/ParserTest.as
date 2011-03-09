@@ -2,7 +2,7 @@ package test.yellcorp.format.printf
 {
 import asunit.framework.TestCase;
 
-import org.yellcorp.format.printf.FormatError;
+import org.yellcorp.format.FormatStringError;
 import org.yellcorp.format.printf.Printf;
 
 
@@ -28,13 +28,13 @@ public class ParserTest extends TestCase
         assertEquals("3abc4def5", Printf.sprintf("3%s4%s5", "abc", "def"));
 
         // error if malformed
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%", "0");
         });
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%z", "0");
         });
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("hi %$1d hi", 0);
         });
     }
@@ -55,15 +55,15 @@ public class ParserTest extends TestCase
         assertEquals("11_11_22", Printf.sprintf("%1$s_%<s_%s", "00", "11", "22"));
 
         // error if walking off either end of the array
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%s_%s", "00");
         });
 
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%<s", "00");
         });
 
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%0$s %1$s", "00");
         });
     }
@@ -88,7 +88,7 @@ public class ParserTest extends TestCase
         assertEquals("(5)", Printf.sprintf("%(d", -5));
 
         // error if flag is specified more than once
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%++d" , 5);
         });
     }
@@ -139,15 +139,15 @@ public class ParserTest extends TestCase
         assertEquals("3.210e-03", Printf.sprintf("%.3e", 0.00321));
 
         // check errors for .nn out of range
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%.21e", 0);
         });
 
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%.21f", 0);
         });
 
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%.22g", 0);
         });
     }
@@ -158,11 +158,11 @@ public class ParserTest extends TestCase
         assertEquals("  %", Printf.sprintf("%3%"));
         assertEquals("%  ", Printf.sprintf("%-3%"));
 
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%0$%", "Not used");
         });
 
-        assertThrows(FormatError, function ():void {
+        assertThrows(FormatStringError, function ():void {
             Printf.sprintf("%s %<%", "Used");
         });
 

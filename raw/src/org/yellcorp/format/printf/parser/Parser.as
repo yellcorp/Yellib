@@ -3,8 +3,8 @@ package org.yellcorp.format.printf.parser
 import org.yellcorp.date.DateUtil;
 import org.yellcorp.error.AssertError;
 import org.yellcorp.format.DateFormatUtil;
+import org.yellcorp.format.FormatStringError;
 import org.yellcorp.format.printf.Format;
-import org.yellcorp.format.printf.FormatError;
 import org.yellcorp.format.printf.context.ContextError;
 import org.yellcorp.format.printf.context.RenderContext;
 import org.yellcorp.format.printf.options.CommonFormatOptions;
@@ -47,7 +47,7 @@ public class Parser
         }
         catch (tokenError:FormatTokenError)
         {
-            throw new FormatError(
+            throw new FormatStringError(
                 tokenError.message,
                 formatString,
                 tokenError.token ? tokenError.token.charIndex : -1);
@@ -83,7 +83,6 @@ public class Parser
 
         if (token.text == "%")
         {
-            field.clear();
             parseField();
         }
         else
@@ -103,6 +102,8 @@ public class Parser
         var precisionChar:int;
         var conversionChar:int;
 
+        field.clear();
+
         parsePosition();
         parseFlags();
         parseWidth();
@@ -117,11 +118,11 @@ public class Parser
         }
         catch (ce:ContextError)
         {
-            throw new FormatError(ce.message, lexer.text, conversionChar);
+            throw new FormatStringError(ce.message, lexer.text, conversionChar);
         }
         catch (pe:PrecisionRangeError)
         {
-            throw new FormatError(pe.message, lexer.text, precisionChar);
+            throw new FormatStringError(pe.message, lexer.text, precisionChar);
         }
     }
 
