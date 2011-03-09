@@ -120,6 +120,35 @@ public class ParserTest extends TestCase
         assertEquals("1.000", Printf.sprintf("%.3e", 1));
         assertEquals("1.200e+01", Printf.sprintf("%.3e", 12));
         assertEquals("3.210e-03", Printf.sprintf("%.3e", 0.00321));
+
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%.21e", 0);
+        });
+
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%.21f", 0);
+        });
+
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%.22g", 0);
+        });
+    }
+
+    public function testConversion():void
+    {
+        assertEquals("%", Printf.sprintf("%%"));
+        assertEquals("  %", Printf.sprintf("%3%"));
+        assertEquals("%  ", Printf.sprintf("%-3%"));
+
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%0$%", "Not used");
+        });
+
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%s %<%", "Used");
+        });
+
+        assertEquals("\n", Printf.sprintf("%n"));
     }
 }
 }

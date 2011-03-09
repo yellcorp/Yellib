@@ -16,9 +16,7 @@ public class Format
     // TODO: make this variable
     private static const LOCALE_GROUPING_SIZE:int = 3;
 
-    public static function formatGeneral(
-        value:*,
-        options:GeneralFormatOptions):String
+    public static function formatGeneral(value:*, options:GeneralFormatOptions):String
     {
         var text:String =
             value === undefined ? "undefined"
@@ -267,6 +265,35 @@ public class Format
         var result:String = beforeString.toString() + beforeInteger.toString() + rest.toString();
 
         return number.uppercase ? result.toUpperCase() : result;
+    }
+
+    public static function padNumber(number:Number, digits:int):String
+    {
+        var negative:Boolean;
+        var paddedString:String;
+
+        if (!isFinite(number))
+        {
+            return number.toString();
+        }
+
+        if (number < 0)
+        {
+            negative = true;
+            number = -number;
+        }
+
+        paddedString = number.toString();
+        if (paddedString.length < digits)
+        {
+            return (negative ? "-" : "") +
+                StringUtil.repeat("0", digits - paddedString.length) +
+                paddedString;
+        }
+        else
+        {
+            return (negative ? "-" : "") + paddedString;
+        }
     }
 }
 }

@@ -18,6 +18,21 @@ public class FormatTest extends TestCase
         super(testMethod);
     }
 
+    public function testUtil():void
+    {
+        assertEquals("0", Format.padNumber(0, 0));
+        assertEquals("0", Format.padNumber(0, 1));
+        assertEquals("00", Format.padNumber(0, 2));
+
+        assertEquals("1", Format.padNumber(1, 0));
+        assertEquals("1", Format.padNumber(1, 1));
+        assertEquals("01", Format.padNumber(1, 2));
+
+        assertEquals("-1", Format.padNumber(-1, 0));
+        assertEquals("-1", Format.padNumber(-1, 1));
+        assertEquals("-01", Format.padNumber(-1, 2));
+    }
+
     public function testGeneral():void
     {
         var g:GeneralFormatOptions;
