@@ -1,8 +1,5 @@
 package org.yellcorp.format.printf.options
 {
-import org.yellcorp.locale.Locale;
-
-
 public class IntegerFormatOptions extends NumberFormatOptions
 {
     public var base:int;

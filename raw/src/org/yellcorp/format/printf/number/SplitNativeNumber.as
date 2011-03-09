@@ -81,7 +81,7 @@ public class SplitNativeNumber implements SplitNumber
 
     public function get exponent():String
     {
-        return number.exponentDigits
+        return number.exponentDigits;
     }
 
     public function get exponentTrailSign():String
