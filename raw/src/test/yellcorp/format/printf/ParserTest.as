@@ -26,6 +26,17 @@ public class ParserTest extends TestCase
         assertEquals("abc1", Printf.sprintf("%s1", "abc"));
         assertEquals("abc2def", Printf.sprintf("%s2%s", "abc", "def"));
         assertEquals("3abc4def5", Printf.sprintf("3%s4%s5", "abc", "def"));
+
+        // error if malformed
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%", "0");
+        });
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%z", "0");
+        });
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("hi %$1d hi", 0);
+        });
     }
 
     public function testPosition():void
@@ -43,6 +54,7 @@ public class ParserTest extends TestCase
         assertEquals("00_00_11", Printf.sprintf("%s_%<s_%s", "00", "11", "22"));
         assertEquals("11_11_22", Printf.sprintf("%1$s_%<s_%s", "00", "11", "22"));
 
+        // error if walking off either end of the array
         assertThrows(FormatError, function ():void {
             Printf.sprintf("%s_%s", "00");
         });
@@ -74,6 +86,11 @@ public class ParserTest extends TestCase
         assertEquals("005", Printf.sprintf("%03d", 5));
         assertEquals("1,000", Printf.sprintf("%,d", 1000));
         assertEquals("(5)", Printf.sprintf("%(d", -5));
+
+        // error if flag is specified more than once
+        assertThrows(FormatError, function ():void {
+            Printf.sprintf("%++d" , 5);
+        });
     }
 
     public function testWidth():void
@@ -121,6 +138,7 @@ public class ParserTest extends TestCase
         assertEquals("1.200e+01", Printf.sprintf("%.3e", 12));
         assertEquals("3.210e-03", Printf.sprintf("%.3e", 0.00321));
 
+        // check errors for .nn out of range
         assertThrows(FormatError, function ():void {
             Printf.sprintf("%.21e", 0);
         });
