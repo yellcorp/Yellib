@@ -85,7 +85,7 @@ public class Parser
         {
             parseField();
         }
-        else
+        else if (token.text)
         {
             var percent:int = token.text.indexOf("%");
             if (percent >= 0)
