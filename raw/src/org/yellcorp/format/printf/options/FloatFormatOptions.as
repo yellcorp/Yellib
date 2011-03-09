@@ -1,9 +1,13 @@
 package org.yellcorp.format.printf.options
 {
+import org.yellcorp.locale.Locale;
+
+
 public class FloatFormatOptions extends NumberFormatOptions
 {
-    public var fracWidth:Number;
-    public var forceDecimalSeparator:Boolean;
+    public var fractionalWidth:Number;
+    public var radixPoint:String;
+    public var forceRadixPoint:Boolean;
 
     public var exponentWidth:uint;
     public var exponentDelimiter:String;
@@ -22,8 +26,9 @@ public class FloatFormatOptions extends NumberFormatOptions
 
         if (floatOpts)
         {
-            fracWidth = floatOpts.fracWidth;
-            forceDecimalSeparator = floatOpts.forceDecimalSeparator;
+            fractionalWidth = floatOpts.fractionalWidth;
+            radixPoint = floatOpts.radixPoint;
+            forceRadixPoint = floatOpts.forceRadixPoint;
             exponentWidth = floatOpts.exponentWidth;
             exponentDelimiter = floatOpts.exponentDelimiter;
             exponentSigns = floatOpts.exponentSigns.clone();
@@ -33,15 +38,22 @@ public class FloatFormatOptions extends NumberFormatOptions
     public override function setFromFlags(flags:Flags):void
     {
         super.setFromFlags(flags);
-        fracWidth = isNaN(flags.precision) ? 6 : flags.precision;
-        forceDecimalSeparator = flags.alternateForm;
+        fractionalWidth = isNaN(flags.precision) ? 6 : flags.precision;
+        forceRadixPoint = flags.alternateForm;
+    }
+
+    public override function setFromLocale(locale:Locale):void
+    {
+        super.setFromLocale(locale);
+        radixPoint = locale.radixPoint;
     }
 
     protected override function setDefaults():void
     {
         super.setDefaults();
-        fracWidth = 6;
-        forceDecimalSeparator = false;
+        fractionalWidth = 6;
+        radixPoint = ".";
+        forceRadixPoint = false;
         exponentWidth = 2;
         exponentDelimiter = "e";
         exponentSigns = new SignSet("+", "", "-", "");

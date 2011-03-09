@@ -5,11 +5,12 @@ public interface SplitNumber
     function get isNotANumber():Boolean;
     function get isFiniteNumber():Boolean;
     function get leadSign():String;
-    function get radixPrefix():String;
+    function get basePrefix():String;
     function get integerPart():String;
-    function get integerGrouping():Boolean;
+    function get groupingCharacter():String;
+    function get groupingSize():int;
     function get integerWidth():Number;
-    function get forceFractionalSeparator():Boolean;
+    function get forceRadixPoint():Boolean;
     function get fractionalPart():String;
     function get fractionalWidth():Number;
     function get exponentDelimiter():String;

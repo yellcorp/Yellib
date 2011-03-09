@@ -1,9 +1,13 @@
 package org.yellcorp.format.printf.options
 {
+import org.yellcorp.locale.Locale;
+
+
 public class NumberFormatOptions extends CommonFormatOptions
 {
-    public var paddingChar:String;
-    public var grouping:Boolean;
+    public var paddingCharacter:String;
+    public var groupingCharacter:String;
+    public var groupingSize:int;
     public var signs:SignSet;
 
     public function NumberFormatOptions(options:Object = null)
@@ -19,8 +23,8 @@ public class NumberFormatOptions extends CommonFormatOptions
 
         if (numOpts)
         {
-            paddingChar = numOpts.paddingChar;
-            grouping = numOpts.grouping;
+            paddingCharacter = numOpts.paddingCharacter;
+            groupingCharacter = numOpts.groupingCharacter;
             signs = numOpts.signs.clone();
         }
     }
@@ -31,10 +35,10 @@ public class NumberFormatOptions extends CommonFormatOptions
 
         if (flags.zeroPad)
         {
-            paddingChar = "0";
+            paddingCharacter = "0";
         }
 
-        grouping = flags.grouping;
+        groupingCharacter = flags.grouping ? "," : "";
 
         if (flags.positivePlus)
         {
@@ -51,11 +55,18 @@ public class NumberFormatOptions extends CommonFormatOptions
         }
     }
 
+    public function setFromLocale(locale:Locale):void
+    {
+        groupingCharacter = locale.numberGroupingChar;
+        groupingSize = locale.numberGroupingSize;
+    }
+
     protected override function setDefaults():void
     {
         super.setDefaults();
-        paddingChar = " ";
-        grouping = false;
+        paddingCharacter = " ";
+        groupingCharacter = "";
+        groupingSize = 3;
         signs = new SignSet("", "", "-", "");
     }
 }

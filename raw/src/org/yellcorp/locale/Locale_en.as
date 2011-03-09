@@ -62,5 +62,20 @@ public class Locale_en implements Locale
         }
         return "th";
     }
+
+    public function get numberGroupingChar():String
+    {
+        return ",";
+    }
+
+    public function get numberGroupingSize():int
+    {
+        return 3;
+    }
+
+    public function get radixPoint():String
+    {
+        return ".";
+    }
 }
 }

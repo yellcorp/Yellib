@@ -1,10 +1,13 @@
 package org.yellcorp.format.printf.options
 {
+import org.yellcorp.locale.Locale;
+
+
 public class IntegerFormatOptions extends NumberFormatOptions
 {
     public var base:int;
     public var minDigits:int;
-    public var radixPrefix:String;
+    public var basePrefix:String;
 
     public function IntegerFormatOptions(options:Object = null)
     {
@@ -21,7 +24,7 @@ public class IntegerFormatOptions extends NumberFormatOptions
         {
             base = intOpts.base;
             minDigits = intOpts.minDigits;
-            radixPrefix = intOpts.radixPrefix;
+            basePrefix = intOpts.basePrefix;
         }
     }
 
@@ -36,11 +39,11 @@ public class IntegerFormatOptions extends NumberFormatOptions
             switch (base)
             {
                 case 8:
-                    radixPrefix = "0";
+                    basePrefix = "0";
                     break;
 
                 case 16:
-                    radixPrefix = "0x";
+                    basePrefix = "0x";
                     break;
 
                 default:
@@ -55,7 +58,7 @@ public class IntegerFormatOptions extends NumberFormatOptions
         super.setDefaults();
         base = 10;
         minDigits = 1;
-        radixPrefix = "";
+        basePrefix = "";
     }
 }
 }

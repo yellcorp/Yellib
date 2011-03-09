@@ -12,6 +12,34 @@ public class NumberFormatUtilTest extends TestCase
         super(testMethod);
     }
 
+    public function testPrimitive():void
+    {
+        assertEquals("", NumberFormatUtil.intersperse("", "", 0));
+        assertEquals("", NumberFormatUtil.intersperse("", "!", 0));
+        assertEquals("", NumberFormatUtil.intersperse("", "", 1));
+        assertEquals("", NumberFormatUtil.intersperse("", "!", 1));
+        assertEquals("a", NumberFormatUtil.intersperse("a", "", 0));
+        assertEquals("abc", NumberFormatUtil.intersperse("abc", "", 0));
+        assertEquals("abc", NumberFormatUtil.intersperse("abc", "!", 0));
+        assertEquals("abc", NumberFormatUtil.intersperse("abc", "", 1));
+
+        assertEquals("a!b!c", NumberFormatUtil.intersperse("abc", "!", 1));
+        assertEquals("ab!c", NumberFormatUtil.intersperse("abc", "!", 2));
+        assertEquals("a!bc", NumberFormatUtil.intersperse("abc", "!", -2));
+
+        assertEquals("abc", NumberFormatUtil.intersperse("abc", "!", 4));
+        assertEquals("abc", NumberFormatUtil.intersperse("abc", "!", -4));
+
+        assertEquals("abc!d", NumberFormatUtil.intersperse("abcd", "!", 3));
+        assertEquals("a!bcd", NumberFormatUtil.intersperse("abcd", "!", -3));
+        assertEquals("abc!de", NumberFormatUtil.intersperse("abcde", "!", 3));
+        assertEquals("ab!cde", NumberFormatUtil.intersperse("abcde", "!", -3));
+        assertEquals("abc!def", NumberFormatUtil.intersperse("abcdef", "!", 3));
+        assertEquals("abc!def", NumberFormatUtil.intersperse("abcdef", "!", -3));
+        assertEquals("abc!def!g", NumberFormatUtil.intersperse("abcdefg", "!", 3));
+        assertEquals("a!bcd!efg", NumberFormatUtil.intersperse("abcdefg", "!", -3));
+    }
+
     public function testNoPointNoSep():void
     {
         assertEquals("0", NumberFormatUtil.groupNumber(0));

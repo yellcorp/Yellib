@@ -37,7 +37,7 @@ public class Parser
 
     public function format(formatString:String, args:Array, locale:Locale = null):String
     {
-        _locale = locale;
+        this.locale = locale;
         context = new RenderContext(args);
 
         try {
@@ -51,6 +51,17 @@ public class Parser
                 tokenError.token ? tokenError.token.charIndex : -1);
         }
         return output.toString();
+    }
+
+    public function set locale(newLocale:Locale):void
+    {
+        _locale = newLocale;
+    }
+
+    public function get locale():Locale
+    {
+        if (!_locale) _locale = new Locale_en();
+        return _locale;
     }
 
     private function parse(text:String):void
@@ -392,7 +403,7 @@ public class Parser
 
         case 'p' :
             output.append(formatGeneral(
-                getLocale().getDayHalf(dateValue.hours).toLocaleLowerCase()));
+                locale.getDayHalf(dateValue.hours).toLocaleLowerCase()));
             break;
 
         case 'z' :
@@ -414,23 +425,23 @@ public class Parser
 
         case 'B' :
             output.append(formatGeneral(
-                getLocale().getMonthName(dateValue.month)));
+                locale.getMonthName(dateValue.month)));
             break;
 
         case 'b' :
         case 'h' :
             output.append(formatGeneral(
-                getLocale().getMonthNameShort(dateValue.month)));
+                locale.getMonthNameShort(dateValue.month)));
             break;
 
         case 'A' :
             output.append(formatGeneral(
-                getLocale().getDayName(dateValue.day)));
+                locale.getDayName(dateValue.day)));
             break;
 
         case 'a' :
             output.append(formatGeneral(
-                getLocale().getDayNameShort(dateValue.day)));
+                locale.getDayNameShort(dateValue.day)));
             break;
 
         case 'C' :
@@ -472,33 +483,33 @@ public class Parser
 
         case 'R' :
             output.append(formatGeneral(
-                new Parser().format("%tH:%<tM", [ dateValue ], getLocale())));
+                new Parser().format("%tH:%<tM", [ dateValue ], locale)));
             break;
 
         case 'T' :
             output.append(formatGeneral(
-                new Parser().format("%tH:%<tM:%<tS", [ dateValue ], getLocale())));
+                new Parser().format("%tH:%<tM:%<tS", [ dateValue ], locale)));
             break;
 
         case 'r' :
             // "the location of %Tp may be locale-dependent"
             output.append(formatGeneral(
-                new Parser().format("%tI:%<tM:%<tS %<Tp", [ dateValue ], getLocale())));
+                new Parser().format("%tI:%<tM:%<tS %<Tp", [ dateValue ], locale)));
             break;
 
         case 'D' :
             output.append(formatGeneral(
-                new Parser().format("%tm/%<td/%<ty", [ dateValue ], getLocale())));
+                new Parser().format("%tm/%<td/%<ty", [ dateValue ], locale)));
             break;
 
         case 'F' :
             output.append(formatGeneral(
-                new Parser().format("%tY-%<tm-%<td", [ dateValue ], getLocale())));
+                new Parser().format("%tY-%<tm-%<td", [ dateValue ], locale)));
             break;
 
         case 'c' :
             output.append(formatGeneral(
-                new Parser().format("%ta %<tb %<td %<tT %<tZ %<tY", [ dateValue ], getLocale())));
+                new Parser().format("%ta %<tb %<td %<tT %<tZ %<tY", [ dateValue ], locale)));
             break;
         }
     }
@@ -541,6 +552,7 @@ public class Parser
         var options:IntegerFormatOptions = new IntegerFormatOptions();
         options.base = base;
         field.resolve(context, true);
+        options.setFromLocale(locale);
         options.setFromFlags(field);
         return Format.formatInteger(int(field.argValue.getValue()), options);
     }
@@ -550,6 +562,7 @@ public class Parser
         var options:IntegerFormatOptions = new IntegerFormatOptions();
         options.base = base;
         field.resolve(context, true);
+        options.setFromLocale(locale);
         options.setFromFlags(field);
         return Format.formatInteger(uint(field.argValue.getValue()), options);
     }
@@ -558,6 +571,7 @@ public class Parser
     {
         var options:FloatFormatOptions = new FloatFormatOptions();
         field.resolve(context, true);
+        options.setFromLocale(locale);
         options.setFromFlags(field);
         return Format.formatExponential(field.argValue.getValue(), options);
     }
@@ -566,6 +580,7 @@ public class Parser
     {
         var options:FloatFormatOptions = new FloatFormatOptions();
         field.resolve(context, true);
+        options.setFromLocale(locale);
         options.setFromFlags(field);
         return Format.formatFixed(field.argValue.getValue(), options);
     }
@@ -574,6 +589,7 @@ public class Parser
     {
         var options:FloatFormatOptions = new FloatFormatOptions();
         field.resolve(context, true);
+        options.setFromLocale(locale);
         options.setFromFlags(field);
         return Format.formatPrecision(field.argValue.getValue(), options);
     }
@@ -582,14 +598,9 @@ public class Parser
     {
         var options:HexFloatFormatOptions = new HexFloatFormatOptions();
         field.resolve(context, true);
+        options.setFromLocale(locale);
         options.setFromFlags(field);
         return Format.formatHexFloat(field.argValue.getValue(), options);
-    }
-
-    public function getLocale():Locale
-    {
-        if (!_locale) _locale = new Locale_en();
-        return _locale;
     }
 }
 }

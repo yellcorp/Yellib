@@ -2,7 +2,7 @@ package org.yellcorp.format.printf.options
 {
 public class HexFloatFormatOptions extends FloatFormatOptions
 {
-    public var radixPrefix:String;
+    public var basePrefix:String;
 
     public function HexFloatFormatOptions(options:Object = null)
     {
@@ -17,18 +17,18 @@ public class HexFloatFormatOptions extends FloatFormatOptions
 
         if (hexOpts)
         {
-            radixPrefix = hexOpts.radixPrefix;
+            basePrefix = hexOpts.basePrefix;
         }
     }
 
     protected override function setDefaults():void
     {
         super.setDefaults();
-        fracWidth = Number.NaN;
+        fractionalWidth = Number.NaN;
         exponentDelimiter = "p";
         exponentSigns = new SignSet("", "", "-", "");
         exponentWidth = 1;
-        radixPrefix = "0x";
+        basePrefix = "0x";
     }
 }
 }

@@ -1,5 +1,8 @@
 package org.yellcorp.format
 {
+import org.yellcorp.string.StringBuilder;
+
+
 /**
  * Static methods for basic formatting of numbers.
  */
@@ -31,110 +34,100 @@ public class NumberFormatUtil
      *                  are inserted.
      * @return          The formatted number as a <code>String</code>.
      */
-    public static function groupNumber(
-        number:Number,
-        radixChar:String = ".",
-        groupChar:String = ",",
-        groupSize:int = 3):String
+    public static function groupNumber(number:*, radixChar:String = ".",
+        groupChar:String = ",", groupSize:int = 3):String
     {
-        return groupNumberStr(number.toString(), radixChar, groupChar, groupSize);
+        var numberString:NativeNumberString =
+            new NativeNumberString(String(number));
+
+        var result:StringBuilder;
+
+        if (groupChar && groupSize > 0 && numberString.isNumericString &&
+            numberString.isFiniteNumber)
+        {
+            result = new StringBuilder(numberString.sign);
+
+            result.append(intersperse(numberString.integerDigits,
+                groupChar, -groupSize));
+
+            if (numberString.hasFractionalDigits)
+            {
+                result.append(radixChar);
+                result.append(numberString.fractionalDigits);
+            }
+            result.append(numberString.exponent);
+            return result.toString();
+        }
+        else
+        {
+            return numberString.string;
+        }
     }
 
     /**
-     * Identical to <code>groupNumber</code>, but accepts the number as a
-     * <code>String</code>
+     * Intersperses a delimiter string within another string at regular
+     * intervals.
      *
-     * @see #groupNumber()
+     * @example
+     * <listing version="3.0">
+     * trace(NumberFormatUtil.intersperse("ABCDEFGH", " ", 3);
+     * // traces "ABC DEF GH"
+     *
+     * trace(NumberFormatUtil.intersperse("ABCDEFGH", " ", -3);
+     * // traces "AB CDE FGH"
+     * </listing>
+     *
+     * @param string The string in which to inserts the delimiter string.
+     * @param delimiter The delimiter string. If this string is empty, the
+     *                  original string will be returned unchanged.
+     * @param interval The number of characters from <code>string</code>
+     *                 that will appear between copies of
+     *                 <code>delimiter</code>. If this number is positive,
+     *                 the interval will be counted from the start of the
+     *                 string.  If negative, it will be counted from the
+     *                 end.  If its absolute value is zero or greater than
+     *                 the length of <code>string</code>, the original
+     *                 string will be returned unchanged.
      */
-    public static function groupNumberStr(
-        numString:String,
-        radixChar:String = ".",
-        groupChar:String = ",",
-        groupSize:int = 3):String
+    public static function intersperse(string:String, delimiter:String,
+        interval:int):String
     {
-        var intPart:String;
-        var point:int;
-        var intResult:String = "";
-        var fracPart:String;
-        var isNegative:Boolean;
-
+        var result:StringBuilder;
         var i:int;
+        var max:int;
+        var fromEnd:Boolean = interval < 0;
 
-        if (numString == "") return "";
-
-        isNegative = numString.charAt(0) == "-";
-        point = numString.indexOf(".");
-
-        if (point >= 0)
+        if (fromEnd)
         {
-            intPart = numString.substring(isNegative ? 1 : 0, point);
-            fracPart = numString.substr(point + 1);
-        }
-        else
-        {
-            intPart = isNegative ? numString.substr(1)
-                                 : numString;
+            interval = -interval;
         }
 
-        if (groupSize > 0 && intPart.length > groupSize)
+        if (interval == 0 || !delimiter || string.length <= interval)
         {
-            i = intPart.length % groupSize;
-            if (i > 0)
+            return string;
+        }
+        else if (fromEnd)
+        {
+            result = new StringBuilder();
+            for (i = string.length - interval; i > 0; i -= interval)
             {
-                intResult = intPart.substr(0, i);
+                result.prepend(string.substr(i, interval));
+                result.prepend(delimiter);
             }
-            while (i < intPart.length)
+            result.prepend(string.substr(0, interval + i));
+            return result.toString();
+        }
+        else
+        {
+            result = new StringBuilder();
+            max = string.length - interval;
+            for (i = 0; i < max; i += interval)
             {
-                intResult += (intResult == "" ? "" : groupChar) +
-                             intPart.substr(i, groupSize);
-
-                i += groupSize;
+                result.append(string.substr(i, interval));
+                result.append(delimiter);
             }
-        }
-        else
-        {
-            intResult = intPart;
-        }
-
-        if (point >= 0)
-        {
-            intResult += radixChar + fracPart;
-        }
-
-        return isNegative ? ("-" + intResult) : intResult;
-    }
-
-    public static function localizeNumberSeparators(
-        number:Number,
-        radixChar:String = ".",
-        groupChar:String = ","):String
-    {
-        return localizeNumberSeparatorsStr(number.toString(), radixChar, groupChar);
-    }
-
-    public static function localizeNumberSeparatorsStr(
-        floatStr:String,
-        radixChar:String = ".",
-        groupChar:String = ","):String
-    {
-        var intPart:String;
-        var fracPart:String;
-        var intSep:int;
-
-        if (groupChar == "," && radixChar == ".") return floatStr;
-
-        intSep = floatStr.indexOf(".");
-
-        if (intSep < 0)
-        {
-            return floatStr.replace(",", groupChar);
-        }
-        else
-        {
-            intPart = floatStr.substr(0, intSep);
-            fracPart = floatStr.substr(intSep + 1);
-
-            return intPart.replace(",", groupChar) + radixChar + fracPart;
+            result.append(string.substr(i));
+            return result.toString();
         }
     }
 }

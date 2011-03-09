@@ -17,5 +17,9 @@ public interface Locale
      * concatenation with the number.
      */
     function getOrdinalSuffix(number:Number):String;
+
+    function get numberGroupingChar():String;
+    function get numberGroupingSize():int;
+    function get radixPoint():String;
 }
 }

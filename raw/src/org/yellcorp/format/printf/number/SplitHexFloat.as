@@ -32,9 +32,9 @@ public class SplitHexFloat implements SplitNumber
         return options.signs.getPair(value < 0).lead;
     }
 
-    public function get radixPrefix():String
+    public function get basePrefix():String
     {
-        return options.radixPrefix;
+        return options.basePrefix;
     }
 
     public function get integerPart():String
@@ -42,9 +42,9 @@ public class SplitHexFloat implements SplitNumber
         return valueInfo.getIntegerString();
     }
 
-    public function get integerGrouping():Boolean
+    public function get groupingCharacter():String
     {
-        return options.grouping;
+        return options.groupingCharacter;
     }
 
     public function get integerWidth():Number
@@ -52,18 +52,18 @@ public class SplitHexFloat implements SplitNumber
         return 1;
     }
 
-    public function get forceFractionalSeparator():Boolean
+    public function get forceRadixPoint():Boolean
     {
-        return options.forceDecimalSeparator;
+        return options.forceRadixPoint;
     }
 
     public function get fractionalPart():String
     {
         var frac:String = valueInfo.getFractionalString();
 
-        if (isFinite(options.fracWidth))
+        if (isFinite(options.fractionalWidth))
         {
-            return StringUtil.padRight(frac, options.fracWidth, "0", true);
+            return StringUtil.padRight(frac, options.fractionalWidth, "0", true);
         }
         else
         {
@@ -74,7 +74,7 @@ public class SplitHexFloat implements SplitNumber
     public function get fractionalWidth():Number
     {
         // TODO: Limit max 13
-        return options.fracWidth;
+        return options.fractionalWidth;
     }
 
     public function get exponentDelimiter():String
@@ -125,7 +125,7 @@ public class SplitHexFloat implements SplitNumber
 
     public function get paddingCharacter():String
     {
-        return options.paddingChar;
+        return options.paddingCharacter;
     }
 
     public function get leftJustify():Boolean
@@ -150,6 +150,11 @@ public class SplitHexFloat implements SplitNumber
             _valueInfo = new NumberInfo(value);
         }
         return _valueInfo;
+    }
+
+    public function get groupingSize():int
+    {
+        return options.groupingSize;
     }
 }
 }

@@ -5,9 +5,10 @@ public class StringBuilder
     private var buffer:Array;
     private var _length:int;
 
-    public function StringBuilder()
+    public function StringBuilder(initialContents:* = "")
     {
         clear();
+        if (initialContents) append(initialContents);
     }
 
     public function clear():void
@@ -23,6 +24,13 @@ public class StringBuilder
         // "undefined".  All other args return Strings, including null
         var string:String = text === undefined ? "undefined" : String(text);
         buffer.push(string);
+        _length += string.length;
+    }
+
+    public function prepend(text:*):void
+    {
+        var string:String = text === undefined ? "undefined" : String(text);
+        buffer.unshift(string);
         _length += string.length;
     }
 

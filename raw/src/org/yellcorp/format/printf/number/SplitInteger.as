@@ -29,9 +29,9 @@ public class SplitInteger implements SplitNumber
         return options.signs.getPair(value < 0).lead;
     }
 
-    public function get radixPrefix():String
+    public function get basePrefix():String
     {
-        return options.radixPrefix;
+        return options.basePrefix;
     }
 
     public function get integerPart():String
@@ -39,9 +39,9 @@ public class SplitInteger implements SplitNumber
         return Math.abs(value).toString(options.base);
     }
 
-    public function get integerGrouping():Boolean
+    public function get groupingCharacter():String
     {
-        return options.grouping;
+        return options.groupingCharacter;
     }
 
     public function get integerWidth():Number
@@ -49,7 +49,7 @@ public class SplitInteger implements SplitNumber
         return options.minDigits;
     }
 
-    public function get forceFractionalSeparator():Boolean
+    public function get forceRadixPoint():Boolean
     {
         return false;
     }
@@ -101,7 +101,7 @@ public class SplitInteger implements SplitNumber
 
     public function get paddingCharacter():String
     {
-        return options.paddingChar;
+        return options.paddingCharacter;
     }
 
     public function get leftJustify():Boolean
@@ -117,6 +117,11 @@ public class SplitInteger implements SplitNumber
     public function get uppercase():Boolean
     {
         return options.uppercase;
+    }
+
+    public function get groupingSize():int
+    {
+        return options.groupingSize;
     }
 }
 }

@@ -18,9 +18,6 @@ public class Format
 {
     private static const PRECISION_FIXED_MINIMUM:Number = 10e-4;
 
-    // TODO: make this variable
-    private static const LOCALE_GROUPING_SIZE:int = 3;
-
     public static function formatGeneral(value:*, options:GeneralFormatOptions):String
     {
         var text:String =
@@ -70,7 +67,7 @@ public class Format
     public static function formatExponential(value:*, options:FloatFormatOptions):String
     {
         var numValue:Number = value;
-        var text:String = numValue.toExponential(options.fracWidth);
+        var text:String = numValue.toExponential(options.fractionalWidth);
 
         return formatNumberString(text, options);
     }
@@ -78,7 +75,7 @@ public class Format
     public static function formatFixed(value:*, options:FloatFormatOptions):String
     {
         var numValue:Number = value;
-        var text:String = numValue.toFixed(options.fracWidth);
+        var text:String = numValue.toFixed(options.fractionalWidth);
 
         return formatNumberString(text, options);
     }
@@ -92,19 +89,19 @@ public class Format
         modOptions = new FloatFormatOptions(options);
         if (numValue < Format.PRECISION_FIXED_MINIMUM)
         {
-            modOptions.fracWidth--;
+            modOptions.fractionalWidth--;
             return formatExponential(numValue, modOptions);
         }
         else
         {
-            if (modOptions.fracWidth < 1)
+            if (modOptions.fractionalWidth < 1)
             {
-                modOptions.fracWidth = 1;
+                modOptions.fractionalWidth = 1;
             }
 
-            text = numValue.toPrecision(modOptions.fracWidth);
+            text = numValue.toPrecision(modOptions.fractionalWidth);
 
-            modOptions.fracWidth = Number.NaN;
+            modOptions.fractionalWidth = Number.NaN;
             return formatNumberString(text, modOptions);
         }
     }
@@ -127,30 +124,39 @@ public class Format
 
         var intString:String;
 
-        //                                                                   forceFracSep
-        //           |--!nan--| |--finite---| |----finite----|               |-| |---fraction---| |-------exponent-------| |--!nan---|
-        // [leadPad] [leadSign] [radixPrefix] [integerPadding] [integerPart] [.] [fractionalPart] [e] [expSign] [exponent] [trailSign] [trailPad]
+        //                                                                  forceFracSep
+        //           |--!nan--| |--finite--| |----finite----|               |-| |---fraction---| |-------exponent-------| |--!nan---|
+        // [leadPad] [leadSign] [basePrefix] [integerPadding] [integerPart] [.] [fractionalPart] [e] [expSign] [exponent] [trailSign] [trailPad]
+
+        // it's easier to lay this algorithm out if taken piece-by-piece as
+        // in the diagram above, rather than trying to group common cases
+        // in big if/else blocks. cache some commonly used values so we
+        // don't have to repeatedly call getters
+        var _isNaN:Boolean = number.isNotANumber;
+        var _isFinite:Boolean = number.isFiniteNumber;
 
         // leading sign
-        if (!number.isNotANumber)
+        if (!_isNaN)
         {
             beforeInteger.append(number.leadSign);
         }
 
         // integer
-        if (number.isNotANumber)
+        if (_isNaN)
         {
             rest.append("NaN");
         }
-        else if (!number.isFiniteNumber)
+        else if (!_isFinite)
         {
             rest.append("Infinity");
         }
         else
         {
-            if (number.integerGrouping)
+            if (number.groupingCharacter.length > 0)
             {
-                intString = NumberFormatUtil.groupNumberStr(number.integerPart, ".", ",", LOCALE_GROUPING_SIZE);
+                intString = NumberFormatUtil.intersperse(
+                    number.integerPart, number.groupingCharacter,
+                    -number.groupingSize);
             }
             else
             {
@@ -158,12 +164,12 @@ public class Format
             }
 
             // render the intString first to know whether to insert the
-            // radix prefix. this a general solution to specifically
+            // base prefix. this a general solution to specifically
             // stop '0' in octal rendering as '00'
-            if (number.radixPrefix &&
-                !StringUtil.startsWith(intString, number.radixPrefix))
+            if (number.basePrefix &&
+                !StringUtil.startsWith(intString, number.basePrefix))
             {
-                beforeInteger.append(number.radixPrefix);
+                beforeInteger.append(number.basePrefix);
             }
 
             if (isFinite(number.integerWidth))
@@ -173,7 +179,7 @@ public class Format
             rest.append(intString);
 
             // point
-            if (number.fractionalPart || number.forceFractionalSeparator)
+            if (number.fractionalPart || number.forceRadixPoint)
             {
                 rest.append(".");
             }
@@ -209,7 +215,7 @@ public class Format
             }
         }
 
-        if (!number.isNotANumber)
+        if (!_isNaN)
         {
             rest.append(number.trailSign);
         }
@@ -238,7 +244,7 @@ public class Format
 
             if (StringUtil.isDigit(number.paddingCharacter, number.base))
             {
-                if (number.isFiniteNumber)
+                if (_isFinite)
                 {
                     // never left-justify numeric padding. put it before integer part
                     beforeInteger.append(StringUtil.repeat(number.paddingCharacter, remainingChars));
