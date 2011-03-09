@@ -134,7 +134,7 @@ public class FieldProperties implements Flags
 
     public function get precision():Number
     {
-        return widthValue.getValue(Number.NaN);
+        return precisionValue.getValue(Number.NaN);
     }
 
     public function get uppercase():Boolean

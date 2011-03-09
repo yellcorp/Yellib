@@ -47,7 +47,7 @@ public class NumberFormatOptions extends CommonFormatOptions
 
         if (flags.negativeParens)
         {
-            signs.positive.setSigns("(", ")");
+            signs.negative.setSigns("(", ")");
         }
     }
 

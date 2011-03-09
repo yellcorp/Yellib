@@ -20,7 +20,7 @@ public class RenderContext
     public function getAbsoluteIndexArg(position:int):*
     {
         index = position;
-        return args[index++];
+        return getCurrentArg();
     }
 
     private function getCurrentArg():*

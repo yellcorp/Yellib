@@ -27,6 +27,7 @@ public class Parser
     public function Parser()
     {
         lexer = new Lexer();
+        field = new FieldProperties();
         output = new StringBuilder();
     }
 
@@ -51,7 +52,6 @@ public class Parser
     {
         output.clear();
         lexer.start(text);
-        field = new FieldProperties();
 
         while (!lexer.atEnd)
         {
@@ -63,10 +63,9 @@ public class Parser
     {
         var token:Token = lexer.nextToken();
 
-        field.clear();
-
         if (token.text == "%")
         {
+            field.clear();
             parseField();
         }
         else

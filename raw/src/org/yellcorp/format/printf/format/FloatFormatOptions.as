@@ -32,6 +32,7 @@ public class FloatFormatOptions extends NumberFormatOptions
 
     public override function setFromFlags(flags:Flags):void
     {
+        super.setFromFlags(flags);
         fracWidth = isNaN(flags.precision) ? 6 : flags.precision;
         forceDecimalSeparator = flags.alternateForm;
     }
