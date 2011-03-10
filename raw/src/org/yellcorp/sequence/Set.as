@@ -35,7 +35,9 @@ public class Set extends Proxy
         clear();
 
         if (initialElements)
+        {
             addIterable(initialElements);
+        }
     }
 
     /**
@@ -104,9 +106,12 @@ public class Set extends Proxy
     public function add(newElement:*):void
     {
         if (newElement == null)
+        {
             throw new ArgumentError("Sets cannot contain null elements");
+        }
 
-        if (dict[newElement] == null) {
+        if (dict[newElement] == null)
+        {
             dict[newElement] = newElement;
             _length++;
         }
@@ -146,11 +151,11 @@ public class Set extends Proxy
     {
         var wasPresent:Boolean = contains(element);
 
-        if (wasPresent) {
+        if (wasPresent)
+        {
             delete dict[element];
             _length--;
         }
-
         return wasPresent;
     }
 
@@ -172,7 +177,9 @@ public class Set extends Proxy
         else
         {
             for each (item in iterable)
+            {
                 remove(item);
+            }
         }
     }
 
@@ -186,8 +193,14 @@ public class Set extends Proxy
     public function pop():*
     {
         var item:*;
-        if (_length == 0) return null;
-        for each (item in dict) break;
+        if (_length == 0)
+        {
+            return null;
+        }
+        for each (item in dict)
+        {
+            break;
+        }
         delete dict[item];
         return item;
     }
@@ -211,9 +224,12 @@ public class Set extends Proxy
         else
         {
             for each (item in dict)
+            {
                 if (!test.contains(item))
+                {
                     return false;
-
+                }
+            }
             return true;
         }
     }
@@ -254,7 +270,9 @@ public class Set extends Proxy
         var result:Array = new Array(_length);
 
         for each (item in dict)
+        {
             result[i++] = item;
+        }
 
         return result;
     }
@@ -310,7 +328,9 @@ public class Set extends Proxy
         var newSet:Set = a.clone();
 
         if (a !== b)
+        {
             newSet.addIterable(b.dict);
+        }
 
         return newSet;
     }
@@ -351,8 +371,12 @@ public class Set extends Proxy
         {
             newSet = new Set();
             for each (item in a.dict)
+            {
                 if (b.contains(item))
+                {
                     newSet.add(item);
+                }
+            }
         }
 
         return newSet;
@@ -376,8 +400,12 @@ public class Set extends Proxy
         {
             newSet = a.clone();
             for each (item in b.dict)
+            {
                 if (!newSet.remove(item))
+                {
                     newSet.add(item);
+                }
+            }
         }
 
         return newSet;
