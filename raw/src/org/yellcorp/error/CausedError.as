@@ -8,6 +8,7 @@ public class CausedError extends Error implements ErrorChain
     {
         this.cause = cause;
         super(message || cause.message, id);
+        name = "CausedError";
     }
 
     public function getCauses():Array
