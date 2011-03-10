@@ -74,12 +74,25 @@ public class Set extends Proxy
     {
         var item:*;
 
-        if (_length != other._length) return false;
-
-        for each (item in dict)
-            if (!other.contains(item)) return false;
-
-        return true;
+        if (this === other)
+        {
+            return true;
+        }
+        else if (_length != other._length)
+        {
+            return false;
+        }
+        else
+        {
+            for each (item in dict)
+            {
+                if (!other.contains(item))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     /**
@@ -113,8 +126,13 @@ public class Set extends Proxy
     public function addIterable(iterable:*):void
     {
         var item:*;
-        for each (item in iterable)
-            add(item);
+        if (this !== iterable)
+        {
+            for each (item in iterable)
+            {
+                add(item);
+            }
+        }
     }
 
     /**
@@ -147,13 +165,20 @@ public class Set extends Proxy
     public function removeIterable(iterable:*):void
     {
         var item:*;
-        for each (item in iterable)
-            remove(item);
+        if (this === iterable)
+        {
+            clear();
+        }
+        else
+        {
+            for each (item in iterable)
+                remove(item);
+        }
     }
 
     /**
      * Removes some element from the Set and returns it.  Exactly which
-     * element is returned is undefined, as the Set is unordered.
+     * element is returned is not defined, as the Set is unordered.
      *
      * @return An element from the Set, or <code>null</code> if the Set is
      *         empty.
@@ -179,11 +204,18 @@ public class Set extends Proxy
     {
         var item:*;
 
-        for each (item in dict)
-            if (!test.contains(item))
-                return false;
+        if (this === test)
+        {
+            return true;
+        }
+        else
+        {
+            for each (item in dict)
+                if (!test.contains(item))
+                    return false;
 
-        return true;
+            return true;
+        }
     }
 
     /**
@@ -276,7 +308,10 @@ public class Set extends Proxy
     public static function union(a:Set, b:Set):Set
     {
         var newSet:Set = a.clone();
-        newSet.addIterable(b.dict);
+
+        if (a !== b)
+            newSet.addIterable(b.dict);
+
         return newSet;
     }
 
@@ -287,9 +322,13 @@ public class Set extends Proxy
     public static function difference(a:Set, b:Set):Set
     {
         var newSet:Set = new Set();
-        for each (var e:* in a.dict)
+
+        if (a !== b)
         {
-            if (!b.contains(e)) newSet.add(e);
+            for each (var e:* in a.dict)
+            {
+                if (!b.contains(e)) newSet.add(e);
+            }
         }
         return newSet;
     }
@@ -302,11 +341,19 @@ public class Set extends Proxy
     public static function intersection(a:Set, b:Set):Set
     {
         var item:*;
-        var newSet:Set = new Set();
+        var newSet:Set;
 
-        for each (item in a.dict)
-            if (b.contains(item))
-                newSet.add(item);
+        if (a === b)
+        {
+            return a.clone();
+        }
+        else
+        {
+            newSet = new Set();
+            for each (item in a.dict)
+                if (b.contains(item))
+                    newSet.add(item);
+        }
 
         return newSet;
     }
@@ -321,9 +368,12 @@ public class Set extends Proxy
         var item:*;
         var newSet:Set = a.clone();
 
-        for each (item in b.dict)
-            if (!newSet.remove(item))
-                newSet.add(item);
+        if (a !== b)
+        {
+            for each (item in b.dict)
+                if (!newSet.remove(item))
+                    newSet.add(item);
+        }
 
         return newSet;
     }
