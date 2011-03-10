@@ -366,10 +366,15 @@ public class Set extends Proxy
     public static function symmetricDifference(a:Set, b:Set):Set
     {
         var item:*;
-        var newSet:Set = a.clone();
+        var newSet:Set;
 
-        if (a !== b)
+        if (a === b)
         {
+            return new Set();
+        }
+        else
+        {
+            newSet = a.clone();
             for each (item in b.dict)
                 if (!newSet.remove(item))
                     newSet.add(item);

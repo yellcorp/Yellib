@@ -194,6 +194,36 @@ public class SetTest extends TestCase
         assertEquals(0, count);
     }
 
+    public function testAliasing():void
+    {
+        var s:Set;
+        var ref:Set;
+        var empty:Set;
+
+        s = charset("abcde");
+        ref = s.clone();
+        empty = new Set();
+
+        assertTrue(s.equals(ref));
+        assertTrue(s.equals(s));
+        assertTrue(s.isSubsetOf(s));
+        assertTrue(s.isSupersetOf(s));
+
+        s.addIterable(s);
+        assertTrue(s.equals(ref));
+
+        s.removeIterable(s);
+        assertEquals(0, s.length);
+
+        s.addIterable(ref);
+        assertTrue(s.equals(ref));
+
+        assertSetsEqual(Set.union(s, s), s);
+        assertSetsEqual(Set.intersection(s, s), s);
+        assertSetsEqual(Set.difference(s, s), empty);
+        assertSetsEqual(Set.symmetricDifference(s, s), empty);
+    }
+
     public function testIteration():void
     {
         var count:int = 0;
