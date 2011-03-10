@@ -224,6 +224,38 @@ public class SetTest extends TestCase
         assertSetsEqual(Set.symmetricDifference(s, s), empty);
     }
 
+    public function testZeroSet():void
+    {
+        var s:Set;
+        var ref:Set;
+        var empty:Set;
+
+        s = charset("abcde");
+        ref = s.clone();
+        empty = new Set();
+
+        s.addIterable(empty);
+        assertSetsEqual(s, ref);
+
+        s.removeIterable(empty);
+        assertSetsEqual(s, ref);
+
+        assertTrue(s.isSupersetOf(empty));
+        assertFalse(s.isSubsetOf(empty));
+
+        assertFalse(empty.isSupersetOf(s));
+        assertTrue(empty.isSubsetOf(s));
+
+        assertSetsEqual(Set.union(s, empty), s);
+        assertSetsEqual(Set.union(empty, s), s);
+        assertSetsEqual(Set.intersection(empty, s), empty);
+        assertSetsEqual(Set.intersection(s, empty), empty);
+        assertSetsEqual(Set.difference(empty, s), empty);
+        assertSetsEqual(Set.difference(s, empty), s);
+        assertSetsEqual(Set.symmetricDifference(empty, s), s);
+        assertSetsEqual(Set.symmetricDifference(s, empty), s);
+    }
+
     public function testIteration():void
     {
         var count:int = 0;

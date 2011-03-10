@@ -221,6 +221,10 @@ public class Set extends Proxy
         {
             return true;
         }
+        else if (this.length > test.length)
+        {
+            return false;
+        }
         else
         {
             for each (item in dict)
@@ -341,16 +345,28 @@ public class Set extends Proxy
      */
     public static function difference(a:Set, b:Set):Set
     {
-        var newSet:Set = new Set();
+        var differenceResult:Set;
 
-        if (a !== b)
+        if (a === b || a.length == 0)
         {
+            return new Set();
+        }
+        else if (b.length == 0)
+        {
+            return a.clone();
+        }
+        else
+        {
+            differenceResult = new Set();
             for each (var e:* in a.dict)
             {
-                if (!b.contains(e)) newSet.add(e);
+                if (!b.contains(e))
+                {
+                    differenceResult.add(e);
+                }
             }
+            return differenceResult;
         }
-        return newSet;
     }
 
     /**
@@ -360,26 +376,30 @@ public class Set extends Proxy
      */
     public static function intersection(a:Set, b:Set):Set
     {
-        var item:*;
-        var newSet:Set;
+        var intersectionResult:Set;
+        var swap:Set;
 
         if (a === b)
         {
             return a.clone();
         }
-        else
+
+        if (a.length > b.length)
         {
-            newSet = new Set();
-            for each (item in a.dict)
-            {
-                if (b.contains(item))
-                {
-                    newSet.add(item);
-                }
-            }
+            swap = a;
+            a = b;
+            b = swap;
         }
 
-        return newSet;
+        intersectionResult = new Set();
+        for each (var e:* in a.dict)
+        {
+            if (b.contains(e))
+            {
+                intersectionResult.add(e);
+            }
+        }
+        return intersectionResult;
     }
 
     /**
@@ -390,25 +410,33 @@ public class Set extends Proxy
     public static function symmetricDifference(a:Set, b:Set):Set
     {
         var item:*;
-        var newSet:Set;
+        var symDiffResult:Set;
 
         if (a === b)
         {
             return new Set();
         }
+        else if (a.length == 0)
+        {
+            return b.clone();
+        }
+        else if (b.length == 0)
+        {
+            return a.clone();
+        }
         else
         {
-            newSet = a.clone();
+            symDiffResult = a.clone();
             for each (item in b.dict)
             {
-                if (!newSet.remove(item))
+                if (!symDiffResult.remove(item))
                 {
-                    newSet.add(item);
+                    symDiffResult.add(item);
                 }
             }
         }
 
-        return newSet;
+        return symDiffResult;
     }
 }
 }
