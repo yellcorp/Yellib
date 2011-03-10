@@ -209,25 +209,12 @@ public class MouseDebugger
 
     private static function getDisplayName(target:DisplayObject):String
     {
-        var displayName:String = getLeafName(getQualifiedClassName(target));
+        var displayName:String = DebugUtil.getShortClassName(target);
         if (target.parent)
         {
             displayName += "[" + target.parent.getChildIndex(target) + "]";
         }
         return displayName;
-    }
-
-    private static function getLeafName(className:String):String
-    {
-        var sep:int = className.indexOf("::");
-        if (sep >= 0)
-        {
-            return className.substr(sep + 2);
-        }
-        else
-        {
-            return className;
-        }
     }
 }
 }

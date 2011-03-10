@@ -5,8 +5,10 @@ import org.yellcorp.debug.debugutil.ObjectDumper;
 import org.yellcorp.string.StringBuilder;
 import org.yellcorp.string.StringUtil;
 
+import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.utils.ByteArray;
+import flash.utils.getQualifiedClassName;
 
 
 public class DebugUtil
@@ -64,9 +66,10 @@ public class DebugUtil
     }
 
 
-    public static function dumpObject(root:*, maxDepth:int = 3):String
+    public static function dumpObject(root:*, maxDepth:int = 3,
+            evaluateGetters:Boolean = false):String
     {
-        return getObjectDumper().dump(root, maxDepth);
+        return getObjectDumper().dump(root, maxDepth, evaluateGetters);
     }
 
     private static var _objectDumper:ObjectDumper;
@@ -156,6 +159,20 @@ public class DebugUtil
         }
 
         return outputBuffer.toString();
+    }
+
+    public static function getShortClassName(value:*):String
+    {
+        var className:String = getQualifiedClassName(value);
+        var sep:int = className.indexOf("::");
+        if (sep >= 0)
+        {
+            return className.substr(sep + 2);
+        }
+        else
+        {
+            return className;
+        }
     }
 }
 }

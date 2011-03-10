@@ -1,5 +1,6 @@
 package org.yellcorp.debug.debugutil
 {
+import org.yellcorp.debug.DebugUtil;
 import org.yellcorp.format.template.Template;
 import org.yellcorp.string.FormattingStringBuilder;
 import org.yellcorp.string.StringUtil;
@@ -15,23 +16,25 @@ public class ObjectDumper
 
     private var maxDepthMessage:Template;
     private var propertyMessage:Template;
+    private var propertyErrorMessage:Template;
 
     public function ObjectDumper()
     {
         maxDepthMessage = new Template("{indent}[[Reached maximum depth of {maxDepth}]]\n");
         propertyMessage = new Template("{indent}{name}:{type}={value}\n");
+        propertyErrorMessage = new Template("{indent}{name}:{type} [[{errorType}: {error.message}]]\n");
     }
 
-    public function dump(object:*, maxDepth:int = 3):String
+    public function dump(object:*, maxDepth:int = 3, evaluateGetters:Boolean = false):String
     {
         this.maxDepth = maxDepth;
 
         output = new FormattingStringBuilder();
-        recurse(object, 0);
+        recurse(object, 0, evaluateGetters);
         return output.toString();
     }
 
-    private function recurse(object:*, currentDepth:int):void
+    private function recurse(object:*, currentDepth:int, evaluateGetters:Boolean):void
     {
         var desc:XML;
         var node:XML;
@@ -59,6 +62,12 @@ public class ObjectDumper
             evalList.appendChild(<variable name={dynamicProp} type={dynamicType} isDynamic="true" />);
         }
 
+        if (evaluateGetters)
+        {
+            evalList.appendChild(desc.accessor.(@access=="readonly" ||
+                @access=="readwrite"));
+        }
+
         if (currentDepth >= maxDepth)
         {
             if (evalList.children().length() > 0)
@@ -69,18 +78,6 @@ public class ObjectDumper
             }
             return;
         }
-
-        // Can't enumerate getters: if late property evaluation, i.e. name[prop] invokes
-        // a getter that throws an exception, try/catch won't actually catch it.  this is
-        // likely the same problem that says you shouldn't throw in flash.utils.Proxy
-        // subclasses
-
-        // avm doesn't set up error handling for [] operator i guess?
-
-        /*
-        if (optEvalGetters)
-            evalList.appendChild(desc.accessor.(@access=="readonly" || @access=="readwrite"));
-        */
 
         sortEvalList = [ ];
         for each (node in evalList.*)
@@ -93,11 +90,18 @@ public class ObjectDumper
         {
             formatValues.name = node.@name;
             formatValues.type = node.@type;
-            formatValues.value = object[formatValues.name];
 
-            output.appendFill(propertyMessage, formatValues);
-
-            recurse(object[formatValues.name], currentDepth + 1);
+            try {
+                formatValues.value = object[formatValues.name];
+                output.appendFill(propertyMessage, formatValues);
+                recurse(object[formatValues.name], currentDepth + 1, evaluateGetters);
+            }
+            catch (getterError:Error)
+            {
+                formatValues.error = getterError;
+                formatValues.errorType = DebugUtil.getShortClassName(getterError);
+                output.appendFill(propertyErrorMessage, formatValues);
+            }
         }
     }
 }
