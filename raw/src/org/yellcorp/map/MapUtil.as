@@ -83,7 +83,11 @@ public class MapUtil
 
     /**
      * Returns all the keys in a map as an <code>Array</code>. The order
-     * is undefined.
+     * is undefined. This is implemented as a for...in loop, so sealed
+     * instances may return empty arrays.
+     *
+     * @param map  The map to retrieve keys from.
+     * @return     An array of the map's keys.
      */
     public static function getKeys(map:*):Array
     {
@@ -100,6 +104,9 @@ public class MapUtil
     /**
      * Returns all the values in a map as an <code>Array</code>. The order
      * is undefined.
+     *
+     * @param map  The map to retrieve values from.
+     * @return     An array of the map's values.
      */
     public static function getValues(map:*):Array
     {
@@ -128,6 +135,10 @@ public class MapUtil
      *
      * // pairs == [[one, 1], [two, 2], [three, 3]]
      * </listing>
+     *
+     * @param map  The map to retrieve keys and values from.
+     * @return     An array of 2-member arrays, where index 0 is a key, and
+     *             index 1 is that key's value.
      */
     public static function mapToArray(map:*):Array
     {
@@ -190,7 +201,8 @@ public class MapUtil
      *
      * @param source     The map to copy from.
      * @param target     The map to copy to.
-     * @param keyList    The list of keys to copy.
+     * @param keyList    The list of keys to copy. If a key does not exist
+     *                   on <code>source</code>, it is ignored.
      */
     public static function mergeSubset(source:*, target:*, keyList:Array):void
     {
@@ -207,6 +219,11 @@ public class MapUtil
      * Removes some keys and values from the source map and sets them in
      * the target map.  The keys to move are passed in as an
      * <code>Array</code>.
+     *
+     * @param source     The map to move from.
+     * @param target     The map to move to.
+     * @param keyList    The list of keys to move. If a key does not exist
+     *                   on <code>source</code>, it is ignored.
      */
     public static function moveSubset(source:*, target:*, keyList:Array):void
     {
@@ -239,6 +256,9 @@ public class MapUtil
      * var keyCount:int = MapUtil.count(howMany);
      * // keyCount == 4
      * </listing>
+     *
+     * @param map  The map to count
+     * @return     The number of keys defined in map.
      */
     public static function count(map:*):uint
     {
@@ -250,6 +270,9 @@ public class MapUtil
 
     /**
      * Returns <code>true</code> if a map contains no keys.
+     *
+     * @param map  The map to test for emptiness.
+     * @returns    True if the map has no keys. False otherwise.
      */
     public static function isEmpty(map:*):Boolean
     {
@@ -257,12 +280,45 @@ public class MapUtil
         return true;
     }
 
-    // TODO: explain this
+    /**
+     * Creates an index of a map's keys. <code>indexingFunc</code> is called
+     * for each key/value pair in <code>map</code>, passing in the key and
+     * value as arguments.  The result of this function is then used as the
+     * key in the <code>target</code> map, with the origianl key becoming
+     * the new value.
+     *
+     * @param map           The map to index.
+     * @param indexingFunc  A function which accepts two arguments, the key
+     *                      and the value, and returns some value.
+     * @param target        The map to create the index in. If no object is
+     *                      provided, a new <code>Object</code> is created.
+     *                      The results of <code>indexingFunc</code> will
+     *                      be used as keys, with the keys from
+     *                      <code>map</code> becoming the value.
+     * @return The map containing the index.
+     */
     public static function indexKeys(map:*, indexingFunc:Function, target:* = null):*
     {
         return index(map, indexingFunc, false, target);
     }
 
+    /**
+     * Creates an index of a map's values. <code>indexingFunc</code> is called
+     * for each key/value pair in <code>map</code>, passing in the key and
+     * value as arguments.  The result of this function is then used as the
+     * key in the <code>target</code> map, with the original value becoming
+     * the new value.
+     *
+     * @param map           The map to index.
+     * @param indexingFunc  A function which accepts two arguments, the key
+     *                      and the value, and returns some value.
+     * @param target        The map to create the index in. If no object is
+     *                      provided, a new <code>Object</code> is created.
+     *                      The results of <code>indexingFunc</code> will
+     *                      be used as keys, with the values from
+     *                      <code>map</code> becoming the value.
+     * @return The map containing the index.
+     */
     public static function indexValues(map:*, indexingFunc:Function, target:* = null):*
     {
         return index(map, indexingFunc, true, target);

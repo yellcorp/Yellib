@@ -286,8 +286,9 @@ public class ArrayUtil
      * @param array        The array containing members to query
      * @param boolFunction A function that takes one argument
      *                     and returns <code>true</code> or <code>false</code>.
-     *                     If omitted, will return the first member to cast
-     *                     to <code>Boolean</code> as <code>true</code>.
+     *                     If omitted, will return the index of the first
+     *                     member to cast to <code>Boolean</code> as
+     *                     <code>true</code>.
      * @param startIndex   The index to start searching from.  If omitted,
      *                     assumes 0.
      * @return The index of the first member to return true, or -1 if none did.
@@ -333,8 +334,8 @@ public class ArrayUtil
      * @param boolFunction A function that takes one argument
      *                     and returns <code>true</code> or
      *                     <code>false</code>.  If omitted, will return
-     *                     the last member to cast to <code>Boolean</code>
-     *                     as <code>true</code>.
+     *                     the index of the last member to cast to
+     *                     <code>Boolean</code> as <code>true</code>.
      * @param startIndex   The index to start searching from.  If omitted,
      *                     assumes the end of the array.
      * @return The index of the last member to return true, or -1 if none did.
@@ -361,15 +362,65 @@ public class ArrayUtil
         return -1;
     }
 
-    public static function getFirst(array:Array, boolFunction:Function):*
+    /**
+     * Calls a function for each member of an array, returning the first
+     * member to return true.  If none return true, returns null.
+     *
+     * @example
+     * <listing version="3.0">
+     * function isNumber(text:String):Boolean {
+     *     return isFinite(parseFloat(text));
+     * }
+     *
+     * var junk:Array = [ "oven", "grill", "1200", "microwave", "300" ];
+     *
+     * var firstNumber:String = ArrayUtil.indexOf(junk, isNumber);
+     * // firstNumber == "1200"
+     *
+     * @param array        The array containing members to query
+     * @param boolFunction A function that takes one argument
+     *                     and returns <code>true</code> or <code>false</code>.
+     *                     If omitted, will return the first member to cast
+     *                     to <code>Boolean</code> as <code>true</code>.
+     * @param startIndex   The index to start searching from.  If omitted,
+     *                     assumes 0.
+     * @return The first member to return true, or null if none did.
+     */
+    public static function getFirst(array:Array, boolFunction:Function, startIndex:int = 0):*
     {
-        var index:int = indexOf(array, boolFunction);
+        var index:int = indexOf(array, boolFunction, startIndex);
         return index >= 0 ? array[index] : null;
     }
 
-    public static function getLast(array:Array, boolFunction:Function):*
+
+    /**
+     * Calls a function for each member of an array, returning the last one
+     * to return true.  If none return true, returns null.
+     *
+     * @example
+     * <listing version="3.0">
+     * function isNumber(text:String):Boolean {
+     *     return isFinite(parseFloat(text));
+     * }
+     *
+     * var junk:Array = [ "oven", "grill", "1200", "microwave", "300" ];
+     *
+     * var lastNumber:String = ArrayUtil.lastIndexOf(junk, isNumber);
+     * // lastNumber == "300"
+     *
+     * @param array        The array containing members to query
+     * @param boolFunction A function that takes one argument
+     *                     and returns <code>true</code> or
+     *                     <code>false</code>.  If omitted, will return
+     *                     the last member to cast to
+     *                     <code>Boolean</code> as <code>true</code>.
+     * @param startIndex   The index to start searching from.  If omitted,
+     *                     assumes the end of the array.
+     * @return The last member to return true, or null if none did.
+     */
+    public static function getLast(array:Array, boolFunction:Function, startIndex:int = -1):*
     {
-        var index:int = lastIndexOf(array, boolFunction);
+        var index:int = lastIndexOf(array, boolFunction, startIndex);
         return index >= 0 ? array[index] : null;
     }
 
