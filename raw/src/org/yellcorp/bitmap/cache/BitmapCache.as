@@ -1,4 +1,4 @@
-package org.yellcorp.bmpcache
+package org.yellcorp.bitmap.cache
 {
 import org.yellcorp.map.MapUtil;
 import org.yellcorp.map.MultiMap;

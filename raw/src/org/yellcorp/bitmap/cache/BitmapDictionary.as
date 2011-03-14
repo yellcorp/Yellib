@@ -1,4 +1,4 @@
-package org.yellcorp.bmpcache
+package org.yellcorp.bitmap.cache
 {
 import flash.display.BitmapData;
 import flash.utils.Dictionary;
