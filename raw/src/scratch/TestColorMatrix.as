@@ -1,9 +1,9 @@
 package scratch
 {
-import org.yellcorp.color.ColorMatrix;
-import org.yellcorp.color.ColorMatrixUtil;
-import org.yellcorp.color.VectorRGB;
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.color.ColorMatrix;
+import org.yellcorp.lib.color.ColorMatrixUtil;
+import org.yellcorp.lib.color.VectorRGB;
+import org.yellcorp.lib.env.ResizableStage;
 
 import flash.display.Loader;
 import flash.events.Event;

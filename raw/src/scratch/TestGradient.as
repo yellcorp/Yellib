@@ -1,8 +1,8 @@
 package scratch
 {
-import org.yellcorp.color.Gradient;
-import org.yellcorp.color.VectorRGB;
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.color.Gradient;
+import org.yellcorp.lib.color.VectorRGB;
+import org.yellcorp.lib.env.ResizableStage;
 
 import flash.events.Event;
 import flash.geom.Matrix;

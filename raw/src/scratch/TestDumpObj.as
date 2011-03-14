@@ -1,7 +1,7 @@
 package scratch
 {
-import org.yellcorp.debug.DebugUtil;
-import org.yellcorp.env.ConsoleApp;
+import org.yellcorp.lib.debug.DebugUtil;
+import org.yellcorp.lib.env.ConsoleApp;
 
 
 public class TestDumpObj extends ConsoleApp

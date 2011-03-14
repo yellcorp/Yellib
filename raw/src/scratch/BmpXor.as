@@ -1,6 +1,6 @@
 package scratch
 {
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.env.ResizableStage;
 
 import flash.display.Bitmap;
 import flash.display.BitmapData;

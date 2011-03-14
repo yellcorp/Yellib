@@ -1,8 +1,8 @@
 package scratch.log
 {
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.env.ResizableStage;
 
-import wip.yellcorp.log.LogView;
+import wip.yellcorp.lib.log.LogView;
 
 
 public class TestLogView extends ResizableStage

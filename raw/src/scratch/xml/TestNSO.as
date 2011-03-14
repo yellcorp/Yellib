@@ -1,7 +1,7 @@
 package scratch.xml
 {
-import org.yellcorp.env.ConsoleApp;
-import org.yellcorp.xml.nso.NamespaceOptimizer;
+import org.yellcorp.lib.env.ConsoleApp;
+import org.yellcorp.lib.xml.nso.NamespaceOptimizer;
 
 import flash.events.Event;
 import flash.net.URLLoader;

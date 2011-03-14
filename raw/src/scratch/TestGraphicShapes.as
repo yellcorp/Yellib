@@ -1,7 +1,7 @@
 package scratch
 {
-import org.yellcorp.display.GraphicsShapes;
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.display.GraphicsShapes;
+import org.yellcorp.lib.env.ResizableStage;
 
 
 public class TestGraphicShapes extends ResizableStage

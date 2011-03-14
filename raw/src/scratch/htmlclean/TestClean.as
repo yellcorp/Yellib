@@ -1,9 +1,9 @@
 package scratch.htmlclean
 {
-import org.yellcorp.env.ResizableStage;
-import org.yellcorp.markup.htmlclean.HTMLCleanLexer;
-import org.yellcorp.markup.htmlclean.HTMLCleanParser;
-import org.yellcorp.string.StringUtil;
+import org.yellcorp.lib.core.StringUtil;
+import org.yellcorp.lib.env.ResizableStage;
+import org.yellcorp.lib.markup.htmlclean.HTMLCleanLexer;
+import org.yellcorp.lib.markup.htmlclean.HTMLCleanParser;
 
 
 public class TestClean extends ResizableStage

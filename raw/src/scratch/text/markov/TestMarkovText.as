@@ -1,7 +1,7 @@
 package scratch.text.markov
 {
-import org.yellcorp.text.markov.TextGenerator;
-import org.yellcorp.text.markov.TextSampler;
+import org.yellcorp.lib.text.markov.TextGenerator;
+import org.yellcorp.lib.text.markov.TextSampler;
 
 import flash.display.Sprite;
 

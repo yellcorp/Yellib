@@ -1,9 +1,9 @@
 package scratch.layout2
 {
-import org.yellcorp.layout2.ConstraintType;
-import org.yellcorp.layout2.Layout;
-import org.yellcorp.layout2.LayoutAxis;
-import org.yellcorp.layout2.LayoutProperty;
+import org.yellcorp.lib.layout.ConstraintType;
+import org.yellcorp.lib.layout.Layout;
+import org.yellcorp.lib.layout.LayoutAxis;
+import org.yellcorp.lib.layout.LayoutProperty;
 
 import flash.display.Graphics;
 import flash.display.Sprite;

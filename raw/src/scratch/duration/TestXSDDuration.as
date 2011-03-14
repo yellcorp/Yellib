@@ -1,6 +1,6 @@
 package scratch.duration
 {
-import org.yellcorp.date.XSDDuration;
+import org.yellcorp.lib.date.XSDDuration;
 
 import flash.display.Sprite;
 

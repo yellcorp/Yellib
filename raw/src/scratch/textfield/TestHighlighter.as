@@ -1,8 +1,8 @@
 package scratch.textfield
 {
-import org.yellcorp.env.ResizableStage;
-import org.yellcorp.text.highlighter.SimpleHighlightDrawer;
-import org.yellcorp.text.highlighter.TextFieldHighlighter;
+import org.yellcorp.lib.env.ResizableStage;
+import org.yellcorp.lib.text.highlighter.SimpleHighlightDrawer;
+import org.yellcorp.lib.text.highlighter.TextFieldHighlighter;
 
 import flash.display.BlendMode;
 import flash.display.Shape;

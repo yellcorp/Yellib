@@ -1,6 +1,6 @@
 package scratch.console
 {
-import org.yellcorp.env.ConsoleApp;
+import org.yellcorp.lib.env.ConsoleApp;
 
 
 [SWF(backgroundColor="#FFFFFF", frameRate="60", width="640", height="480")]

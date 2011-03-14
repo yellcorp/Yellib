@@ -1,9 +1,9 @@
 package scratch.debugconsole
 {
-import org.yellcorp.debug.console.richtext.RichTextComposer;
-import org.yellcorp.debug.console.richtext.TestExpandBlock;
-import org.yellcorp.debug.console.richtext.TestNumberTextBlock;
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.debug.console.richtext.RichTextComposer;
+import org.yellcorp.lib.debug.console.richtext.TestExpandBlock;
+import org.yellcorp.lib.debug.console.richtext.TestNumberTextBlock;
+import org.yellcorp.lib.env.ResizableStage;
 
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;

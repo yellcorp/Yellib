@@ -1,8 +1,8 @@
 package scratch.hash
 {
-import org.yellcorp.env.ConsoleApp;
+import org.yellcorp.lib.env.ConsoleApp;
 
-import wip.yellcorp.hash.HashMap;
+import wip.yellcorp.lib.hash.HashMap;
 
 
 public class TestHash extends ConsoleApp

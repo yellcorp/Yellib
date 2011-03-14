@@ -1,11 +1,16 @@
 package scratch.regexengine
 {
-import scratch.regexengine.charrender.*;
-import scratch.regexengine.regextest.*;
+import org.yellcorp.lib.core.MapUtil;
+import org.yellcorp.lib.core.StringUtil;
+import org.yellcorp.lib.debug.DebugUtil;
 
-import org.yellcorp.debug.DebugUtil;
-import org.yellcorp.map.MapUtil;
-import org.yellcorp.string.StringUtil;
+import scratch.regexengine.charrender.ASCIIEscaper;
+import scratch.regexengine.charrender.CharRenderer;
+import scratch.regexengine.charrender.LiteralRenderer;
+import scratch.regexengine.regextest.CharClass;
+import scratch.regexengine.regextest.Literal;
+import scratch.regexengine.regextest.RegexTest;
+import scratch.regexengine.regextest.WideClass;
 
 import flash.display.Sprite;
 

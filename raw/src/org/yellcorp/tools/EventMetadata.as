@@ -1,7 +1,7 @@
 package org.yellcorp.tools
 {
-import org.yellcorp.format.template.Template;
-import org.yellcorp.iterators.map.MapIterator;
+import org.yellcorp.lib.format.template.Template;
+import org.yellcorp.lib.iterators.map.MapIterator;
 
 import flash.utils.describeType;
 import flash.utils.getDefinitionByName;

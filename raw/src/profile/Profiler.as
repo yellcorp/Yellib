@@ -1,6 +1,6 @@
 package profile
 {
-import org.yellcorp.format.template.Template;
+import org.yellcorp.lib.format.template.Template;
 
 import flash.display.Sprite;
 import flash.events.Event;

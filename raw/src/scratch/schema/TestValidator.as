@@ -1,8 +1,8 @@
 package scratch.schema
 {
-import org.yellcorp.env.ResizableStage;
-import org.yellcorp.xml.validator.SchemaValidator;
-import org.yellcorp.xml.validator.types.SchemaElement;
+import org.yellcorp.lib.env.ResizableStage;
+import org.yellcorp.lib.xml.validator.SchemaValidator;
+import org.yellcorp.lib.xml.validator.types.SchemaElement;
 
 
 public class TestValidator extends ResizableStage

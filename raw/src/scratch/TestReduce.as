@@ -1,7 +1,7 @@
 package scratch
 {
-import org.yellcorp.array.ArrayUtil;
-import org.yellcorp.env.ConsoleApp;
+import org.yellcorp.lib.core.ArrayUtil;
+import org.yellcorp.lib.env.ConsoleApp;
 
 
 public class TestReduce extends ConsoleApp

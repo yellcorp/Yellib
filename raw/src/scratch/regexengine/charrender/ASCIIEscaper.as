@@ -1,6 +1,6 @@
 package scratch.regexengine.charrender
 {
-import org.yellcorp.string.StringUtil;
+import org.yellcorp.lib.core.StringUtil;
 
 
 public class ASCIIEscaper implements CharRenderer

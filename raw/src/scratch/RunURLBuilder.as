@@ -1,7 +1,7 @@
 package scratch
 {
-import org.yellcorp.env.ConsoleApp;
-import org.yellcorp.url.URLBuilder;
+import org.yellcorp.lib.env.ConsoleApp;
+import org.yellcorp.lib.url.URLBuilder;
 
 
 public class RunURLBuilder extends ConsoleApp

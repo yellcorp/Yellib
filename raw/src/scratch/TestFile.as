@@ -1,6 +1,6 @@
 package scratch
 {
-import wip.yellcorp.debug.FileHeuristic;
+import wip.yellcorp.lib.debug.FileHeuristic;
 
 import flash.display.Sprite;
 

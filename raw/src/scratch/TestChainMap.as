@@ -1,7 +1,7 @@
 package scratch
 {
-import org.yellcorp.env.ConsoleApp;
-import org.yellcorp.map.ChainMap;
+import org.yellcorp.lib.collections.ChainMap;
+import org.yellcorp.lib.env.ConsoleApp;
 
 
 public class TestChainMap extends ConsoleApp

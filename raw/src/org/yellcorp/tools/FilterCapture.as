@@ -1,6 +1,6 @@
 package org.yellcorp.tools
 {
-import org.yellcorp.string.StringUtil;
+import org.yellcorp.lib.core.StringUtil;
 
 import flash.filters.BitmapFilter;
 import flash.filters.BitmapFilterType;

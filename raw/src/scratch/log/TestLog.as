@@ -1,10 +1,10 @@
 package scratch.log
 {
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.env.ResizableStage;
 
-import wip.yellcorp.log.LogChannel;
-import wip.yellcorp.log.client.LogClient;
-import wip.yellcorp.log.server.SimpleTrace;
+import wip.yellcorp.lib.log.LogChannel;
+import wip.yellcorp.lib.log.client.LogClient;
+import wip.yellcorp.lib.log.server.SimpleTrace;
 
 
 public class TestLog extends ResizableStage

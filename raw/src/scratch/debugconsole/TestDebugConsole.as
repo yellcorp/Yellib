@@ -1,7 +1,7 @@
 package scratch.debugconsole
 {
-import org.yellcorp.debug.console.DebugConsole;
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.debug.console.DebugConsole;
+import org.yellcorp.lib.env.ResizableStage;
 
 
 public class TestDebugConsole extends ResizableStage

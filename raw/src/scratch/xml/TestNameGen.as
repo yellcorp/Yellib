@@ -1,7 +1,7 @@
 package scratch.xml
 {
-import org.yellcorp.env.ConsoleApp;
-import org.yellcorp.xml.nso.NameGenerator;
+import org.yellcorp.lib.env.ConsoleApp;
+import org.yellcorp.lib.xml.nso.NameGenerator;
 
 
 public class TestNameGen extends ConsoleApp

@@ -1,7 +1,7 @@
 package scratch.xml
 {
-import org.yellcorp.env.ConsoleApp;
-import org.yellcorp.markup.htmlclean.HTMLCleanFilter;
+import org.yellcorp.lib.env.ConsoleApp;
+import org.yellcorp.lib.markup.htmlclean.HTMLCleanFilter;
 
 
 public class TestHTMLFilter extends ConsoleApp

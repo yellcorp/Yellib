@@ -1,7 +1,7 @@
 package scratch
 {
-import org.yellcorp.debug.MouseDebugger;
-import org.yellcorp.env.ConsoleApp;
+import org.yellcorp.lib.debug.MouseDebugger;
+import org.yellcorp.lib.env.ConsoleApp;
 
 import flash.display.Sprite;
 

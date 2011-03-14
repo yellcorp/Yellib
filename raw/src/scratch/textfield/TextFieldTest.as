@@ -1,6 +1,6 @@
 package scratch.textfield
 {
-import org.yellcorp.env.ResizableStage;
+import org.yellcorp.lib.env.ResizableStage;
 
 import flash.display.DisplayObject;
 import flash.display.Graphics;

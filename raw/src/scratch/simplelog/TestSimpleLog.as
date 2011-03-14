@@ -1,6 +1,6 @@
 package scratch.simplelog
 {
-import wip.yellcorp.simplelog.SimpleLog;
+import wip.yellcorp.lib.simplelog.SimpleLog;
 
 import flash.display.Sprite;
 

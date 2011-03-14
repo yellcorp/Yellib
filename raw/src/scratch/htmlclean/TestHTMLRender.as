@@ -1,7 +1,7 @@
 package scratch.htmlclean
 {
-import org.yellcorp.env.ResizableStage;
-import org.yellcorp.string.StringUtil;
+import org.yellcorp.lib.core.StringUtil;
+import org.yellcorp.lib.env.ResizableStage;
 
 import flash.display.DisplayObject;
 import flash.text.TextField;

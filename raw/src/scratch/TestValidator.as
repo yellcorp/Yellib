@@ -1,7 +1,7 @@
 package scratch
 {
-import org.yellcorp.env.ConsoleApp;
-import org.yellcorp.valid.TypeValidator;
+import org.yellcorp.lib.env.ConsoleApp;
+import org.yellcorp.lib.valid.TypeValidator;
 
 import scratch.valid.Config;
 

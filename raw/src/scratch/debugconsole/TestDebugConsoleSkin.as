@@ -1,8 +1,8 @@
 package scratch.debugconsole
 {
-import org.yellcorp.debug.console.DebugConsoleSkin;
-import org.yellcorp.env.console.SimpleScrollBarSkin;
-import org.yellcorp.ui.scrollbar.VerticalScrollBar;
+import org.yellcorp.lib.debug.console.DebugConsoleSkin;
+import org.yellcorp.lib.env.console.SimpleScrollBarSkin;
+import org.yellcorp.lib.ui.scrollbar.VerticalScrollBar;
 
 import flash.display.Graphics;
 import flash.display.InteractiveObject;

@@ -1,6 +1,6 @@
 package scratch.hash
 {
-import wip.yellcorp.hash.IHashable;
+import wip.yellcorp.lib.hash.IHashable;
 
 
 public class CustomHash implements IHashable

@@ -1,6 +1,6 @@
 package scratch.xml
 {
-import org.yellcorp.env.ConsoleApp;
+import org.yellcorp.lib.env.ConsoleApp;
 
 
 public class TestXML extends ConsoleApp
