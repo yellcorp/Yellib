@@ -10,6 +10,7 @@ import flash.display.Sprite;
 import flash.events.Event;
 
 
+[SWF(backgroundColor="#FFFFFF", frameRate="60", width="640", height="480")]
 public class TestLayout2 extends Sprite
 {
     private var a:Sprite;
