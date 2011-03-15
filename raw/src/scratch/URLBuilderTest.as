@@ -1,6 +1,5 @@
 package scratch
 {
-
 public class URLBuilderTest
 {
     private static var extractInput:RegExp = /(\S+)/ ;

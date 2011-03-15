@@ -1,9 +1,9 @@
 package scratch.hash
 {
-import wip.yellcorp.lib.hash.IHashable;
+import wip.yellcorp.lib.hash.Hashable;
 
 
-public class CustomHash implements IHashable
+public class CustomHash implements Hashable
 {
     public var a:Number;
     public var b:String;

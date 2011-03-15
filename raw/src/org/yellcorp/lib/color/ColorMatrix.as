@@ -1,6 +1,5 @@
 package org.yellcorp.lib.color
 {
-
 // note subclasses of Array must be dynamic, see Adobe docs
 dynamic public class ColorMatrix extends Array
 {

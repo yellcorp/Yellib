@@ -10,7 +10,6 @@ import flash.utils.flash_proxy;
  * which will be lost when the SWF stops running.
  *
  * Extends proxy, so access properties on it as if it were a regular Object
- *
  */
 public dynamic class LocalSharedObjectProxy extends Proxy {
     private var persist:SharedObject;

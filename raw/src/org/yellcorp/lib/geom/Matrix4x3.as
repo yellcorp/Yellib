@@ -1,7 +1,6 @@
 package org.yellcorp.lib.geom
 {
 /**
- *
  * Matrix with 4 rows, 3 columns, with the 4th column
  * always assumed to be [ 0 0 0 1 ]T
  *

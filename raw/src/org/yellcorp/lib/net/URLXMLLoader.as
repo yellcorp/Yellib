@@ -21,7 +21,6 @@ import flash.net.URLRequest;
  * If data is successfully loaded, but fails XML parsing, the normal
  * Event.COMPLETE event will be suppressed and an
  * XMLParseErrorEvent.XML_PARSE_ERROR will be dispatched instead.
- *
  */
 
 [Event(name="xmlParseError", type="org.yellcorp.lib.events.XMLParseErrorEvent")]

@@ -7,7 +7,6 @@ import flash.events.Event;
 /**
  * Represents an XML parse error encountered in an asynchronous operation.
  * Useful for classes that encapsulate Loaders, Sockets, etc.
- *
  */
 public class XMLParseErrorEvent extends ErrorEvent
 {

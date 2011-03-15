@@ -8,7 +8,6 @@ import flash.utils.Dictionary;
 
 
 /**
- *
  * A non-hierarchical group of display objects.  Recreates the DisplayObject interface
  * so a set of DisplayObjects can have properties set quickly, easily, hopefully
  */

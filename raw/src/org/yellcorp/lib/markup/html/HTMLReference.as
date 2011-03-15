@@ -9,7 +9,6 @@ import flash.errors.IllegalOperationError;
  * A partial database of HTML tags and entities taken from the HTML DTD.
  *
  * This class is a singleton, so access methods via HTMLReference.instance
- *
  */
 public class HTMLReference
 {

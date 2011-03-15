@@ -29,7 +29,6 @@ import org.yellcorp.lib.markup.htmlclean.errors.HTMLCleanSyntaxError;
  * which is fast in the land of C and Java but probably the slower way
  * of doing things in ActionScript.  Such is the cost of dealing with
  * dirty HTML.
- *
  */
 public class HTMLCleanLexer
 {

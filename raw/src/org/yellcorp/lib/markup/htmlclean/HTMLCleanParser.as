@@ -11,7 +11,6 @@ import org.yellcorp.lib.markup.html.HTMLToken;
  * balanced, using HTMLReference to judge whether a tag should be left
  * empty or automatically closed.  It also strips duplicate attributes
  * in open tags.
- *
  */
 public class HTMLCleanParser
 {

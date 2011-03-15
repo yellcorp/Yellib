@@ -14,7 +14,6 @@ import org.yellcorp.lib.xml.XMLTraverser;
  *
  * Unsupported attributes and and unsupported tags with inline
  * layout are stripped, unsupported block layout tags are converted to <p>
- *
  */
 public class HTMLCleanFilter
 {
