@@ -5,7 +5,6 @@ import org.yellcorp.lib.core.StringUtil;
 import org.yellcorp.lib.debug.debugutil.DisplayTreeDumper;
 import org.yellcorp.lib.debug.debugutil.ObjectDumper;
 
-import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.utils.ByteArray;
 import flash.utils.getQualifiedClassName;
