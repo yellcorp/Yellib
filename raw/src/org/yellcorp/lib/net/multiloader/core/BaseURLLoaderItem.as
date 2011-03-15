@@ -35,12 +35,12 @@ public class BaseURLLoaderItem extends MultiLoaderItem
         return urlLoader ? urlLoader.bytesTotal > 0 : false;
     }
 
-    public override function destroy():void
+    public override function dispose():void
     {
         removeListeners(urlLoader);
         urlLoader.close();
         urlLoader = null;
-        super.destroy();
+        super.dispose();
     }
 
     protected override function startLoad():void

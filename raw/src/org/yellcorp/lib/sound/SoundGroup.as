@@ -1,5 +1,7 @@
 package org.yellcorp.lib.sound
 {
+import org.yellcorp.lib.core.Disposable;
+
 import flash.events.Event;
 import flash.media.Sound;
 import flash.media.SoundChannel;
@@ -8,7 +10,7 @@ import flash.utils.Dictionary;
 import flash.utils.getDefinitionByName;
 
 
-public class SoundGroup
+public class SoundGroup implements Disposable
 {
     private var channels:Dictionary;
     private var groupTransform:SoundTransform;
@@ -83,7 +85,7 @@ public class SoundGroup
         channels = new Dictionary();
     }
 
-    public function destroy():void
+    public function dispose():void
     {
         pauseAll();
         channels = null;
@@ -135,9 +137,10 @@ public class SoundGroup
 }
 }
 
-// Helper class -- works but uncertain if officially supported by AS3
 import flash.media.Sound;
 
+
+// Helper class -- works but uncertain if officially supported by AS3
 
 class SoundInfo
 {

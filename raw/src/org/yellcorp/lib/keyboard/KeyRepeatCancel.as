@@ -1,10 +1,12 @@
 package org.yellcorp.lib.keyboard
 {
+import org.yellcorp.lib.core.Disposable;
+
 import flash.events.EventDispatcher;
 import flash.events.KeyboardEvent;
 
 
-public class KeyRepeatCancel extends EventDispatcher
+public class KeyRepeatCancel extends EventDispatcher implements Disposable
 {
     private var eventSource:EventDispatcher;
     private var keysDown:Object;
@@ -18,7 +20,7 @@ public class KeyRepeatCancel extends EventDispatcher
         eventSource.addEventListener(KeyboardEvent.KEY_UP, onKeyUp, false, 0, true);
     }
 
-    public function destroy():void
+    public function dispose():void
     {
         eventSource.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         eventSource.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);

@@ -55,15 +55,15 @@ public class BitmapLoaderItem extends MultiLoaderItem
         this.fitMethod = fitMethod;
     }
 
-    public override function destroy():void
+    public override function dispose():void
     {
-        super.destroy();
+        super.dispose();
         _loader.removeEventListener(Event.OPEN, onOpen);
         _loader.removeEventListener(Event.COMPLETE, onComplete);
         _loader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, onStatus);
         _loader.removeEventListener(ProgressEvent.PROGRESS, onProgress);
         _loader.removeEventListener(IOErrorEvent.IO_ERROR, onAsyncError);
-        _loader.destroy();
+        _loader.dispose();
         _loader = null;
     }
 

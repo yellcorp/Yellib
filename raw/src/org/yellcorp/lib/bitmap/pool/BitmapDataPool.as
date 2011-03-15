@@ -1,5 +1,6 @@
 package org.yellcorp.lib.bitmap.pool
 {
+import org.yellcorp.lib.core.Disposable;
 import org.yellcorp.lib.core.MultiMap;
 
 import flash.display.BitmapData;
@@ -15,7 +16,7 @@ import flash.display.BitmapData;
  * matching object is already in the pool, it will be returned instead of
  * creating a new one.
  */
-public class BitmapDataPool
+public class BitmapDataPool implements Disposable
 {
     private var freePool:MultiMap;
 

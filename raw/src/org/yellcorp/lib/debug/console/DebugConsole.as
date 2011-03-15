@@ -1,13 +1,13 @@
 package org.yellcorp.lib.debug.console
 {
-import org.yellcorp.lib.core.Destructor;
+import org.yellcorp.lib.core.Disposable;
 
 import flash.events.KeyboardEvent;
 import flash.events.TextEvent;
 import flash.ui.Keyboard;
 
 
-public class DebugConsole implements Destructor, CompletionCandidates
+public class DebugConsole implements Disposable, CompletionCandidates
 {
     private var skin:DebugConsoleSkin;
     private var _view:DebugConsoleView;
@@ -26,7 +26,7 @@ public class DebugConsole implements Destructor, CompletionCandidates
         tabCompleter = new InputCompleter(_view, this);
     }
 
-    public function destroy():void
+    public function dispose():void
     {
         _view = null;
         inputHistory = null;

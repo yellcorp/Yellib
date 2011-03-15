@@ -2,7 +2,7 @@ package org.yellcorp.lib.ui.scrollbar
 {
 import fl.events.ScrollEvent;
 
-import org.yellcorp.lib.core.Destructor;
+import org.yellcorp.lib.core.Disposable;
 import org.yellcorp.lib.error.AbstractCallError;
 import org.yellcorp.lib.ui.BaseDisplay;
 import org.yellcorp.lib.ui.utils.AutoVaryingTimer;
@@ -15,7 +15,7 @@ import flash.utils.Dictionary;
 
 
 [Event(name="scroll", type="fl.events.ScrollEvent")]
-public class BaseScrollBar extends BaseDisplay implements Destructor
+public class BaseScrollBar extends BaseDisplay implements Disposable
 {
     public var arrowStep:Number;
     public var pageStep:Number;
@@ -123,7 +123,7 @@ public class BaseScrollBar extends BaseDisplay implements Destructor
         }
     }
 
-    public function destroy():void
+    public function dispose():void
     {
         clearMouseWheelListeners();
         destroyEvents();

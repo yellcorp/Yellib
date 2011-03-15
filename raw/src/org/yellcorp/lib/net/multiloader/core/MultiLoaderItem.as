@@ -1,5 +1,6 @@
 package org.yellcorp.lib.net.multiloader.core
 {
+import org.yellcorp.lib.core.Disposable;
 import org.yellcorp.lib.error.AbstractCallError;
 import org.yellcorp.lib.net.multiloader.MultiLoader;
 
@@ -10,7 +11,7 @@ import flash.events.ProgressEvent;
 import flash.net.URLRequest;
 
 
-public class MultiLoaderItem
+public class MultiLoaderItem implements Disposable
 {
     ml_internal var callback:MultiLoader;
     private var _httpStatusHistory:Array;
@@ -22,7 +23,7 @@ public class MultiLoaderItem
         _httpStatusHistory = [ ];
     }
 
-    public function destroy():void
+    public function dispose():void
     {
     }
 

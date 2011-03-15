@@ -38,9 +38,9 @@ public class DisplayLoaderItem extends MultiLoaderItem
         return (_loader && _loader.contentLoaderInfo) ? _loader.contentLoaderInfo.bytesTotal > 0 : false;
     }
 
-    public override function destroy():void
+    public override function dispose():void
     {
-        super.destroy();
+        super.dispose();
         try {
             _loader.close();
         }

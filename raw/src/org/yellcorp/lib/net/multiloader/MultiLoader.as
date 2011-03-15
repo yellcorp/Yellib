@@ -1,6 +1,6 @@
 package org.yellcorp.lib.net.multiloader
 {
-import org.yellcorp.lib.core.Destructor;
+import org.yellcorp.lib.core.Disposable;
 import org.yellcorp.lib.core.Set;
 import org.yellcorp.lib.net.multiloader.core.MultiLoaderItem;
 import org.yellcorp.lib.net.multiloader.core.ml_internal;
@@ -40,7 +40,7 @@ import flash.utils.Dictionary;
 [Event(name="itemStart", type="org.yellcorp.lib.net.multiloader.events.MultiLoaderItemEvent")]
 [Event(name="complete", type="flash.events.Event")]
 [Event(name="progress", type="flash.events.ProgressEvent")]
-public class MultiLoader extends EventDispatcher implements Destructor
+public class MultiLoader extends EventDispatcher implements Disposable
 {
     /**
      * The order in which waiting loaders are started.
@@ -139,7 +139,7 @@ public class MultiLoader extends EventDispatcher implements Destructor
      * manages. This should always be called when the MultiLoader instance
      * is no longer required.
      */
-    public function destroy():void
+    public function dispose():void
     {
         queue = null;
         itemToId = null;
@@ -148,7 +148,7 @@ public class MultiLoader extends EventDispatcher implements Destructor
         errorItems = null;
         for each (var item:MultiLoaderItem in idToItem)
         {
-            item.destroy();
+            item.dispose();
         }
         idToItem = null;
     }

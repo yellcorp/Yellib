@@ -1,6 +1,6 @@
 package org.yellcorp.lib.bitmap.loader
 {
-import org.yellcorp.lib.core.Destructor;
+import org.yellcorp.lib.core.Disposable;
 
 import flash.display.BitmapData;
 import flash.display.Loader;
@@ -22,7 +22,7 @@ import flash.utils.ByteArray;
 [Event(name="httpStatus", type="flash.events.HTTPStatusEvent")]
 [Event(name="progress", type="flash.events.ProgressEvent")]
 [Event(name="ioError", type="flash.events.IOErrorEvent")]
-public class BitmapLoader extends EventDispatcher implements Destructor
+public class BitmapLoader extends EventDispatcher implements Disposable
 {
     public var transparent:Boolean;
     public var fillColor:uint;
@@ -66,7 +66,7 @@ public class BitmapLoader extends EventDispatcher implements Destructor
         addListeners(loader.contentLoaderInfo);
     }
 
-    public function destroy():void
+    public function dispose():void
     {
         removeListeners(loader.contentLoaderInfo);
         try {

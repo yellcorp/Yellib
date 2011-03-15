@@ -1,5 +1,6 @@
 package org.yellcorp.lib.bitmap
 {
+import org.yellcorp.lib.core.Disposable;
 import org.yellcorp.lib.ui.BaseDisplay;
 
 import flash.display.Bitmap;
@@ -8,7 +9,7 @@ import flash.geom.Matrix;
 import flash.geom.Rectangle;
 
 
-public class Scale9Bitmap extends BaseDisplay
+public class Scale9Bitmap extends BaseDisplay implements Disposable
 {
     private var _sourceBitmapData:BitmapData;
     private var _canvas:BitmapData;
@@ -47,6 +48,21 @@ public class Scale9Bitmap extends BaseDisplay
 
         this.bitmapData = bitmapData;
         this.scale9Grid = scale9Grid;
+    }
+
+    public function dispose():void
+    {
+        if (_canvas)
+        {
+            _canvas.dispose();
+            _canvas = null;
+        }
+        if (this == bitmapDisplay.parent)
+        {
+            removeChild(bitmapDisplay);
+        }
+        bitmapDisplay = null;
+        _sourceBitmapData = null;
     }
 
     public function get bitmapData():BitmapData
