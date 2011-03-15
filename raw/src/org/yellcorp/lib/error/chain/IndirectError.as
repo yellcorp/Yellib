@@ -15,5 +15,10 @@ public class IndirectError extends Error
     {
         return _cause;
     }
+
+    public function getChain():Array
+    {
+        return ChainUtil.getErrorChain(this);
+    }
 }
 }

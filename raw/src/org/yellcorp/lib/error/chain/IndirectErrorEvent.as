@@ -22,6 +22,11 @@ public class IndirectErrorEvent extends ErrorEvent
         return _cause;
     }
 
+    public function getChain():Array
+    {
+        return ChainUtil.getErrorChain(this);
+    }
+
     public override function clone():Event
     {
         return new (constructor as Class)(type, _cause, bubbles, cancelable, text);
