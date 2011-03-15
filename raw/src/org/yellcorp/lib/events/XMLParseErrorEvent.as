@@ -9,7 +9,8 @@ import flash.events.Event;
  * Useful for classes that encapsulate Loaders, Sockets, etc.
  *
  */
-public class XMLParseErrorEvent extends ErrorEvent {
+public class XMLParseErrorEvent extends ErrorEvent
+{
     /**
      * Defines the value of the type property of an <code>xmlParseError</code> event object.
      *
@@ -19,27 +20,32 @@ public class XMLParseErrorEvent extends ErrorEvent {
 
     private var _data:String;
 
-    public function XMLParseErrorEvent(type:String,
-                                       bubbles:Boolean = false,
-                                       cancelable:Boolean = false,
-                                       text:String = "",
-                                       data:String = "") {
+    public function XMLParseErrorEvent(
+        type:String,
+        bubbles:Boolean = false,
+        cancelable:Boolean = false,
+        text:String = "",
+        data:String = "")
+    {
         super(type, bubbles, cancelable, text);
         _data = data;
     }
 
-    public override function clone():Event {
+    public override function clone():Event
+    {
         return new XMLParseErrorEvent(type, bubbles, cancelable, text, data);
     }
 
-    public override function toString():String {
+    public override function toString():String
+    {
         return formatToString("XMLParseErrorEvent", "type", "text");
     }
 
     /**
      * A copy of the data that failed XML parsing.
      */
-    public function get data():String {
+    public function get data():String
+    {
         return _data;
     }
 }
