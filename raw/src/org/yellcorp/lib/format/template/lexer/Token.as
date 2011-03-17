@@ -1,5 +1,8 @@
 package org.yellcorp.lib.format.template.lexer
 {
+/**
+ * @private
+ */
 public class Token
 {
     public static const TEXT:String = "text";

@@ -7,28 +7,28 @@ import org.yellcorp.lib.markup.htmlclean.errors.HTMLCleanSyntaxError;
 
 
 /**
- * HTMLCleanLexer is responsible for lexing a raw string into a stream
+ * <p>HTMLCleanLexer is responsible for lexing a raw string into a stream
  * of HTML tokens, with an aim to correcting common markup errors in
  * a way a web browser might.  This is the first step when trying to
- * coerce a random HTML document into valid XML.
+ * coerce a random HTML document into valid XML.</p>
  *
- * Lexing is done on an entire stream at once - the lex method accepts the
- * entire document as a String and returns an Array of HTMLToken instances,
- * which should then be passed to an instance of HTMLCleanParser.
- * It's done this way instead of incrementally so the lexer can back
- * up and retry a section if it reaches a dead end.
+ * <p>Lexing is done on an entire stream at once - the <code>lex</code>
+ * method accepts the entire document as a String and returns an Array of
+ * HTMLToken instances,  which should then be passed to an instance of
+ * HTMLCleanParser.  It's done this way instead of incrementally so the
+ * lexer can back up and retry a section if it reaches a dead end.</p>
  *
- * The Lexer saves its state when it encounters an ambiguity: for
- * example, a < in the source may be the beginning of an HTML tag, or
- * it may be a literal less-than that should be converted to &lt;
+ * <p>The Lexer saves its state when it encounters an ambiguity: for
+ * example, a &lt; in the source may be the beginning of an HTML tag, or
+ * it may be a literal less-than that should be converted to &amp;lt;</p>
  *
- * If it can't make sense of < as the beginning of a tag, it will back
- * up and assume it should be changed to an &lt; instead.
+ * <p>If it can't make sense of &lt; as the beginning of a tag, it will back
+ * up and assume it should be changed to an &amp;lt; instead.</p>
  *
- * For the most part, the lexer works a single character at a time,
+ * <p>For the most part, the lexer works a single character at a time,
  * which is fast in the land of C and Java but probably the slower way
  * of doing things in ActionScript.  Such is the cost of dealing with
- * dirty HTML.
+ * dirty HTML.</p>
  */
 public class HTMLCleanLexer
 {

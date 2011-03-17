@@ -64,7 +64,7 @@ public class BitmapDataPool implements Disposable
 
     /**
      * Clears and deallocates all objects in the
-     * <code>WorkingBitmapData</code> pool.
+     * <code>BitmapDataPool</code>.
      */
     public function purge():void
     {
@@ -74,7 +74,7 @@ public class BitmapDataPool implements Disposable
 
     /**
      * Clears and deallocates all objects in the
-     * <code>WorkingBitmapData</code> pool and stops pooling behaviour.
+     * <code>BitmapDataPool</code> and stops pooling behaviour.
      *
      * <p>Should be called when an instance of this class is no longer
      * being used.  After this method is called, <code>getBitmapData()</code>

@@ -4,6 +4,9 @@ import org.yellcorp.lib.format.printf.context.RenderContext;
 import org.yellcorp.lib.format.printf.options.Flags;
 
 
+/**
+ * @private
+ */
 public class FieldProperties implements Flags
 {
     public var argValue:DynamicValue = new DynamicValue();

@@ -3,6 +3,9 @@ package org.yellcorp.lib.format.printf.parser
 import org.yellcorp.lib.relexer.Token;
 
 
+/**
+ * @private
+ */
 public class FormatTokenError extends Error
 {
     private var _token:Token;

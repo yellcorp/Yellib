@@ -1,5 +1,8 @@
 package org.yellcorp.lib.markup.html
 {
+/**
+ * @private
+ */
 public class HTMLToken
 {
     public static const TEXT:String = "TEXT";

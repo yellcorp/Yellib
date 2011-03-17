@@ -3,6 +3,9 @@ package org.yellcorp.lib.format.printf.number
 import org.yellcorp.lib.format.printf.options.IntegerFormatOptions;
 
 
+/**
+ * @private
+ */
 public class SplitInteger implements SplitNumber
 {
     private var value:Number;

@@ -6,7 +6,7 @@ import flash.events.Event;
 import flash.utils.getQualifiedClassName;
 
 
-public class BaseDisplay extends Sprite implements Displayable
+public class BaseDisplay extends Sprite
 {
     public static const SIZE:String = "SIZE";
     public static const SCROLL:String = "SCROLL";
@@ -31,11 +31,6 @@ public class BaseDisplay extends Sprite implements Displayable
         _height = initialHeight;
         addEventListener(Event.ADDED_TO_STAGE, _onAddedToStage, false, 0, true);
         addEventListener(Event.REMOVED_FROM_STAGE, _onRemovedFromStage, false, 0, true);
-    }
-
-    public function get display():DisplayObject
-    {
-        return this;
     }
 
     public override function get width():Number

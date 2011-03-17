@@ -1,25 +1,89 @@
 <project name="YellLib AS3 Baseline" basedir="..">
+
+	<property name="build" location="build" />
+	
 	<property name="src" location="src" />
 	<property name="include" location="${src}/org/yellcorp" />
+	
 	<property name="bin" location="bin" />
-	<property name="build" location="build" />
-	<property name="version" value="0.1.0" />
-	<property name="swcname" value="yell_0_1_0.swc" />
+	<property name="docs" location="docs" />
+
+	<property name="version-class" location="${src}/org/yellcorp/lib/Version.as" />
+	<property name="build-number-file" location="${build}/build.number" />
+	<property file="${build}/local.properties" />
+	<property file="${build}/version.properties" />
 	
-	<property file="${build}/build.properties" />
 	
-	<target name="compile" description="Compiles to SWC">
-		<java jar="${flex_sdk}/lib/compc.jar" fork="true" dir="${flex_sdk}/frameworks">
-			<arg value="-source-path=${fl_src}" />
-			<arg value="-source-path=${src}" />
-			<arg value="-debug=true" />
-			<arg value="-optimize=true" />
+	<target name="documentation" description="Generate documentation">
+		<java jar="${flex_sdk}/lib/asdoc.jar" fork="true" dir="${flex_sdk}/frameworks">
+			<arg value="-source-path+=${FL_AS3}" />
+			<arg value="-source-path+=${src}" />
+			<arg value="-doc-sources" />
+			<arg value="${include}" />
 			<arg value="-output" />
-			<arg value="${bin}/${swcname}" />
+			<arg value="${docs}" />
+		</java>
+	</target>
+
+
+	<target name="release" description="Release build" 
+	        depends="release-vars, compile"/>
+
+	<target name="release-vars">
+		<property name="debug" value="false" />
+		<property name="optimize" value="true" />
+		<property name="verbose-stack" value="false" />
+	</target>
+
+
+	<target name="debug" description="Release build" 
+	        depends="debug-vars, compile"/>
+
+	<target name="debug-vars">
+		<property name="debug" value="true" />
+		<property name="optimize" value="false" />
+		<property name="verbose-stack" value="true" />
+	</target>
+
+
+	<target name="compile" depends="version">
+		<java jar="${flex_sdk}/lib/compc.jar" fork="true" dir="${flex_sdk}/frameworks">
+			<arg value="-source-path+=${FL_AS3}" />
+			<arg value="-source-path+=${src}" />
+			<arg value="-debug=${debug}" />
+			<arg value="-optimize=${optimize}" />
+			<arg value="-output" />
+			<arg value="${bin}/${basename}_${version}.swc" />
 			<arg value="-target-player=9" />
-			<arg value="-verbose-stacktraces=true" />
+			<arg value="-verbose-stacktraces=${verbose-stack}" />
 			<arg value="-include-sources" />
 			<arg value="${include}" />
 		</java>
+	</target>
+
+	<target name="version">
+		<propertyfile file="${build-number-file}">
+
+			<entry key="BUILD_NUMBER" default="0" type="int" 
+				value="1" operation="+" pattern="0000" />
+
+			<entry key="BUILD_DATE" type="date" 
+				value="now" pattern="yyyy-MM-dd HH:mm:ss" />
+
+			<entry key="BUILD_VERSION" type="string" value="${version}" />
+			
+			<entry key="DEBUG" type="string" value="${debug}" />
+		</propertyfile>
+
+		<copy file="${version-class}.template" tofile="${version-class}" 
+			overwrite="yes" />
+		
+		<replace file="${version-class}" propertyfile="${build-number-file}">
+			<replacefilter token="@BUILD_VERSION@" property="BUILD_VERSION" />
+			<replacefilter token="@BUILD_NUMBER@" property="BUILD_NUMBER" />
+			<replacefilter token="@BUILD_DATE@" property="BUILD_DATE" />
+			<replacefilter token="@DEBUG@" property="DEBUG" />
+		</replace>
+
 	</target>
 </project>

@@ -9,11 +9,12 @@ import org.yellcorp.lib.xml.XMLTraverser;
 /**
  * HTMLCleanFilter accepts XML objects representing XHTML documents and
  * transforms them according to the subset of HTML supported by Flash's
- * native TextField.  This is an optional 3rd step in cleaning HTML
+ * native TextField.  This is an optional third step in cleaning HTML
  * documents for display in Flash.
  *
  * Unsupported attributes and and unsupported tags with inline
- * layout are stripped, unsupported block layout tags are converted to <p>
+ * layout are stripped, unsupported block layout tags are converted to
+ * &lt;p&gt;
  */
 public class HTMLCleanFilter
 {

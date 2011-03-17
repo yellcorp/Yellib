@@ -18,6 +18,9 @@ import org.yellcorp.lib.relexer.Lexer;
 import org.yellcorp.lib.relexer.Token;
 
 
+/**
+ * @private
+ */
 public class Parser
 {
     private static var _tokenPattern:RegExp;

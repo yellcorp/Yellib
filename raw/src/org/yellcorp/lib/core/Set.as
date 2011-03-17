@@ -12,8 +12,8 @@ import flash.utils.flash_proxy;
  * keys in a flash.utils.Dictionary, that is, strict equality (===).
  *
  * This class extends flash.utils.Proxy to support
- * <code>for each ... in</code> iteration, but as there are no keys,
- * <code>for ... in</code> iteration is not supported, and neither is []
+ * <code>for each...in</code> iteration, but as there are no keys,
+ * <code>for...in</code> iteration is not supported, and neither is []
  * access.
  */
 public class Set extends Proxy
@@ -26,7 +26,7 @@ public class Set extends Proxy
      *
      * @param initialElements The initial elements of the set. This can be
      *                        any object that supports
-     *                        <code>for each ... in</code> iteration,
+     *                        <code>for each...in</code> iteration,
      *                        including other Set instances. If this value
      *                        is <code>null</code>, an empty Set is created.
      */
@@ -123,10 +123,10 @@ public class Set extends Proxy
      * that element is ignored.
      *
      * @param iterable  The source of elements to add. This can be any
-     *                  object that supports <code>for each ... in</code>
+     *                  object that supports <code>for each...in</code>
      *                  iteration, for example Objects, Dictionaries, Arrays
-     *                  and other Sets. If an Object is passed in, only its
-     *                  values are added as elements.
+     *                  and other Sets. If an Object or Dictionary is passed
+     *                  in, only its values are added as elements.
      */
     public function addIterable(iterable:*):void
     {
@@ -163,8 +163,8 @@ public class Set extends Proxy
      * Removes a number of elements from the Set.
      *
      * @param iterable  The source of elements to remove. This can be any
-     *                  object that supports <code>for each ... in</code>
-     *                  iteration. If an element in <code>iterable</cod>
+     *                  object that supports <code>for each...in</code>
+     *                  iteration. If an element in <code>iterable</code>
      *                  does not exist in this Set, it is skipped.
      */
     public function removeIterable(iterable:*):void
@@ -185,7 +185,8 @@ public class Set extends Proxy
 
     /**
      * Removes some element from the Set and returns it.  Exactly which
-     * element is returned is not defined, as the Set is unordered.
+     * element is returned is not defined, as the Set is unordered. This can
+     * be used to destructively iterate over a Set's elements.
      *
      * @return An element from the Set, or <code>null</code> if the Set is
      *         empty.
@@ -304,6 +305,9 @@ public class Set extends Proxy
     // proxy implementation
     private var _currentIteration:Array;
 
+    /**
+     * @private
+     */
     override flash_proxy function nextNameIndex(index:int):int
     {
         if (index < _length)
@@ -317,6 +321,9 @@ public class Set extends Proxy
         }
     }
 
+    /**
+     * @private
+     */
     override flash_proxy function nextValue(index:int):*
     {
         if (!_currentIteration) _currentIteration = toArray();

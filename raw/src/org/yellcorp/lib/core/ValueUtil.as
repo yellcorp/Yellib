@@ -7,7 +7,8 @@ public class ValueUtil
 {
     /**
      * Returns the first argument that isn't <code>null</code> or
-     * <code>undefined</code>.
+     * <code>undefined</code>. If there is no such argument, returns
+     * <code>null</code>.
      */
     public static function firstNonNull(... args):*
     {
@@ -20,7 +21,8 @@ public class ValueUtil
 
     /**
      * Returns the first argument that isn't <code>NaN</code>,
-     * <code>Infinity</code> or <code>-Infinity</code>.
+     * <code>Infinity</code> or <code>-Infinity</code>. If there is no
+     * such argument, returns <code>NaN</code>.
      */
     public static function firstFinite(... numbers):Number
     {

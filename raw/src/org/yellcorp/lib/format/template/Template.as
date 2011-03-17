@@ -7,7 +7,7 @@ import org.yellcorp.lib.format.template.renderer.Renderer;
 /**
  * A Template encapsulates a format string, which may be a mix of literal
  * text, and specially formatted placeholders that refer to property
- * indices or names. The <code>formatValues</code> method accepts an
+ * indices or names. The <code>fill</code> method accepts an
  * object, and uses its properties to populate the format string's
  * placeholders.
  *
@@ -74,6 +74,7 @@ import org.yellcorp.lib.format.template.renderer.Renderer;
  * are escaped with backslashes.  In String literals, backslashes have to be
  * double-escaped.
  *
+ * <listing version="3.0">
  * Template.format("The string \\{name} is replaced with {name}",
  *                 { name: "Gunnar Magnusson" });
  *
@@ -143,7 +144,7 @@ public class Template
      *                   left unclosed.
      *
      * @throws ArgumentError If <code>open</code> or <code>close</code> is
-     *                   null or an empty String, or if
+     *                   <code>null</code> or an empty String, or if
      *                   <code>escapeChar</code> is longer than 1 character.
      */
     public function Template(format:String,

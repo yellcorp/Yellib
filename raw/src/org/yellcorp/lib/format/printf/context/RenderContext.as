@@ -1,5 +1,8 @@
 package org.yellcorp.lib.format.printf.context
 {
+/**
+ * @private
+ */
 public class RenderContext
 {
     private var args:Array;

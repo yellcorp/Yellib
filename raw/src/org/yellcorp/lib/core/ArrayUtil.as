@@ -26,6 +26,9 @@ public class ArrayUtil
      */
     public static function zip(... arrays):Array
     {
+        // TODO: this is not quite how Python works, Python returns
+        // values with equal indices as tuples
+
         var result:Array = new Array();
         var currentArray:Array;
         var len:int = 0;

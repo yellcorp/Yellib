@@ -12,16 +12,15 @@ import flash.geom.Rectangle;
 public class FitUtil
 {
     /**
-     * Calculations should scale the source rectangle until both
-     * its height and width fit entirely within the target rectangle.
-     * May introduce letter- or pillar-boxing.
+     * Scales the source rectangle proportionally to fit entirely within
+     * the target rectangle.
      */
     public static const MODE_FIT:String = "fit";
 
     /**
-     * Calculations should scale the source rectangle either its
-     * height or width match the target rectangle.  Horizontal or
-     * vertical edges may be cropped.
+     * Scales the source rectangle proportionally to fill the target
+     * rectangle.  Parts of the source rectangle may sit outside the
+     * target rectangle.
      */
     public static const MODE_FILL:String = "fill";
 
@@ -36,19 +35,17 @@ public class FitUtil
      * @param target   The rectangle to fit <code>source</code> into.
      * @param mode     Calculation mode: <code>MODE_FIT</code> or
      *                 <code>MODE_FILL</code>
-     * @param xAlign   X alignment. A number from 0 to 1.
-     *                 0 = align left edges
-     *                 1 = align right edges
-     *                 0.5 = centre horizontally
-     *                 Other values interpolate between these values.
-     * @param yAlign   Y alignment. A number from 0 to 1.
-     *                 0 = align top edges
-     *                 1 = align bottom edges
-     *                 0.5 = centre vertically
-     *                 Other values interpolate between these values.
-     * @param rounding Round the new values of <code>source</code>
-     *                 <code>x</code>, <code>y</code>, <code>width</code>
-     *                 and <code>height</code> to the nearest whole number.
+     * @param xAlign   X alignment. A number from 0 to 1. 0 aligns left
+     *                 edges, 1 aligns right edges, and 0.5 centres
+     *                 horizontally. Other values interpolate between these
+     *                 values.
+     * @param yAlign   Y alignment. A number from 0 to 1. 0 aligns top
+     *                 edges, 1 aligns bottom edges, and 0.5 centres
+     *                 vertically. Other values interpolate between these
+     *                 values.
+     * @param rounding Rounds the calculated values of <code>x</code>,
+     *                 <code>y</code>, <code>width</code> and
+     *                 <code>height</code> to the nearest whole number.
      * @return         Nothing. The <code>Rectangle</code> passed into the
      *                 source argument is modified.
      */
@@ -97,15 +94,14 @@ public class FitUtil
      *                 To keep a copy of the source rectangle,
      *                 the caller should clone it themselves.
      * @param target   The rectangle to align <code>source</code> to.
-     * @param xAlign   X alignment. A number from 0 to 1.
-     *                 0 = align left edges
-     *                 1 = align right edges
-     *                 0.5 = centre horizontally
-     *                 Other values interpolate between these values.
-     * @param yAlign   Y alignment. A number from 0 to 1.
-     *                 0 = align top edges
-     *                 1 = align bottom edges
-     *                 0.5 = centre vertically
+     * @param xAlign   X alignment. A number from 0 to 1. 0 aligns left
+     *                 edges, 1 aligns right edges, and 0.5 centres
+     *                 horizontally. Other values interpolate between these
+     *                 values.
+     * @param yAlign   Y alignment. A number from 0 to 1. 0 aligns top
+     *                 edges, 1 aligns bottom edges, and 0.5 centres
+     *                 vertically. Other values interpolate between these
+     *                 values.
      *                 Other values interpolate between these values.
      * @return         Nothing. The <code>Rectangle</code> passed into the
      *                 <code>source</code> argument is modified.

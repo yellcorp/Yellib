@@ -3,6 +3,9 @@ package org.yellcorp.lib.format.template.lexer
 import org.yellcorp.lib.core.RegExpUtil;
 
 
+/**
+ * @private
+ */
 public class SpecificEscapeLexer implements Lexer
 {
     private var _open:String;

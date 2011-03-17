@@ -120,9 +120,9 @@ public class TimeoutManager
     }
 
     /**
-     * Gets the function reference associated with an id
+     * Gets the function reference associated with an id.
      *
-     * @param id The id of the function to retrieve
+     * @param id The id of the function to retrieve.
      * @return A reference to the function, or null if id doesn't exist.
      */
     public function getClosureById(id:String):Function
@@ -173,12 +173,11 @@ public class TimeoutManager
 
 
     /**
-     * Gets the delay associated with an id.  Note that the value returned
-     * is relative to the time the function was added, not necessarily the
-     * current time.
+     * Gets the arguments associated with an id.
      *
-     * @param id The id of the function to retrieve
-     * @return The delay in milliseconds, or Number.NaN if id doesn't exist.
+     * @param  id  The id of the arguments to retrieve
+     * @return The arguments as an array, or <code>null</code> if id doesn't
+     *         exist.
      */
     public function getArgumentsById(id:String):Array
     {
@@ -189,7 +188,7 @@ public class TimeoutManager
     /**
      * Changes the function arguments associated with an id.
      *
-     * @param id           The id of the delay to change
+     * @param id           The id of the arguments to change
      * @param newArguments The new arguments
      * @return <code>true</code> if the id exists and the arguments were
      *         changed, <code>false</code> otherwise.

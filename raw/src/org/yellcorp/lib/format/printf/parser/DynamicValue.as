@@ -9,6 +9,9 @@ import org.yellcorp.lib.format.printf.context.Resolver;
 import org.yellcorp.lib.relexer.Token;
 
 
+/**
+ * @private
+ */
 public class DynamicValue
 {
     private var _resolver:Resolver;

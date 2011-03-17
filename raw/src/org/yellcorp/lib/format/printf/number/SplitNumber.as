@@ -1,5 +1,8 @@
 package org.yellcorp.lib.format.printf.number
 {
+/**
+ * @private
+ */
 public interface SplitNumber
 {
     function get isNotANumber():Boolean;

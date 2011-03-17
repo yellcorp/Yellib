@@ -1,9 +1,9 @@
 package org.yellcorp.lib.core
 {
 /**
- * Generic utilities for manipulating mapping objects - i.e. Objects with
- * dynamic properties, Dictionaries, Arrays, anything that can be accessed
- * using [ ]
+ * Generic utilities for manipulating mapping objects - Objects with
+ * dynamic properties, Dictionaries, Arrays, anything containing values that
+ * can be accessed using [ ].
  */
 public class MapUtil
 {
@@ -190,8 +190,7 @@ public class MapUtil
      *
      * MapUtil.mergeSubset(display, tween, [ "x", "y" ]);
      *
-     * // tween ==
-     * // {
+     * // tween == {
      * //     alpha:    0,
      * //     rotation: 0,
      * //     x:        200,

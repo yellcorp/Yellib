@@ -4,6 +4,9 @@ import org.yellcorp.lib.format.NativeNumberString;
 import org.yellcorp.lib.format.printf.options.FloatFormatOptions;
 
 
+/**
+ * @private
+ */
 public class SplitNativeNumber implements SplitNumber
 {
     private var options:FloatFormatOptions;

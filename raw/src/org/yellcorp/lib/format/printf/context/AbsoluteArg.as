@@ -1,5 +1,8 @@
 package org.yellcorp.lib.format.printf.context
 {
+/**
+ * @private
+ */
 public class AbsoluteArg implements Resolver
 {
     private var _index:int;

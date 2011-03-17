@@ -34,6 +34,20 @@ public class Statistics
         return Math.min.apply(Math, values);
     }
 
+    /**
+     * Returns the arithmetic mean (average) of numbers in an Array. An
+     * optional weighting array can be provided.
+     *
+     * @param values  An array of numbers to average.
+     * @param weights An array of weights. If not provided, all elements in
+     *                the <code>values</code> are considered equally
+     *                weighted. If provided, it must have the same number
+     *                of elements as <code>values</code>.
+     *
+     * @return The arithmetic mean.
+     * @throws ArgumentError If a weights array is passed and it does not
+     *                have the same number of elements as the values array.
+     */
     public static function mean(values:Array, weights:Array = null):Number
     {
         var valueSum:Number = 0;

@@ -44,7 +44,7 @@ public class HTMLReference
 
     /**
      * True if passed the name of a standard HTML tag or popular
-     * non-standard one.  The name should be the string alone - no < or >
+     * non-standard one.  The name should be the string alone - no &lt; or &gt;
      */
     public function isHTMLTag(tagName:String):Boolean
     {
@@ -53,7 +53,7 @@ public class HTMLReference
 
     /**
      * True if passed the name of a tag defined as empty.  An empty tag
-     * is one that allows no child tags or text.  <img> is an example.
+     * is one that allows no child tags or text.  &lt;img&gt; is an example.
      */
     public function isEmptyTag(tagName:String):Boolean
     {
@@ -78,9 +78,9 @@ public class HTMLReference
 
     /**
      * True if the tag does not require attributes.  This is more
-     * heuristic than strict.  For example, by the standard, <script> tags
+     * heuristic than strict.  For example, by the standard, &lt;script&gt; tags
      * should always have attributes, but browsers widely assume JavaScript
-     * if a type is not defined.  Conversely, <a> can be empty but is
+     * if a type is not defined.  Conversely, &lt;a&gt; can be empty but is
      * rarely useful without either name or href.
      */
     public function isAttrOptionalTag(tagName:String):Boolean

@@ -1,0 +1,10 @@
+package org.yellcorp.lib
+{
+public class Version
+{
+    public static const VERSION:String = "@BUILD_VERSION@";
+    public static const BUILD_NUMBER:String = "@BUILD_NUMBER@";
+    public static const BUILD_DATE:String = "@BUILD_DATE@";
+    public static const DEBUG:Boolean = @DEBUG@;
+}
+}

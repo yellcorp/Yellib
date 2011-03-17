@@ -5,6 +5,9 @@ import org.yellcorp.lib.core.StringUtil;
 import org.yellcorp.lib.format.printf.options.HexFloatFormatOptions;
 
 
+/**
+ * @private
+ */
 public class SplitHexFloat implements SplitNumber
 {
     private var value:Number;
