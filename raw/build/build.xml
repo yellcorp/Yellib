@@ -1,0 +1,25 @@
+<project name="YellLib AS3 Baseline" basedir="..">
+	<property name="src" location="src" />
+	<property name="include" location="${src}/org/yellcorp" />
+	<property name="bin" location="bin" />
+	<property name="build" location="build" />
+	<property name="version" value="0.1.0" />
+	<property name="swcname" value="yell_0_1_0.swc" />
+	
+	<property file="${build}/build.properties" />
+	
+	<target name="compile" description="Compiles to SWC">
+		<java jar="${flex_sdk}/lib/compc.jar" fork="true" dir="${flex_sdk}/frameworks">
+			<arg value="-source-path=${fl_src}" />
+			<arg value="-source-path=${src}" />
+			<arg value="-debug=true" />
+			<arg value="-optimize=true" />
+			<arg value="-output" />
+			<arg value="${bin}/${swcname}" />
+			<arg value="-target-player=9" />
+			<arg value="-verbose-stacktraces=true" />
+			<arg value="-include-sources" />
+			<arg value="${include}" />
+		</java>
+	</target>
+</project>
