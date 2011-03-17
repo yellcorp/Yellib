@@ -7,7 +7,7 @@ import org.yellcorp.lib.random.generators.RandomNumberGenerator;
 public class ArrayRandomIterator implements Iterator
 {
     private var array:Array;
-    private var remaining:uint;
+    private var remaining:int;
     private var choices:Array;
     private var arrayIndex:int;
 
@@ -20,7 +20,7 @@ public class ArrayRandomIterator implements Iterator
         reset();
     }
 
-    public function valid():Boolean
+    public function get valid():Boolean
     {
         return remaining >= 0;
     }

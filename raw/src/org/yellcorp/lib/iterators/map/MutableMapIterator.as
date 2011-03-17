@@ -2,6 +2,11 @@ package org.yellcorp.lib.iterators.map
 {
 public class MutableMapIterator extends MapIterator
 {
+    public function MutableMapIterator(map:*)
+    {
+        super(map);
+    }
+
     public function remove():void
     {
         delete map[currentKey];

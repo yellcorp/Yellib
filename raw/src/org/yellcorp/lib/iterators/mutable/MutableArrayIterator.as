@@ -6,6 +6,11 @@ import org.yellcorp.lib.iterators.readonly.ArrayIterator;
 // god these names are getting java-ey already
 public class MutableArrayIterator extends ArrayIterator implements MutableIterator
 {
+    public function MutableArrayIterator(array:Array, reverse:Boolean = false)
+    {
+        super(array, reverse);
+    }
+
     public function set current(v:*):void
     {
         array[index] = v;

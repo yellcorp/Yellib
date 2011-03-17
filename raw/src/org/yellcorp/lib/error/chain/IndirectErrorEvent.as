@@ -29,7 +29,7 @@ public class IndirectErrorEvent extends ErrorEvent
 
     public override function clone():Event
     {
-        return new (constructor as Class)(type, _cause, bubbles, cancelable, text);
+        return new (Object(this).constructor as Class)(type, _cause, bubbles, cancelable, text);
     }
 
     public override function toString():String
