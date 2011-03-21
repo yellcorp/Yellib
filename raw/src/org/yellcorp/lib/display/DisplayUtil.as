@@ -109,7 +109,7 @@ public class DisplayUtil
 
     public static function setChildAttached(child:DisplayObject, parent:DisplayObjectContainer, attach:Boolean):void
     {
-        if (attach != parent.contains(child))
+        if (attach != (parent == child.parent))
         {
             if (attach)
             {
