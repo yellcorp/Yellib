@@ -91,7 +91,7 @@ public class BaseButton extends BaseDisplay
 
     private function updateInteractive():void
     {
-        mouseEnabled = _selected ? (_enabled && _interactiveWhenSelected) : _enabled;
+        mouseEnabled = _enabled && (!_selected || _interactiveWhenSelected);
     }
 
     private function _onOver(event:MouseEvent):void
