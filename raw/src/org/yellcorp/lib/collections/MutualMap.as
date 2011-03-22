@@ -11,12 +11,12 @@ import flash.utils.Dictionary;
  * in addition to the usual requirement that keys are unique, all values
  * must be unique too.
  */
-public class TwoWayDict
+public class MutualMap
 {
     private var keyToVal:Dictionary;
     private var valToKey:Dictionary;
 
-    public function TwoWayDict()
+    public function MutualMap()
     {
         clear();
     }
