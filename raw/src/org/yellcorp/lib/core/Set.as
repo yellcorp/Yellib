@@ -21,6 +21,8 @@ public class Set extends Proxy
     private var dict:Dictionary;
     private var _length:uint;
 
+    private var _currentLoop:Array;
+
     /**
      * Creates a new Set.
      *
@@ -303,8 +305,6 @@ public class Set extends Proxy
     }
 
     // proxy implementation
-    private var _currentIteration:Array;
-
     /**
      * @private
      */
@@ -312,11 +312,14 @@ public class Set extends Proxy
     {
         if (index < _length)
         {
+            if (index == 0)
+            {
+                _currentLoop = toArray();
+            }
             return index + 1;
         }
         else
         {
-            _currentIteration = null;
             return 0;
         }
     }
@@ -326,8 +329,7 @@ public class Set extends Proxy
      */
     override flash_proxy function nextValue(index:int):*
     {
-        if (!_currentIteration) _currentIteration = toArray();
-        return _currentIteration[index - 1];
+        return _currentLoop[index - 1];
     }
 
     /**
