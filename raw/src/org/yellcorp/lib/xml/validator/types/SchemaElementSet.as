@@ -29,14 +29,14 @@ public class SchemaElementSet
 
     public function add(element:SchemaElement):void
     {
-        if (_byName.hasKey(element.name))
+        if (_byName.hasProperty(element.name))
         {
             throw new ArgumentError("Element '" + element.name + "' already defined");
         }
         else
         {
             _byOrder.push(element);
-            _byName.setValue(element.name, element);
+            _byName.setProperty(element.name, element);
         }
     }
 
@@ -52,7 +52,7 @@ public class SchemaElementSet
 
     public function getByName(name:QName):SchemaElement
     {
-        return _byName.getValue(name);
+        return _byName.getProperty(name);
     }
 }
 }

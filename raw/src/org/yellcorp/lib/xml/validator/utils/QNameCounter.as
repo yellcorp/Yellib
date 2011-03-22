@@ -14,13 +14,13 @@ public class QNameCounter
 
     public function getCount(qname:QName):int
     {
-        return _count.getValue(qname) || 0;
+        return _count.getProperty(qname) || 0;
     }
 
     public function inc(qname:QName):int
     {
-        var newCount:int = (_count.getValue(qname) || 0) + 1;
-        _count.setValue(qname, newCount);
+        var newCount:int = (_count.getProperty(qname) || 0) + 1;
+        _count.setProperty(qname, newCount);
         return newCount;
     }
 }
