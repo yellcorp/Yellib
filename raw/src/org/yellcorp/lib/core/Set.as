@@ -66,40 +66,6 @@ public class Set extends Proxy
     }
 
     /**
-     * Tests whether another Set is equal to this one.  Two sets are equal
-     * if they have the same number of elements and every element in one
-     * set is also present in the other.
-     *
-     * @param other  The Set to compare with.
-     * @return <code>true</code> if both Sets are equal. <code>false</code>
-     *         otherwise.
-     */
-    public function equals(other:Set):Boolean
-    {
-        var item:*;
-
-        if (this === other)
-        {
-            return true;
-        }
-        else if (_length != other._length)
-        {
-            return false;
-        }
-        else
-        {
-            for each (item in dict)
-            {
-                if (!other.contains(item))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    /**
      * Adds an element to the Set.  This has no effect if the element
      * already exists in the Set.
      *
@@ -209,6 +175,19 @@ public class Set extends Proxy
     }
 
     /**
+     * Tests whether another Set is equal to this one.  Two sets are equal
+     * if every element in one set is also present in the other.
+     *
+     * @param other  The Set to compare with.
+     * @return <code>true</code> if both Sets are equal. <code>false</code>
+     *         otherwise.
+     */
+    public function equals(other:Set):Boolean
+    {
+        return other && _length === other._length && isSubsetOf(other);
+    }
+
+    /**
      * Tests if this Set is a subset of, or equal to, another.  A set X is
      * a subset of Y if all the elements in X are also in Y.
      *
@@ -216,15 +195,19 @@ public class Set extends Proxy
      * @return <code>true</code> if this Set is a subset of, or equal to
      *         <code>test</code>
      */
-    public function isSubsetOf(test:Set):Boolean
+    public function isSubsetOf(other:Set):Boolean
     {
         var item:*;
 
-        if (this === test)
+        if (!other)
+        {
+            return false;
+        }
+        else if (this === other)
         {
             return true;
         }
-        else if (this.length > test.length)
+        else if (this.length > other.length)
         {
             return false;
         }
@@ -232,7 +215,7 @@ public class Set extends Proxy
         {
             for each (item in dict)
             {
-                if (!test.contains(item))
+                if (!other.contains(item))
                 {
                     return false;
                 }
@@ -249,9 +232,9 @@ public class Set extends Proxy
      * @return <code>true</code> if this Set is a superset of, or equal to
      *         <code>test</code>
      */
-    public function isSupersetOf(test:Set):Boolean
+    public function isSupersetOf(other:Set):Boolean
     {
-        return test.isSubsetOf(this);
+        return other.isSubsetOf(this);
     }
 
     /**
