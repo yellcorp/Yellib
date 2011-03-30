@@ -2,7 +2,7 @@ package org.yellcorp.lib.core
 {
 public class RegExpUtil
 {
-    public static const REGEX_CHARS:RegExp = /([\^$.*+?|\\()[\]{}])/g;
+    public static const REGEX_METACHARS:RegExp = /([\^$.*+?|\\()[\]{}])/g;
 
     public static function createLiteralRegExp(literalString:String, flags:String = ""):RegExp
     {
@@ -24,7 +24,7 @@ public class RegExpUtil
     // function to be passed to Array.map
     public static function escapeRegExp(literalString:String, index:* = null, array:* = null):String
     {
-        return literalString.replace(REGEX_CHARS, "\\$1");
+        return literalString.replace(REGEX_METACHARS, "\\$1");
     }
 
     /**
