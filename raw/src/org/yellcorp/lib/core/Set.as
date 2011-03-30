@@ -184,7 +184,7 @@ public class Set extends Proxy
      */
     public function equals(other:Set):Boolean
     {
-        return other && _length === other._length && isSubsetOf(other);
+        return other && _length === other._length && testSubset(other);
     }
 
     /**
@@ -197,19 +197,16 @@ public class Set extends Proxy
      */
     public function isSubsetOf(other:Set):Boolean
     {
+        return other && _length <= other._length && testSubset(other);
+    }
+
+    private function testSubset(other:Set):Boolean
+    {
         var item:*;
 
-        if (!other)
-        {
-            return false;
-        }
-        else if (this === other)
+        if (this === other)
         {
             return true;
-        }
-        else if (this.length > other.length)
-        {
-            return false;
         }
         else
         {
