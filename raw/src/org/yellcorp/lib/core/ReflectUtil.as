@@ -29,29 +29,25 @@ public class ReflectUtil
 
     public static function classInDotNotation(className:String):String
     {
-        var colons:int = className.lastIndexOf("::");
-        if (colons >= 0)
-        {
-            return className.substr(0, colons) + "." +
-                   className.substr(colons + 2);
-        }
-        else
-        {
-            return className;
-        }
+        return replaceLast(className, "::", ".");
     }
 
     public static function classInColonNotation(className:String):String
     {
-        var dot:int = className.lastIndexOf(".");
-        if (dot >= 0)
+        return replaceLast(className, ".", "::");
+    }
+
+    private static function replaceLast(string:String, from:String, to:String):String
+    {
+        var delim:int = string.lastIndexOf(from);
+        if (delim >= 0)
         {
-            return className.substr(0, dot) + "::" +
-                   className.substr(dot + 1);
+            return string.substr(0, delim) + to +
+                   string.substr(delim + from.length);
         }
         else
         {
-            return className;
+            return string;
         }
     }
 }
