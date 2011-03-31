@@ -122,7 +122,7 @@ public class Template
     /**
      * Creates a new <code>Template</code> instance with a single format
      * String. The format string is parsed once and then used for all
-     * calls to <code>formatValues</code>.
+     * calls to <code>fill</code>.
      *
      * @param format     The format string containing a mix of literal text
      *                   and property placeholders.
