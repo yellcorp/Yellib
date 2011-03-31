@@ -1,119 +1,111 @@
 package org.yellcorp.lib.collections
 {
 import flash.utils.Dictionary;
+import flash.utils.flash_proxy;
 
 
-public class ChainMap
+public class ChainMap extends BaseMap
 {
-    private var data:Dictionary;
-    private var _parent:ChainMap;
+    public var parent:ChainMap;
 
-    public function ChainMap(initialMap:Object = null)
+    public function ChainMap(initialContents:* = null, parent:ChainMap = null)
     {
-        setFromMap(initialMap);
-    }
-
-    public function getValue(key:*):*
-    {
-        if (hasOwnKey(key))
-        {
-            return data[key];
-        }
-        else if (_parent)
-        {
-            return _parent.getValue(key);
-        }
-        else
-        {
-            return data[key];
-        }
-    }
-
-    public function setValue(key:*, value:*):*
-    {
-        return data[key] = value;
-    }
-
-    public function deleteKey(key:*):Boolean
-    {
-        return (delete data[key]);
-    }
-
-    public function hasKey(key:*):Boolean
-    {
-        if (hasOwnKey(key))
-        {
-            return true;
-        }
-        else if (_parent)
-        {
-            return _parent.hasKey(key);
-        }
-        else
-        {
-            return false;
-        }
+        this.parent = parent;
+        super(initialContents);
     }
 
     public function hasOwnKey(key:*):Boolean
     {
-        return data.hasOwnProperty(key);
+        return store.hasOwnProperty(key);
     }
 
-    public function get parent():ChainMap
+    public function deleteAll(key:*):void
     {
-        return _parent;
-    }
-
-    public function set parent(parent:ChainMap):void
-    {
-        _parent = parent;
-    }
-
-    public function setFromMap(map:Object):void
-    {
-        var key:*;
-
-        data = new Dictionary();
-
-        if (map != null)
+        for (var node:ChainMap = this; node; node = node.parent)
         {
-            for (key in map)
+            if (node.store.hasOwnProperty(key))
             {
-                data[key] = map[key];
+                delete node.store[key];
             }
         }
     }
 
-    public function clear():void
+    public function get ownKeys():Array
     {
-        data = new Dictionary();
+        return super.keys;
     }
 
-    public function toDictionary(ownValuesOnly:Boolean = false):Dictionary
+    public function get ownValues():Array
     {
-        var result:Dictionary = new Dictionary();
-
-        mergeInto(result, !ownValuesOnly);
-
-        return result;
+        return super.values;
     }
 
-    private function mergeInto(target:Dictionary, recursive:Boolean):void
+    public override function get keys():Array
     {
-        var key:*;
+        var kv:Array = [ ];
+        evaluateEntries(kv, null);
+        return kv;
+    }
 
-        for (key in data)
+    public override function get values():Array
+    {
+        var vv:Array = [ ];
+        evaluateEntries(vv, null);
+        return vv;
+    }
+
+    override flash_proxy function getProperty(key:*):*
+    {
+        for (var node:ChainMap = this; node; node = node.parent)
         {
-            if (!target.hasOwnProperty(key))
+            if (node.store.hasOwnProperty(key))
             {
-                target[key] = data[key];
+                return node.store[key];
+            }
+        }
+        return undefined;
+    }
+
+    override flash_proxy function hasProperty(key:*):Boolean
+    {
+        for (var node:ChainMap = this; node; node = node.parent)
+        {
+            if (node.store.hasOwnProperty(key))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected override function startIteration():void
+    {
+        iterKeys = [ ];
+        iterValues = [ ];
+        evaluateEntries(iterKeys, iterValues);
+    }
+
+    private function evaluateEntries(keys:Array, values:Array):void
+    {
+        var flat:Dictionary = new Dictionary();
+        var node:ChainMap;
+        var k:*;
+
+        for (node = this; node; node = node.parent)
+        {
+            for each (k in node.store)
+            {
+                if (!flat.hasOwnProperty(k))
+                {
+                    flat[k] = node.store[k];
+                }
             }
         }
 
-        if (recursive && _parent)
+        for (k in flat)
         {
-            _parent.mergeInto(target, recursive);
+            if (keys) keys.push(k);
+            if (values) values.push(flat[k]);
         }
     }
 }

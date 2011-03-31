@@ -77,9 +77,7 @@ public class MutualMap
 
     public function toDictionary():Dictionary
     {
-        var newDict:Dictionary = new Dictionary();
-        MapUtil.merge(keyToVal, newDict);
-        return newDict;
+        return MapUtil.copy(keyToVal, new Dictionary());
     }
 
     public function isPair(key:*, value:*):Boolean

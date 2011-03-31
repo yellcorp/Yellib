@@ -1,19 +1,20 @@
 package org.yellcorp.lib.collections
 {
+import flash.utils.Dictionary;
 import flash.utils.Proxy;
 import flash.utils.flash_proxy;
 
 
-public class OrderedMap extends Proxy
+public class OrderedMap extends Proxy implements UntypedMap
 {
-    private var keyToValue:Object;
-    private var keyToIndex:Object;
+    private var keyToValue:Dictionary;
+    private var keyToIndex:Dictionary;
     private var keyOrder:Array;
 
     public function OrderedMap()
     {
-        keyToValue = { };
-        keyToIndex = { };
+        keyToValue = new Dictionary();
+        keyToIndex = new Dictionary();
         keyOrder = [ ];
     }
 
@@ -92,6 +93,18 @@ public class OrderedMap extends Proxy
         {
             return false;
         }
+    }
+
+    public function get keys():Array
+    {
+        return keyOrder.slice();
+    }
+
+    public function get values():Array
+    {
+        var vv:Array = [ ];
+        for each (var k:* in keyOrder) vv.push(keyToValue[k]);
+        return vv;
     }
 
     override flash_proxy function deleteProperty(key:*):Boolean

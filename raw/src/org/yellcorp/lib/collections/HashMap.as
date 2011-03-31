@@ -5,9 +5,11 @@ import flash.utils.Proxy;
 import flash.utils.flash_proxy;
 
 
-public class HashMap extends Proxy
+public class HashMap extends Proxy implements UntypedMap
 {
     private var store:Dictionary;
+    private var iterKeys:Array;
+    private var iterValues:Array;
 
     public function HashMap()
     {
@@ -24,11 +26,24 @@ public class HashMap extends Proxy
         return a === b;
     }
 
+    public function get keys():Array
+    {
+        var kv:Array = [ ];
+        evaluateEntries(kv, null);
+        return kv;
+    }
+
+    public function get values():Array
+    {
+        var vv:Array = [ ];
+        evaluateEntries(null, vv);
+        return vv;
+    }
+
     override flash_proxy function hasProperty(key:*):Boolean
     {
-        var bucket:Dictionary;
+        var bucket:Dictionary = store[hash(key)];
 
-        bucket = store[hash(key)];
         if (bucket)
         {
             return findEqualKey(bucket, key) !== undefined;
@@ -41,10 +56,9 @@ public class HashMap extends Proxy
 
     override flash_proxy function getProperty(key:*):*
     {
-        var bucket:Dictionary;
+        var bucket:Dictionary = store[hash(key)];
         var keyMatch:*;
 
-        bucket = store[hash(key)];
         if (bucket)
         {
             keyMatch = findEqualKey(bucket, key);
@@ -58,12 +72,10 @@ public class HashMap extends Proxy
 
     override flash_proxy function setProperty(key:*, value:*):void
     {
-        var bucket:Dictionary;
-        var keyHash:*;
+        var keyHash:* = hash(key);
+        var bucket:Dictionary = store[keyHash];
         var oldKey:*;
 
-        keyHash = hash(key);
-        bucket = store[keyHash];
         if (bucket)
         {
             oldKey = findEqualKey(bucket, key);
@@ -86,12 +98,10 @@ public class HashMap extends Proxy
 
     override flash_proxy function deleteProperty(key:*):Boolean
     {
-        var bucket:Dictionary;
-        var keyHash:*;
+        var keyHash:* = hash(key);
+        var bucket:Dictionary = store[keyHash];
         var keyMatch:*;
 
-        keyHash = hash(key);
-        bucket = store[keyHash];
         if (bucket)
         {
             keyMatch = findEqualKey(bucket, key);
@@ -111,6 +121,35 @@ public class HashMap extends Proxy
         return false;
     }
 
+    override flash_proxy function nextNameIndex(index:int):int
+    {
+        if (index == 0)
+        {
+            iterKeys = [ ];
+            iterValues = [ ];
+            evaluateEntries(iterKeys, iterValues);
+        }
+
+        if (index < iterKeys.length)
+        {
+            return index + 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    override flash_proxy function nextName(index:int):String
+    {
+        return iterKeys[index - 1];
+    }
+
+    override flash_proxy function nextValue(index:int):*
+    {
+        return iterValues[index - 1];
+    }
+
     private function findEqualKey(bucket:Dictionary, key:*):*
     {
         for (var search:* in bucket)
@@ -121,6 +160,18 @@ public class HashMap extends Proxy
             }
         }
         return undefined;
+    }
+
+    private function evaluateEntries(keys:Array, values:Array):void
+    {
+        for each (var bucket:Dictionary in store)
+        {
+            for (var k:* in bucket)
+            {
+                if (keys) keys.push(k);
+                if (values) values.push(bucket[k]);
+            }
+        }
     }
 }
 }
