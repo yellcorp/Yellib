@@ -36,7 +36,7 @@ public class CuePoint
         c.name = name;
         c.type = type;
         c.time = time;
-        MapUtil.merge(parameters, c.parameters);
+        MapUtil.copy(parameters, c.parameters);
         return c;
     }
 
@@ -47,7 +47,7 @@ public class CuePoint
         time = cuePointObject['time'];
         parameters = { };
         if (cuePointObject.hasOwnProperty('parameters'))
-            MapUtil.merge(cuePointObject['parameters'], parameters);
+            MapUtil.copy(cuePointObject['parameters'], parameters);
     }
 
     public function toString():String
@@ -67,7 +67,7 @@ public class CuePoint
         if (!MapUtil.isEmpty(parameters))
         {
             oParams = obj['parameters'] = { };
-            MapUtil.merge(parameters, oParams);
+            MapUtil.copy(parameters, oParams);
         }
 
         return obj;

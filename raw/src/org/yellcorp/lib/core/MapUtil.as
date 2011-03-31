@@ -1,9 +1,10 @@
 package org.yellcorp.lib.core
 {
 /**
- * Generic utilities for manipulating mapping objects - Objects with
- * dynamic properties, Dictionaries, Arrays, anything containing values that
- * can be accessed using [ ].
+ * Generic utilities for manipulating mapping objects. That is, Objects
+ * with dynamic properties, Dictionaries, Arrays, subclasses of
+ * flash.utils.Proxy, anything containing values that can be accessed using
+ * [ ].
  */
 public class MapUtil
 {
@@ -64,21 +65,88 @@ public class MapUtil
     }
 
     /**
-     * Copies the keys and values from one map to the target map.
+     * Copies the keys and values from one map to the target map. Values
+     * for source keys overwrite any identically named keys in target.
      *
-     * @param map        The map to copy.
+     * @param source     The map to copy.
      * @param target     The target map. If omitted, will create a new
      *                   <code>Object</code>
      * @return           The target map.
      */
-    public static function setFromMap(map:Object, target:* = null):*
+    public static function copy(source:*, target:* = null):*
     {
         if (target === null) target = { };
-        for (var key:* in map)
+        for (var key:* in source)
         {
-            target[key] = map[key];
+            target[key] = source[key];
         }
         return target;
+    }
+
+    /**
+     * Copies some keys and values from the source map to the target map.
+     * The keys to copy are passed in as an <code>Array</code>.
+     *
+     * @example
+     * <listing version="3.0">
+     * var display:Object = {
+     *     x:      200,
+     *     y:      300,
+     *     scaleX: 2,
+     *     scaleY: 0.5
+     * };
+     *
+     * var tween:Object = {
+     *     alpha:    0,
+     *     rotation: 0
+     * };
+     *
+     * MapUtil.copySubset(display, tween, [ "x", "y" ]);
+     *
+     * // tween == {
+     * //     alpha:    0,
+     * //     rotation: 0,
+     * //     x:        200,
+     * //     y:        300
+     * // }
+     * </listing>
+     *
+     * @param source     The map to copy from.
+     * @param target     The map to copy to.
+     * @param keyList    The list of keys to copy. If a key does not exist
+     *                   on <code>source</code>, it is ignored.
+     */
+    public static function copySubset(source:*, target:*, keyList:Array):void
+    {
+        for each (var key:* in keyList)
+        {
+            if (source[key] !== undefined)
+            {
+                target[key] = source[key];
+            }
+        }
+    }
+
+    /**
+     * Removes some keys and values from the source map and sets them in
+     * the target map.  The keys to move are passed in as an
+     * <code>Array</code>.
+     *
+     * @param source     The map to move from.
+     * @param target     The map to move to.
+     * @param keyList    The list of keys to move. If a key does not exist
+     *                   on <code>source</code>, it is ignored.
+     */
+    public static function moveSubset(source:*, target:*, keyList:Array):void
+    {
+        for each (var key:* in keyList)
+        {
+            if (source[key] !== undefined)
+            {
+                target[key] = source[key];
+                delete source[key];
+            }
+        }
     }
 
     /**
@@ -97,7 +165,6 @@ public class MapUtil
         {
             result.push(key);
         }
-
         return result;
     }
 
@@ -116,7 +183,6 @@ public class MapUtil
         {
             result.push(map[key]);
         }
-
         return result;
     }
 
@@ -148,92 +214,7 @@ public class MapUtil
         {
             result.push([key, map[key]]);
         }
-
         return result;
-    }
-
-    /**
-     * Copies all keys and values from the source map to the target map.
-     * Pretty much the same as <code>setFromMap</code>, except it assumes
-     * the target already exists and doesn't return a value.
-     *
-     * @param source     The map to copy from.
-     * @param target     The map to copy to.
-     *
-     * @see #setFromMap
-     */
-    public static function merge(source:*, target:*):void
-    {
-        for (var key:* in source)
-        {
-            target[key] = source[key];
-        }
-    }
-
-    /**
-     * Copies some keys and values from the source map to the target map.
-     * The keys to copy are passed in as an <code>Array</code>.
-     *
-     * @example
-     * <listing version="3.0">
-     * var display:Object = {
-     *     x:      200,
-     *     y:      300,
-     *     scaleX: 2,
-     *     scaleY: 0.5
-     * };
-     *
-     * var tween:Object = {
-     *     alpha:    0,
-     *     rotation: 0
-     * };
-     *
-     * MapUtil.mergeSubset(display, tween, [ "x", "y" ]);
-     *
-     * // tween == {
-     * //     alpha:    0,
-     * //     rotation: 0,
-     * //     x:        200,
-     * //     y:        300
-     * // }
-     * </listing>
-     *
-     * @param source     The map to copy from.
-     * @param target     The map to copy to.
-     * @param keyList    The list of keys to copy. If a key does not exist
-     *                   on <code>source</code>, it is ignored.
-     */
-    public static function mergeSubset(source:*, target:*, keyList:Array):void
-    {
-        for each (var key:* in keyList)
-        {
-            if (source[key] !== undefined)
-            {
-                target[key] = source[key];
-            }
-        }
-    }
-
-    /**
-     * Removes some keys and values from the source map and sets them in
-     * the target map.  The keys to move are passed in as an
-     * <code>Array</code>.
-     *
-     * @param source     The map to move from.
-     * @param target     The map to move to.
-     * @param keyList    The list of keys to move. If a key does not exist
-     *                   on <code>source</code>, it is ignored.
-     */
-    public static function moveSubset(source:*, target:*, keyList:Array):void
-    {
-        for each (var key:* in keyList)
-        {
-            if (source[key] !== undefined)
-            {
-                target[key] = source[key];
-                delete source[key];
-            }
-        }
     }
 
     /**
@@ -283,7 +264,7 @@ public class MapUtil
      * Creates an index of a map's keys. <code>indexingFunc</code> is called
      * for each key/value pair in <code>map</code>, passing in the key and
      * value as arguments.  The result of this function is then used as the
-     * key in the <code>target</code> map, with the origianl key becoming
+     * key in the <code>target</code> map, with the original key becoming
      * the new value.
      *
      * @param map           The map to index.

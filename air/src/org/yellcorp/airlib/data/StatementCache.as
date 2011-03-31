@@ -32,7 +32,7 @@ public class StatementCache
             sql.text = text;
         }
         sql.sqlConnection = connection;
-        if (parameters) MapUtil.merge(parameters, sql.parameters);
+        if (parameters) MapUtil.copy(parameters, sql.parameters);
         return sql;
     }
 

@@ -26,7 +26,7 @@ public class TextEventUtil
     public static function encodeObject(map:*):String
     {
         var urlv:URLVariables = new URLVariables();
-        MapUtil.merge(map, urlv);
+        MapUtil.copy(map, urlv);
         return urlv.toString();
     }
     public static function decodeEventString(eventString:String):Object
@@ -34,7 +34,7 @@ public class TextEventUtil
         var result:Object = { };
         var urlv:URLVariables = new URLVariables();
         urlv.decode(eventString);
-        MapUtil.merge(urlv, result);
+        MapUtil.copy(urlv, result);
         return result;
     }
 }

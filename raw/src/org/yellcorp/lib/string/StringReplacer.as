@@ -53,7 +53,7 @@ public class StringReplacer
 
     public function get replacements():Object
     {
-        return MapUtil.setFromMap(replMap, { });
+        return MapUtil.copy(replMap);
     }
 
     public function set replacements(replacementMap:Object):void

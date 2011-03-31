@@ -16,7 +16,7 @@ public class NamespacePrefixMap
         _prefixToURI = { };
         if (prefixToURI)
         {
-            MapUtil.merge(prefixToURI, _prefixToURI);
+            MapUtil.copy(prefixToURI, _prefixToURI);
         }
         if (!_prefixToURI.hasOwnProperty(NO_PREFIX))
         {
