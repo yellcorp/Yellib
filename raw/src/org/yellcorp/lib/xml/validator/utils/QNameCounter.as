@@ -5,22 +5,22 @@ import org.yellcorp.lib.collections.QNameMap;
 
 public class QNameCounter
 {
-    private var _count:QNameMap;
+    private var count:QNameMap;
 
     public function QNameCounter()
     {
-        _count = new QNameMap();
+        count = new QNameMap();
     }
 
     public function getCount(qname:QName):int
     {
-        return _count.getProperty(qname) || 0;
+        return count[qname] || 0;
     }
 
     public function inc(qname:QName):int
     {
-        var newCount:int = (_count.getProperty(qname) || 0) + 1;
-        _count.setProperty(qname, newCount);
+        var newCount:int = (count[qname] || 0) + 1;
+        count[qname] = newCount;
         return newCount;
     }
 }
