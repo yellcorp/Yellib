@@ -15,7 +15,6 @@ import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFieldType;
 import flash.text.TextFormat;
-import flash.utils.getQualifiedClassName;
 
 
 public class MouseDebugger
@@ -176,8 +175,10 @@ public class MouseDebugger
         g.lineStyle(2, color);
         g.drawRect(rect.x, rect.y, rect.width, rect.height);
         g.lineStyle(1, color);
-        g.moveTo(rect.left, rect.top + 16);
-        g.lineTo(rect.left + 16, rect.top);
+        g.moveTo(rect.left, rect.top + 24);
+        g.lineTo(rect.left + 24, rect.top);
+        g.moveTo(rect.left, rect.top);
+        g.lineTo(rect.left + 12, rect.top + 12);
     }
 
     private static function createTextField():TextField
