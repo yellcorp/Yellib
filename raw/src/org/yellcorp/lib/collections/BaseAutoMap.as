@@ -3,6 +3,8 @@ package org.yellcorp.lib.collections
 import flash.utils.flash_proxy;
 
 
+use namespace flash_proxy;
+
 public class BaseAutoMap extends BaseMap
 {
     public function BaseAutoMap(initialContents:* = null)

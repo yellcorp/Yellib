@@ -4,6 +4,8 @@ import flash.utils.Dictionary;
 import flash.utils.flash_proxy;
 
 
+use namespace flash_proxy;
+
 public class ChainMap extends BaseMap
 {
     public var parent:ChainMap;
@@ -93,7 +95,7 @@ public class ChainMap extends BaseMap
 
         for (node = this; node; node = node.parent)
         {
-            for each (k in node.store)
+            for (k in node.store)
             {
                 if (!flat.hasOwnProperty(k))
                 {

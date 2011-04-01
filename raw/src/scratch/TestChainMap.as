@@ -21,16 +21,16 @@ public class TestChainMap extends ConsoleApp
         defaults = new ChainMap({b: 'defaultB', c: 'defaultC', d: 'defaultD', e: 'defaultE'});
 
         user.parent = defaults;
-        dumpMap(user.toDictionary());
+        dumpMap(user);
 
-        user.deleteKey('b');
-        dumpMap(user.toDictionary());
+        delete user['b'];
+        dumpMap(user);
 
-        user.setValue('z', 'Z');
-        dumpMap(user.toDictionary());
+        user['z'] = 'Z';
+        dumpMap(user);
     }
 
-    private function dumpMap(m:Object):void
+    private function dumpMap(m:*):void
     {
         var k:*;
 
