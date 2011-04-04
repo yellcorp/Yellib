@@ -6,7 +6,7 @@ import org.yellcorp.lib.string.StringLiteral;
 
 public class StringConstants
 {
-    private static const constForm:RegExp = /^[A-Z0-9_]+$/;
+    private static const constForm:RegExp = /^[A-Z_$][A-Z0-9_$]*$/;
 
     private static const tokenizer:RegExp =
         /([A-Z]+)|([a-z]+)|([0-9]+)/g;
