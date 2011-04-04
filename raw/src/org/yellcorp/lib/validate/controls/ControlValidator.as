@@ -4,6 +4,7 @@ import org.yellcorp.lib.core.Disposable;
 import org.yellcorp.lib.error.AbstractCallError;
 import org.yellcorp.lib.validate.ValidationValue;
 
+import flash.events.Event;
 import flash.events.EventDispatcher;
 
 
@@ -60,12 +61,12 @@ public class ControlValidator extends EventDispatcher implements Disposable
         throw new AbstractCallError();
     }
 
-    protected final function dispatchChange():void
+    protected final function dispatchChange(event:Event = null):void
     {
         dispatchEvent(new ValidateControlEvent(ValidateControlEvent.CHANGE));
     }
 
-    protected final function dispatchChangeComplete():void
+    protected final function dispatchChangeComplete(event:Event = null):void
     {
         dispatchEvent(new ValidateControlEvent(ValidateControlEvent.CHANGE_COMPLETE));
     }
