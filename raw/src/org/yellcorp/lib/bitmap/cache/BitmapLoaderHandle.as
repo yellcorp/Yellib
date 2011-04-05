@@ -4,17 +4,19 @@ import flash.display.BitmapData;
 import flash.errors.IllegalOperationError;
 import flash.events.EventDispatcher;
 import flash.net.URLRequest;
+import flash.system.LoaderContext;
 
 
-public class BitmapCacheToken extends EventDispatcher
+public class BitmapLoaderHandle extends EventDispatcher
 {
     private var parent:BitmapCache;
     private var _bitmapData:BitmapData;
 
     internal var id:String;
     internal var url:URLRequest;
+    internal var context:LoaderContext;
 
-    public function BitmapCacheToken(parent:BitmapCache, url:URLRequest, id:String, internalKey:Internal_ctor)
+    public function BitmapLoaderHandle(parent:BitmapCache, url:URLRequest, context:LoaderContext, id:String, internalKey:Internal_ctor)
     {
         super();
 
@@ -25,12 +27,13 @@ public class BitmapCacheToken extends EventDispatcher
 
         this.parent = parent;
         this.url = url;
+        this.context = context;
         this.id = id;
     }
 
     public function start():void
     {
-        parent.startToken(this);
+        parent.startHandle(this);
     }
 
     public function get bitmapData():BitmapData

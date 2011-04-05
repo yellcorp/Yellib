@@ -10,6 +10,7 @@ import flash.events.ErrorEvent;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
 import flash.net.URLRequest;
+import flash.system.LoaderContext;
 import flash.utils.Dictionary;
 import flash.utils.getTimer;
 
@@ -20,8 +21,9 @@ public class BitmapCache
     public var contentMaxSeconds:int;
     public var maxBitmapBytes:int;
 
-    private var stateExpiry:Dictionary;
-    private var waiting:MultiMap;
+    private var loaderIds:Dictionary;
+    private var idExpiryTime:Dictionary;
+    private var waitingIds:MultiMap;
     private var errorCache:Dictionary;
     private var bitmapCache:BitmapDictionary;
     private var accessTime:Dictionary;
@@ -36,42 +38,39 @@ public class BitmapCache
         this.contentMaxSeconds = contentMaxSeconds;
         this.maxBitmapBytes = maxBitmapBytes;
 
-        stateExpiry = new Dictionary();
-        waiting = new MultiMap();
+        loaderIds = new Dictionary();
+        idExpiryTime = new Dictionary();
+        waitingIds = new MultiMap();
+
         errorCache = new Dictionary();
         bitmapCache = new BitmapDictionary();
+
         accessTime = new Dictionary();
 
         infoToLoaderLookup = new Dictionary();
     }
 
-    public function getToken(url:URLRequest):BitmapCacheToken
+    public function getHandle(url:URLRequest, context:LoaderContext = null):BitmapLoaderHandle
     {
         var id:String = CacheUtil.hashRequest(url);
-        return new BitmapCacheToken(this, url, id, new Internal_ctor());
+        return new BitmapLoaderHandle(this, url, context, id, new Internal_ctor());
     }
 
-    internal function startToken(token:BitmapCacheToken):void
+    internal function startHandle(handle:BitmapLoaderHandle):void
     {
         var now:int;
         var expiry:int;
-        var id:String = token.id;
+        var id:String = handle.id;
 
-        //trace("BitmapCache.startToken(token)");
-        //trace('token.id: ' + (token.id));
-
-        // if waiting (display) loader, add token to wait list
-        if (waiting.hasList(id))
+        // if waiting (display) loader, add handle to wait list
+        if (waitingIds.hasList(id))
         {
-            //trace('waiting');
-            waiting.push(id, token);
-            //trace('------------- return due to waiting');
+            waitingIds.push(id, handle);
             return;
         }
 
         now = getTimer();
-        expiry = stateExpiry[id];
-        //trace(Template.format('expiry set: now is {0}, expiry is {1}', [now, expiry]));
+        expiry = idExpiryTime[id];
 
         if (now < expiry)
         {
@@ -79,43 +78,37 @@ public class BitmapCache
             if (errorCache[id] is ErrorEvent)
             {
                 // if so, dispatch error on loader
-                //trace(Template.format('cached error: {0}', [errorCache[id]]));
-                //trace('dispatching error');
-                token.dispatchEvent(ErrorEvent(errorCache[id]).clone());
-                //trace('------------- return due to errorCache');
+                handle.dispatchEvent(ErrorEvent(errorCache[id]));
                 return;
             }
             else if (bitmapCache.hasBitmap(id))
             {
-                // set bitmap on token
-                //trace('cached bitmap');
-                //token.bitmapData = bitmapCache.getBitmap(id);
+                // set bitmap on handle
                 touch(id);
-                token.setBitmapData(bitmapCache.getBitmap(id));
-                //trace('dispatching complete');
-                token.dispatchEvent(new Event(Event.COMPLETE));
-                //trace('------------- return due to bitmapCache');
+                handle.setBitmapData(bitmapCache.getBitmap(id));
+                handle.dispatchEvent(new Event(Event.COMPLETE));
                 return;
             }
 
             // if we fall through to here, continue below, it means we
             // have an expiry time for an unknown state.
-            //trace("BitmapCache.startToken: Expiry set for "+id+" but no error or cached bitmap");
-            delete stateExpiry[id];
+            //trace("BitmapCache.startHandle: Expiry set for "+id+" but no error or cached bitmap");
+            delete idExpiryTime[id];
         }
 
         bitmapCache.deleteBitmap(id);
         delete errorCache[id];
 
-        createLoader(token);
-        //trace('------------- return due to creation of new request');
+        createLoader(handle);
     }
 
-    protected function postProcess(loader:Loader):BitmapData {
+    protected function postProcess(loader:Loader):BitmapData
+    {
         return null;
     }
 
-    protected final function defaultPostProcess(loader:Loader):BitmapData {
+    protected final function defaultPostProcess(loader:Loader):BitmapData
+    {
         var bitmap:BitmapData;
 
         bitmap = new BitmapData(loader.contentLoaderInfo.width, loader.contentLoaderInfo.height, true, 0x00000000);
@@ -124,27 +117,26 @@ public class BitmapCache
         return bitmap;
     }
 
-    private function createLoader(token:BitmapCacheToken):void
+    private function createLoader(handle:BitmapLoaderHandle):void
     {
-        //trace("BitmapCache.createLoader(token)");
-
-        var newLoader:AnnotatedLoader = new AnnotatedLoader(token.id);
+        var newLoader:Loader = new Loader(handle.id);
+        setLoaderId(newLoader, handle.id);
         //var context:LoaderContext = new LoaderContext(true, null, SecurityDomain.currentDomain);
 
-        waiting.push(token.id, token);
+        waitingIds.push(handle.id, handle);
         pushLoaderInfo(newLoader);
         listenLoader(newLoader);
-        newLoader.load(token.url);
+        newLoader.load(handle.url, handle.context);
     }
 
     private function onLoaderComplete(event:Event):void
     {
         //trace("BitmapCache.onLoaderComplete(event)");
 
-        var loader:AnnotatedLoader = popLoaderInfo(LoaderInfo(event.target));
-        var id:String = loader.id;
+        var loader:Loader = popLoaderInfo(LoaderInfo(event.target));
+        var id:String = getLoaderId(loader);
         var now:int = getTimer();
-        var token:BitmapCacheToken;
+        var handle:BitmapLoaderHandle;
         var bitmap:BitmapData;
 
         unlistenLoader(loader);
@@ -155,24 +147,20 @@ public class BitmapCache
         if (!bitmap) bitmap = defaultPostProcess(loader);
 
         allocate(bitmap);
-
         touch(id);
+
         bitmapCache.setBitmap(id, bitmap);
         delete errorCache[id];
-        stateExpiry[id] = now + contentMaxSeconds * 1000;
+        idExpiryTime[id] = now + contentMaxSeconds * 1000;
 
-        for each (token in waiting.getList(id))
+        for each (handle in waitingIds.getList(id))
         {
             //trace('notifying waiting complete');
-            //token.bitmapData = bitmap;
-            token.setBitmapData(bitmap);
-            token.dispatchEvent(event.clone());
+            handle.setBitmapData(bitmap);
+            handle.dispatchEvent(event.clone());
         }
-
-        //trace('deleting waiting');
-        waiting.deleteList(id);
-        //trace('waiting has id: '+waiting.hasList(id));
-        //trace('------------- exit complete handler');
+        waitingIds.deleteList(id);
+        clearLoaderId(loader);
     }
 
     private function allocate(bitmap:BitmapData):void
@@ -202,8 +190,6 @@ public class BitmapCache
     {
         if (a[1] > b[1])
         {
-            // shift most recent to beginning of list
-            // (descending order)
             return -1;
         }
         else if (a[1] < b[1])
@@ -218,29 +204,24 @@ public class BitmapCache
 
     private function onLoaderError(event:ErrorEvent):void
     {
-        //trace("BitmapCache.onLoaderError(event)");
-
-        var loader:AnnotatedLoader = popLoaderInfo(LoaderInfo(event.target));
-        var id:String = loader.id;
+        var loader:Loader = popLoaderInfo(LoaderInfo(event.target));
+        var id:String = getLoaderId(loader);
         var now:int = getTimer();
-        var token:BitmapCacheToken;
+        var handle:BitmapLoaderHandle;
 
         unlistenLoader(loader);
 
-        //trace('id: ' + (id));
-
         bitmapCache.deleteBitmap(id);
         errorCache[id] = ErrorEvent(event);
-        stateExpiry[id] = now + errorMaxSeconds * 1000;
+        idExpiryTime[id] = now + errorMaxSeconds * 1000;
 
-        for each (token in waiting.getList(id))
+        for each (handle in waitingIds.getList(id))
         {
-            //trace('notifying waiting error');
-            token.dispatchEvent(event.clone());
+            handle.dispatchEvent(event.clone());
         }
 
-        waiting.deleteList(id);
-        //trace('------------- exit error handler');
+        waitingIds.deleteList(id);
+        clearLoaderId(loader);
     }
 
     private function touch(id:String):void
@@ -248,19 +229,16 @@ public class BitmapCache
         accessTime[id] = getTimer();
     }
 
-    // more stupid flash:
-    // the simple getEventSource function commented out below won't work if
-    // the Loader isn't successful.  instead the .loader getter
-    // throws an error claiming that it's not sufficiently loaded
-    // even though the .loader -> Loader relationship is fixed
-    private function pushLoaderInfo(loader:AnnotatedLoader):void
+    // a lookup is necessary because LoaderInfo.get loader() sometimes throws
+    // and error
+    private function pushLoaderInfo(loader:Loader):void
     {
         infoToLoaderLookup[loader.contentLoaderInfo] = loader;
     }
 
-    private function popLoaderInfo(loaderInfo:LoaderInfo):AnnotatedLoader
+    private function popLoaderInfo(loaderInfo:LoaderInfo):Loader
     {
-        var result:AnnotatedLoader;
+        var result:Loader;
 
         result = infoToLoaderLookup[loaderInfo];
         delete infoToLoaderLookup[loaderInfo];
@@ -268,30 +246,31 @@ public class BitmapCache
         return result;
     }
 
-    /*
-    private function getEventSource(info:LoaderInfo):AnnotatedLoader
+    private function listenLoader(loader:Loader):void
     {
-        // this throws a sandbox fit when being debugged, but that's
-        // only because the debugger tries to evaluate getters which
-        // the loaded object doesn't have appDomain/security access to
-
-        // this can be ignored because we're only here to
-        // get the .loader property
-
-        return AnnotatedLoader(info.loader);
+        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
+        loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
     }
-*/
 
-        private function listenLoader(a:AnnotatedLoader):void
-        {
-            a.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
-            a.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
-        }
-
-        private function unlistenLoader(a:AnnotatedLoader):void
-        {
-            a.contentLoaderInfo.removeEventListener(Event.COMPLETE, onLoaderComplete);
-            a.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
-        }
+    private function unlistenLoader(loader:Loader):void
+    {
+        loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onLoaderComplete);
+        loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
     }
+
+    private function setLoaderId(loader:Loader, id:String):void
+    {
+        loaderIds[loader] = id;
+    }
+
+    private function getLoaderId(loader:Loader):String
+    {
+        return loaderIds[loader];
+    }
+
+    private function clearLoaderId(loader:Loader):Boolean
+    {
+        return delete loaderIds[loader];
+    }
+}
 }
