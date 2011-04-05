@@ -1,61 +1,89 @@
 package org.yellcorp.lib.events
 {
-import flash.events.Event;
+import org.yellcorp.lib.core.Set;
+
 import flash.events.IEventDispatcher;
 
 
 public class AsyncTask
 {
-    private var dispatcher:IEventDispatcher;
-    private var terminatingEvents:Array;
-    private var otherEvents:Array;
+    private var target:IEventDispatcher;
+    private var terminatingHandlers:Array;
+    private var terminatingEvents:Set;
+    private var otherHandlers:Array;
+    private var waiting:Boolean;
 
-    public function AsyncTask(dispatcher:IEventDispatcher, terminatingEvents:Array, otherEvents:Array = null)
+    public function AsyncTask(target:IEventDispatcher,
+        terminatingHandlers:Array, otherHandlers:Array = null)
     {
-        this.dispatcher = dispatcher;
-        this.terminatingEvents = terminatingEvents.slice();
-        this.otherEvents = otherEvents ? otherEvents.slice() : [ ];
+        this.target = target;
+        this.terminatingHandlers = terminatingHandlers;
+        this.otherHandlers = otherHandlers;
+        waiting = true;
         listen();
     }
 
     private function listen():void
     {
         var i:int;
-        for (i = 0;i < otherEvents.length; i += 2)
+        terminatingEvents = new Set();
+
+        for (i = 0; i < terminatingHandlers.length; i += 2)
         {
-            dispatcher.addEventListener(otherEvents[i], otherEvents[i + 1]);
+            target.addEventListener(terminatingHandlers[i], terminatingHandlers[i + 1]);
+            terminatingEvents.add(terminatingHandlers[i]);
         }
-        for (i = 0;i < terminatingEvents.length; i += 2)
+        if (otherHandlers)
         {
-            dispatcher.addEventListener(terminatingEvents[i], onTerminate);
+            for (i = 0; i < otherHandlers.length; i += 2)
+            {
+                target.addEventListener(otherHandlers[i], otherHandlers[i + 1]);
+            }
+        }
+        for each (var event:String in terminatingEvents)
+        {
+            target.addEventListener(event, onTerminate, false, int.MIN_VALUE);
         }
     }
 
-    private function unlisten(event:Event):void
+    private function unlisten():void
     {
         var i:int;
-        var currentEventType:String;
-        for (i = 0;i < otherEvents.length; i += 2)
+
+        for (i = 0; i < terminatingHandlers.length; i += 2)
         {
-            dispatcher.removeEventListener(otherEvents[i], otherEvents[i + 1]);
+            target.removeEventListener(terminatingHandlers[i], terminatingHandlers[i + 1]);
         }
-        for (i = 0;i < terminatingEvents.length; i += 2)
+        if (otherHandlers)
         {
-            currentEventType = terminatingEvents[i];
-            if (currentEventType == event.type)
+            for (i = 0; i < otherHandlers.length; i += 2)
             {
-                terminatingEvents[i + 1](event);
+                target.removeEventListener(otherHandlers[i], otherHandlers[i + 1]);
             }
-            dispatcher.removeEventListener(currentEventType, onTerminate);
+        }
+        for each (var event:String in terminatingEvents)
+        {
+            target.removeEventListener(event, onTerminate, false);
         }
     }
 
-    private function onTerminate(event:Event):void
+    private function onTerminate(event:String):void
     {
-        unlisten(event);
-        this.dispatcher = null;
-        this.terminatingEvents = null;
-        this.otherEvents = null;
+        if (waiting)
+        {
+            waiting = false;
+            unlisten();
+            this.target = null;
+            this.terminatingHandlers = null;
+            this.otherHandlers = null;
+            terminatingEvents = null;
+        }
+    }
+
+    public static function listenOnce(target:IEventDispatcher,
+        terminatingHandlers:Array, otherHandlers:Array = null):AsyncTask
+    {
+        return new AsyncTask(target, terminatingHandlers, otherHandlers);
     }
 }
 }
