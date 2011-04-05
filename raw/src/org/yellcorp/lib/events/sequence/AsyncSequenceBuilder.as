@@ -31,22 +31,25 @@ public class AsyncSequenceBuilder
         return this;
     }
 
-    public function continueOn(continueEventName:String, ifReturnsTrue:Function):AsyncSequenceBuilder
+    public function continueOn(continueEventName:String, ifReturnsTrue:Function = null):AsyncSequenceBuilder
     {
         currentItem.continueEventName = continueEventName;
         currentItem.ifReturnsTrue = ifReturnsTrue;
         return this;
     }
 
-    public function cancelOn(errorEventNames:Array):AsyncSequenceBuilder
+    public function errorOn(errorEventNames:Array):AsyncSequenceBuilder
     {
         currentItem.errorEventNames = errorEventNames.slice();
         return this;
     }
 
-    public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+    public function addEventListener(type:String, listener:Function,
+        useCapture:Boolean = false, priority:int = 0,
+        useWeakReference:Boolean = false):AsyncSequenceBuilder
     {
         currentItem.addEventListener(type, listener, useCapture, priority, useWeakReference);
+        return this;
     }
 
     public function create():AsyncSequence

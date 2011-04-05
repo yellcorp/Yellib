@@ -1,5 +1,6 @@
 package org.yellcorp.lib.events.sequence
 {
+import flash.events.AsyncErrorEvent;
 import flash.events.Event;
 import flash.events.IEventDispatcher;
 
@@ -28,14 +29,20 @@ public class AsyncItem implements IEventDispatcher
     {
         listen();
 
-        // TODO: try/catch that calls unlisten()?
-        if (_startArgs && _startArgs.length > 0)
-        {
-            _startFunction.apply(null, _startArgs);
+        try {
+            if (_startArgs && _startArgs.length > 0)
+            {
+                _startFunction.apply(null, _startArgs);
+            }
+            else
+            {
+                _startFunction();
+            }
         }
-        else
+        catch(e:Error)
         {
-            _startFunction();
+            onError(new AsyncErrorEvent(AsyncErrorEvent.ASYNC_ERROR,
+                    false, false, e.message, e));
         }
     }
 
@@ -48,14 +55,14 @@ public class AsyncItem implements IEventDispatcher
         }
         else
         {
-            onCancel(event);
+            onError(event);
         }
     }
 
-    private function onCancel(event:Event):void
+    private function onError(event:Event):void
     {
         unlisten();
-        owner.cancel();
+        owner.error(event);
     }
 
     private function listen():void
@@ -63,9 +70,9 @@ public class AsyncItem implements IEventDispatcher
         _target.addEventListener(_continueEventName, onContinue);
         if (_errorEventNames)
         {
-            for each (var cancelEvent:String in _errorEventNames)
+            for each (var errorEventName:String in _errorEventNames)
             {
-                _target.addEventListener(cancelEvent, onCancel);
+                _target.addEventListener(errorEventName, onError);
             }
         }
     }
@@ -77,15 +84,15 @@ public class AsyncItem implements IEventDispatcher
         {
             for each (var cancelEvent:String in _errorEventNames)
             {
-                _target.removeEventListener(cancelEvent, onCancel);
+                _target.removeEventListener(cancelEvent, onError);
             }
         }
 
         removeExternalEvents(bubbleEvents, false);
-        bubbleEvents = {};
+        bubbleEvents = { };
 
         removeExternalEvents(captureEvents, true);
-        captureEvents = {};
+        captureEvents = { };
     }
 
     private function removeExternalEvents(events:Object, capture:Boolean):void
