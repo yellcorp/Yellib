@@ -1,163 +1,291 @@
-package org.yellcorp.lib.binary {
+package org.yellcorp.lib.binary
+{
 import flash.utils.ByteArray;
+import flash.utils.Endian;
 
 
-public class Base64 {
-    private static const BASE_64_CHARS:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+/* Heavily based on http://jpauclair.net/2010/01/09/base64-optimized-as3-lib/
+ * by Jean-Philippe Auclair
+ *
+ * Added support for Base64 variations a la Apache Commons - padding can be
+ * disabled, + and / characters can be swapped with their url-safe equivalents
+ * - and _.
+ *
+ * Lookups are built procedurally and cached
+ */
 
-    public static function encode(bin:ByteArray):String {
-        var buffer:uint;
+public class Base64
+{
+    private static const COMMON_CHARSET:String =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        var char1:int;
-        var char2:int;
-        var char3:int;
-        var char4:int;
+    private static const STANDARD_CHARSET:String = COMMON_CHARSET + "+/";
 
-        var outStr:String = "";
+    private static const URL_CHARSET:String = COMMON_CHARSET + "-_";
 
-        var i:uint;
-        var pad:uint = 0;
+    private static var _standardEncodeTable:Array;
+    private static var _urlSafeEncodeTable:Array;
+    private static var _decodeTable:Array;
 
-        bin.position = 0;
 
-        while (bin.bytesAvailable > 0) {
-            buffer = 0;
-            i = 0;
-            while (i++ < 3) {
-                if (bin.bytesAvailable > 0) {
-                    buffer |= bin.readUnsignedByte();
-                } else {
-                    pad++;
-                }
-                if (i < 3) buffer <<= 8;
+    public static function encode(binary:ByteArray, padding:Boolean = true, urlSafe:Boolean = false):String
+    {
+        return encodeUsing(binary,
+            urlSafe ? getURLSafeEncodeTable() : getStandardEncodeTable(),
+            padding ? "=" : "");
+    }
+
+
+    public static function decode(text:String):ByteArray
+    {
+        return decodeUsing(text, getDecodeTable());
+    }
+
+
+    public static function getEncodedLength(numBytes:int, padding:Boolean = true):int
+    {
+        return padding ? Math.ceil(numBytes / 3) * 4
+                       : Math.ceil(numBytes * 4 / 3);
+    }
+
+
+    private static function encodeUsing(input:ByteArray, table:Array, paddingChar:String):String
+    {
+        var output:ByteArray;
+
+        var remain:int = input.length;
+        var inWord:uint;
+        var outWord:uint;
+        var i:int = 0;
+
+        var usePadding:Boolean = paddingChar.length == 1;
+        var paddingCharCode:uint = usePadding ? paddingChar.charCodeAt(0) : 0;
+
+        if (paddingChar.length > 1)
+        {
+            throw new ArgumentError("Padding char must be one character long, or an empty string");
+        }
+
+        input.endian = Endian.BIG_ENDIAN;
+
+        output = new ByteArray();
+        output.endian = Endian.BIG_ENDIAN;
+        output.length = getEncodedLength(remain, usePadding);
+
+        while (remain >= 3)
+        {
+            // 10987654321098765432109876543210
+            //         AAAAAAAABBBBBBBBCCCCCCCC
+            // --AAAAAA--AABBBB--BBBBCC--CCCCCC
+            inWord = input[i++] << 16 |
+                     input[i++] <<  8 |
+                     input[i++];
+
+            outWord = table[inWord >>> 18] << 24 |
+                      table[inWord >>> 12 & 0x3f] << 16 |
+                      table[inWord >>>  6 & 0x3f] <<  8 |
+                      table[inWord & 0x3f];
+
+            output.writeUnsignedInt(outWord);
+
+            remain -= 3;
+        }
+
+        if (usePadding)
+        {
+            switch (remain)
+            {
+            case 1:
+            // 10987654321098765432109876543210
+            //                         AAAAAAAA
+            // --AAAAAA--AA0000--======--======
+                inWord = input[i++];
+                outWord = table[inWord >>> 2] << 24 |
+                          table[inWord  << 4] << 16 |
+                          paddingCharCode * 0x101;
+
+                output.writeUnsignedInt(outWord);
+                break;
+
+            case 2:
+            // 10987654321098765432109876543210
+            //                 AAAAAAAABBBBBBBB
+            // --AAAAAA--AABBBB--BBBB00--======
+                inWord = input[i++] << 8 |
+                         input[i++];
+
+                outWord = table[inWord >>> 10] << 24 |
+                          table[inWord >>>  4 & 0x3f] << 16 |
+                          table[inWord  <<  2 & 0x3f] <<  8 |
+                          paddingCharCode;
+
+                output.writeUnsignedInt(outWord);
+                break;
             }
+        }
+        else
+        {
+            switch (remain)
+            {
+            case 1:
+                inWord = input[i++];
+                outWord = table[inWord >>> 2] << 8 |
+                          table[inWord  << 4];
 
-            char1 = (buffer >> 18) & 0x3F;
-            char2 = (buffer >> 12) & 0x3F;
-            char3 = (buffer >>  6) & 0x3F;
-            char4 =  buffer        & 0x3F;
+                output.writeShort(outWord);
+                break;
 
-            switch (pad) {
-                case 2 :
-                    char3 = 64;
-                    // fall-through
-                case 1 :
-                    char4 = 64;
-                    break;
-                case 0 :
-                    break;
-                default :
-                    trace("Base64.encode: WARNING: Abnormal overflow: " + pad);
-                    break;
+            case 2:
+                inWord = input[i++] << 8 |
+                         input[i++];
+
+                outWord = table[inWord >>> 10] << 8 |
+                          table[inWord >>>  4 & 0x3f];
+
+                output.writeShort(outWord);
+
+                outWord = table[inWord  <<  2 & 0x3f];
+
+                output.writeByte(outWord);
+                break;
             }
-
-            outStr += BASE_64_CHARS.charAt(char1) + BASE_64_CHARS.charAt(char2) +
-                      BASE_64_CHARS.charAt(char3) + BASE_64_CHARS.charAt(char4);
         }
 
-        return outStr;
+        output.position = 0;
+        return output.readUTFBytes(output.bytesAvailable);
     }
 
-    public static function decode(str:String):ByteArray {
-        var outBin:ByteArray = new ByteArray();
-        var byteCount:int;
-        var strLen:uint;
-        var strPtr:uint;
-        var pad:uint;
-        var i:uint;
 
-        var buffer:uint;
-        var charVal:uint;
+    private static function decodeUsing(input:String, table:Array):ByteArray
+    {
+        var b0:int, b1:int, b2:int, b3:int;
 
-        if (str.charAt(str.length - 2) == "=") {
-            pad = 2;
-        } else if (str.charAt(str.length - 1) == "=") {
-            pad = 1;
-        }
+        var inBytes:ByteArray = new ByteArray();
+        inBytes.endian = Endian.BIG_ENDIAN;
+        inBytes.writeUTFBytes(input);
 
-        strLen = str.length;
-        byteCount = strLen * .75 - pad;
+        var output:ByteArray = new ByteArray();
+        output.endian = Endian.BIG_ENDIAN;
 
-        strPtr = 0;
+        var i:int;
+        var len:int = input.length;
 
-        try {
-            while (strPtr < strLen) {
-                buffer = 0;
-                i = 0;
-                while (i < 4) {
-                    charVal = charToVal(str.charCodeAt(strPtr + i));
-
-                    buffer |= charVal;
-                    if (i < 3) buffer <<= 6;
-                    i++;
-                }
-                strPtr += 4;
-
-                // the ByteArray.writeByte doc says only the lowest 8 bits
-                // are written, so don't have to mask with & 0xFF?
-                if (byteCount-- > 0) outBin.writeByte(buffer >> 16);
-                if (byteCount-- > 0) outBin.writeByte(buffer >> 8);
-                if (byteCount-- > 0) outBin.writeByte(buffer);
+        while (i < len)
+        {
+            do {
+                b0 = table[inBytes[i++]];
             }
-        } catch (e:RangeError) {
-            // catch the error from decoder, append
-            // position number, and re-throw
-            throw new RangeError(e.message + " position=" + strPtr);
-        }
+            while (i < len && b0 == -1);
+            if (b0 == -1) break;
 
-        if (byteCount > 0) {
-            trace("Base64.decode: WARNING: Early end of string.  Remaining byte count = " + byteCount);
-        }
-
-        outBin.position = 0;
-        return outBin;
-    }
-
-    public static function encodeUint(value:uint):String {
-        var str:String = "";
-        do {
-            str += BASE_64_CHARS.charAt(value & 0x3F);
-        } while (value >>= 6);
-        return str;
-    }
-
-    public static function decodeUint(encoded:String):uint {
-        var i:uint;
-        var num:uint = 0;
-
-        for (i=0; i<encoded.length; i++) {
-            if (num >= 0x4000000) {
-                throw new RangeError("uint overflow");
+            do {
+                b1 = table[inBytes[i++]];
             }
-            num <<= 6;
-            num |= charToVal(encoded.charCodeAt(i));
+            while (i < len && b1 == -1);
+            if (b1 == -1) break;
+
+            // 5432109876543210
+            // --AAAAAA--AABBBB
+            output.writeByte(b0 << 2 | b1 >> 4);
+
+            do {
+                b2 = table[inBytes[i++]];
+            }
+            while (i < len && b2 == -1);
+            if (b2 == -1) break;
+
+            // 76543210
+            // --BBBBCC
+            output.writeByte(b1 << 4 | b2 >> 2);
+
+            do {
+                b3 = table[inBytes[i++]];
+            }
+            while (i < len && b3 == -1);
+            if (b3 == -1) break;
+
+            // 76543210
+            // --CCCCCC
+            output.writeByte(b2 << 6 | b3);
         }
-        return num;
+        output.position = 0;
+        return output;
     }
 
-    public static function encodeInt(value:int):String {
-        return encodeUint(uint(value));
-    }
 
-    public static function decodeInt(encoded:String):int {
-        return int(decodeUint(encoded));
-    }
-
-    private static function charToVal(charCode:uint):uint {
-        if (charCode >= 0x41 && charCode <= 0x5A) {    // 'A' to 'Z'
-            return charCode - 0x41;
-        } else if (charCode >= 0x61 && charCode <= 0x7A) {    // 'a' to 'z'
-            return charCode - 0x47;
-        } else if (charCode >= 0x30 && charCode <= 0x39) {    // '0' to '9'
-            return charCode + 0x04;
-        } else if (charCode == 0x2B) {    // '+'
-            return 0x3E;
-        } else if (charCode == 0x2F) {    // '/'
-            return 0x3F;
-        } else if (charCode != 0x3D) {    // '='
-            throw new RangeError("Non-Base64 character encountered: code=" + charCode + " char="+String.fromCharCode(charCode));
+    private static function getStandardEncodeTable():Array
+    {
+        if (!_standardEncodeTable)
+        {
+            _standardEncodeTable = createEncodeLookup(STANDARD_CHARSET);
         }
-        return charCode;
+        return _standardEncodeTable;
+    }
+
+
+    private static function getURLSafeEncodeTable():Array
+    {
+        if (!_urlSafeEncodeTable)
+        {
+            _urlSafeEncodeTable = createEncodeLookup(URL_CHARSET);
+        }
+        return _urlSafeEncodeTable;
+    }
+
+
+    private static function getDecodeTable():Array
+    {
+        if (!_decodeTable)
+        {
+            _decodeTable = createDecodeLookup();
+        }
+        return _decodeTable;
+    }
+
+
+    private static function createEncodeLookup(charSet:String):Array
+    {
+        var lookup:Array = new Array(charSet.length);
+        var len:int = charSet.length;
+        for (var i:int; i < len; i++)
+        {
+            lookup[i] = charSet.charCodeAt(i);
+        }
+        return lookup;
+    }
+
+
+    private static function createDecodeLookup():Array
+    {
+        var lookup:Array = [ ];
+
+        writeDecodeLookup(lookup, COMMON_CHARSET, 0);
+        writeDecodeLookup(lookup, "+/", 62);
+        writeDecodeLookup(lookup, "-_", 62);
+
+        return lookup;
+    }
+
+
+    private static function writeDecodeLookup(lookup:Array, charSet:String, offset:int):void
+    {
+        var len:int = charSet.length;
+        var code:int;
+
+        var i:int;
+
+        for (i = 0; i < len; i++)
+        {
+            code = charSet.charCodeAt(i);
+
+            // avm abuse: make sure all assigns are in sequential indices
+            // to prevent avm from switching the array to a hashtable
+            while (lookup.length < code)
+            {
+                lookup.push(-1);
+            }
+            lookup[code] = i + offset;
+        }
     }
 }
 }
