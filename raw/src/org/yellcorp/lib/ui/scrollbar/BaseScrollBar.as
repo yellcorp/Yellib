@@ -64,19 +64,10 @@ public class BaseScrollBar extends BaseDisplay implements Disposable
 
         super();
 
-        // if a skin was provided, use it to build the necessary
-        // display objects
-        if (skin)
-        {
-            buildFromSkin();
-        }
-        else
-        {
-        // if a null skin, assume that this is the superclass of
-        // a clip drawn and linked in Flash IDE, with the necessary parts
-        // with appropriate instance names on the timeline.
-            buildFromAuthoring();
-        }
+        addChild(track = skin.createTrack());
+        addChild(decButton = skin.createDecrementButton());
+        addChild(incButton = skin.createIncrementButton());
+        addChild(cursor = skin.createCursor());
 
         _width = decButton.width;
         _height = decButton.height;
@@ -499,22 +490,6 @@ public class BaseScrollBar extends BaseDisplay implements Disposable
         {
             return Math.abs(_cursorSize / (_maxScroll - _minScroll + _cursorSize)) * maxSize;
         }
-    }
-
-    private function buildFromSkin():void
-    {
-        addChild(track = skin.createTrack());
-        addChild(decButton = skin.createDecrementButton());
-        addChild(incButton = skin.createIncrementButton());
-        addChild(cursor = skin.createCursor());
-    }
-
-    private function buildFromAuthoring():void
-    {
-        track = InteractiveObject(getChildByName('track'));
-        decButton = InteractiveObject(getChildByName('decrementButton'));
-        incButton = InteractiveObject(getChildByName('incrementButton'));
-        cursor = InteractiveObject(getChildByName('cursor'));
     }
 
     private function setupView():void
