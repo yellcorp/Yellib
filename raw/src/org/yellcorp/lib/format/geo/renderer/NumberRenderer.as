@@ -10,10 +10,10 @@ public class NumberRenderer implements Renderer
     private var formatOptions:FloatFormatOptions;
     private var multiplier:Number;
     private var mod:Number;
-    private var truncate:Boolean;
+    private var floor:Boolean;
 
     public function NumberRenderer(properties:FieldProperties,
-        multiplier:Number, mod:Number, truncateIfZeroPrecision:Boolean)
+        multiplier:Number, mod:Number, floorIfZeroPrecision:Boolean)
     {
         formatOptions = new FloatFormatOptions();
         formatOptions.minWidth = properties.minWidth;
@@ -22,14 +22,14 @@ public class NumberRenderer implements Renderer
 
         this.multiplier = multiplier;
         this.mod = mod;
-        this.truncate = truncateIfZeroPrecision && properties.precision == 0;
+        this.floor = floorIfZeroPrecision && properties.precision == 0;
     }
 
     public function render(quantity:Number):String
     {
         quantity *= (quantity < 0) ? -multiplier : multiplier;
         if (mod != 0) quantity %= mod;
-        if (truncate) quantity = Math.floor(quantity);
+        if (floor) quantity = Math.floor(quantity);
 
         return Format.formatFixed(quantity, formatOptions);
     }

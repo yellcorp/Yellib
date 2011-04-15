@@ -65,7 +65,7 @@ internal class Parser
             {
                 field.zeroPad = true;
             }
-            field.minWidth = parseInt(token.text);
+            field.minWidth = parseInt(token.text, 10);
         }
     }
 
@@ -75,7 +75,7 @@ internal class Parser
 
         if (token.text)
         {
-            field.precision = parseInt(token.text.substr(1));
+            field.precision = parseInt(token.text.substr(1), 10);
         }
     }
 
