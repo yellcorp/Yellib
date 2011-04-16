@@ -6,9 +6,6 @@ import flash.geom.ColorTransform;
 
 public class ColorTransformUtil
 {
-    public static const SCALE:Number = 255;
-    public static const INVSCALE:Number = 1 / 255;
-
     public static function copyColorMatrix(m:Array, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
@@ -56,13 +53,17 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setMultiply(c:VectorRGB, out:ColorTransform = null):ColorTransform
+    public static function setMultiply(c:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
-        out.redMultiplier   = c.r * INVSCALE;
-        out.greenMultiplier = c.g * INVSCALE;
-        out.blueMultiplier  = c.b * INVSCALE;
+        var r:Number = (c >> 16) & 0xFF;
+        var g:Number = (c >>  8) & 0xFF;
+        var b:Number = c & 0xFF;
+
+        out.redMultiplier   = r * 0.00392156862745098;
+        out.greenMultiplier = g * 0.00392156862745098;
+        out.blueMultiplier  = b * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
         out.redOffset       =
@@ -73,82 +74,114 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setAdd(c:VectorRGB, out:ColorTransform = null):ColorTransform
+    public static function setAdd(c:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
+
+        var r:Number = (c >> 16) & 0xFF;
+        var g:Number = (c >>  8) & 0xFF;
+        var b:Number = c & 0xFF;
 
         out.redMultiplier   =
         out.greenMultiplier =
         out.blueMultiplier  =
         out.alphaMultiplier = 1;
 
-        out.redOffset       = c.r;
-        out.greenOffset     = c.g;
-        out.blueOffset      = c.b;
+        out.redOffset       = r;
+        out.greenOffset     = g;
+        out.blueOffset      = b;
         out.alphaOffset     = 0;
 
         return out;
     }
 
-    public static function setScreen(c:VectorRGB, out:ColorTransform = null):ColorTransform
+    public static function setScreen(c:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
-        out.redMultiplier   = 1 - c.r * INVSCALE;
-        out.greenMultiplier = 1 - c.g * INVSCALE;
-        out.blueMultiplier  = 1 - c.b * INVSCALE;
+        var r:int = (c >> 16) & 0xFF;
+        var g:int = (c >>  8) & 0xFF;
+        var b:int = c & 0xFF;
+
+        out.redMultiplier   = 1 - r * 0.00392156862745098;
+        out.greenMultiplier = 1 - g * 0.00392156862745098;
+        out.blueMultiplier  = 1 - b * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
-        out.redOffset       = c.r;
-        out.greenOffset     = c.g;
-        out.blueOffset      = c.b;
+        out.redOffset       = r;
+        out.greenOffset     = g;
+        out.blueOffset      = b;
         out.alphaOffset     = 0;
 
         return out;
     }
 
-    public static function setTint(c:VectorRGB, amount:Number = 1.0, out:ColorTransform = null):ColorTransform
+    public static function setTint(c:uint, amount:Number = 1.0, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
-        var ainv:Number = 1 - amount;
-        out.redMultiplier   = ainv;
-        out.greenMultiplier = ainv;
-        out.blueMultiplier  = ainv;
+        var r:int = (c >> 16) & 0xFF;
+        var g:int = (c >>  8) & 0xFF;
+        var b:int = c & 0xFF;
+
+        out.redMultiplier   =
+        out.greenMultiplier =
+        out.blueMultiplier  = 1 - amount;
         out.alphaMultiplier = 1;
 
-        out.redOffset       = c.r * amount;
-        out.greenOffset     = c.g * amount;
-        out.blueOffset      = c.b * amount;
+        out.redOffset       = r * amount;
+        out.greenOffset     = g * amount;
+        out.blueOffset      = b * amount;
         out.alphaOffset     = 0;
 
         return out;
     }
 
-    public static function setMap(newBlack:VectorRGB, newWhite:VectorRGB, out:ColorTransform = null):ColorTransform
+    public static function setMap(newBlack:uint, newWhite:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
-        out.redMultiplier   = (newWhite.r - newBlack.r) * INVSCALE;
-        out.greenMultiplier = (newWhite.g - newBlack.g) * INVSCALE;
-        out.blueMultiplier  = (newWhite.b - newBlack.b) * INVSCALE;
+        var br:int = (newBlack >> 16) & 0xFF;
+        var bg:int = (newBlack >>  8) & 0xFF;
+        var bb:int = newBlack & 0xFF;
+
+        var wr:int = (newWhite >> 16) & 0xFF;
+        var wg:int = (newWhite >>  8) & 0xFF;
+        var wb:int = newWhite & 0xFF;
+
+        out.redMultiplier   = (wr - br) * 0.00392156862745098;
+        out.greenMultiplier = (wg - bg) * 0.00392156862745098;
+        out.blueMultiplier  = (wb - bb) * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
-        out.redOffset       = newBlack.r;
-        out.greenOffset     = newBlack.g;
-        out.blueOffset      = newBlack.b;
+        out.redOffset       = br;
+        out.greenOffset     = bg;
+        out.blueOffset      = bb;
         out.alphaOffset     = 0;
 
         return out;
     }
 
-    public static function setRangeMap(fromLow:VectorRGB, fromHigh:VectorRGB,
-                                       toLow:VectorRGB,   toHigh:VectorRGB,
+    public static function setRangeMap(fromLow:uint, fromHigh:uint,
+                                       toLow:uint,   toHigh:uint,
                                        out:ColorTransform = null):ColorTransform
     {
-        var scaleR:Number;
-        var scaleG:Number;
-        var scaleB:Number;
+
+        var fr0:int = (fromLow >> 16) & 0xFF;
+        var fg0:int = (fromLow >>  8) & 0xFF;
+        var fb0:int = fromLow & 0xFF;
+
+        var fr1:int = (fromHigh >> 16) & 0xFF;
+        var fg1:int = (fromHigh >>  8) & 0xFF;
+        var fb1:int = fromHigh & 0xFF;
+
+        var tr0:int = (toLow >> 16) & 0xFF;
+        var tg0:int = (toLow >>  8) & 0xFF;
+        var tb0:int = toLow & 0xFF;
+
+        var tr1:int = (toHigh >> 16) & 0xFF;
+        var tg1:int = (toHigh >>  8) & 0xFF;
+        var tb1:int = toHigh & 0xFF;
 
         if (!out) out = new ColorTransform();
 
@@ -159,9 +192,9 @@ public class ColorTransformUtil
         // conceivable use cases where inRange = 0 makes it possible to
         // fix the input values instead of rejecting them
 
-        scaleR = (fromHigh.r - fromLow.r);
-        scaleG = (fromHigh.g - fromLow.g);
-        scaleB = (fromHigh.b - fromLow.b);
+        var scaleR:Number = (fr1 - fr0);
+        var scaleG:Number = (fg1 - fg0);
+        var scaleB:Number = (fb1 - fb0);
 
         // this magic number is taken from the maximum multiplier before
         // ColorMatrixFilter ditches SSE acceleration.  even though this
@@ -174,18 +207,18 @@ public class ColorTransformUtil
         if (scaleG == 0) scaleG = 0.00025;
         if (scaleB == 0) scaleB = 0.00025;
 
-        scaleR = (toHigh.r - toLow.r) / scaleR;
-        scaleG = (toHigh.g - toLow.g) / scaleG;
-        scaleB = (toHigh.b - toLow.b) / scaleB;
+        scaleR = (tr1 - tr0) / scaleR;
+        scaleG = (tg1 - tg0) / scaleG;
+        scaleB = (tb1 - tb0) / scaleB;
 
-        out.redMultiplier   = ((255 - fromLow.r) * scaleR + toLow.r) * INVSCALE;
-        out.greenMultiplier = ((255 - fromLow.g) * scaleG + toLow.g) * INVSCALE;
-        out.blueMultiplier  = ((255 - fromLow.b) * scaleB + toLow.b) * INVSCALE;
+        out.redMultiplier   = ((255 - fr0) * scaleR + tr0) * 0.00392156862745098;
+        out.greenMultiplier = ((255 - fg0) * scaleG + tg0) * 0.00392156862745098;
+        out.blueMultiplier  = ((255 - fb0) * scaleB + tb0) * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
-        out.redOffset       = -fromLow.r * scaleR + toLow.r;
-        out.greenOffset     = -fromLow.g * scaleG + toLow.g;
-        out.blueOffset      = -fromLow.b * scaleB + toLow.b;
+        out.redOffset       = -fr0 * scaleR + tr0;
+        out.greenOffset     = -fg0 * scaleG + tg0;
+        out.blueOffset      = -fb0 * scaleB + tb0;
         out.alphaOffset     = 0;
 
         return out;

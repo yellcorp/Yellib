@@ -1,6 +1,6 @@
 package org.yellcorp.lib.color
 {
-public class IntColor
+public class IntColorUtil
 {
     public static function make(r:uint, g:uint, b:uint):uint
     {
