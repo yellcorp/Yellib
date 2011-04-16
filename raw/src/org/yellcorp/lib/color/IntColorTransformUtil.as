@@ -6,9 +6,6 @@ import flash.geom.ColorTransform;
 
 public class IntColorTransformUtil
 {
-    public static const SCALE:Number = 255;
-    public static const INVSCALE:Number = 1 / 255;
-
     public static function copyColorMatrix(m:Array, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
@@ -64,9 +61,9 @@ public class IntColorTransformUtil
         var g:Number = (c >> 8) & 0xFF;
         var b:Number = c & 0xFF;
 
-        out.redMultiplier   = r * INVSCALE;
-        out.greenMultiplier = g * INVSCALE;
-        out.blueMultiplier  = b * INVSCALE;
+        out.redMultiplier   = r * 0.00392156862745098;
+        out.greenMultiplier = g * 0.00392156862745098;
+        out.blueMultiplier  = b * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
         out.redOffset       =
@@ -106,9 +103,9 @@ public class IntColorTransformUtil
         var g:int = (c >> 8) & 0xFF;
         var b:int = c & 0xFF;
 
-        out.redMultiplier   = 1 - r * INVSCALE;
-        out.greenMultiplier = 1 - g * INVSCALE;
-        out.blueMultiplier  = 1 - b * INVSCALE;
+        out.redMultiplier   = 1 - r * 0.00392156862745098;
+        out.greenMultiplier = 1 - g * 0.00392156862745098;
+        out.blueMultiplier  = 1 - b * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
         out.redOffset       = r;
@@ -152,9 +149,9 @@ public class IntColorTransformUtil
         var wg:int = (newWhite >> 8) & 0xFF;
         var wb:int = newWhite & 0xFF;
 
-        out.redMultiplier   = (wr - br) * INVSCALE;
-        out.greenMultiplier = (wg - bg) * INVSCALE;
-        out.blueMultiplier  = (wb - bb) * INVSCALE;
+        out.redMultiplier   = (wr - br) * 0.00392156862745098;
+        out.greenMultiplier = (wg - bg) * 0.00392156862745098;
+        out.blueMultiplier  = (wb - bb) * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
         out.redOffset       = br;
@@ -214,9 +211,9 @@ public class IntColorTransformUtil
         scaleG = (tg1 - tg0) / scaleG;
         scaleB = (tb1 - tb0) / scaleB;
 
-        out.redMultiplier   = ((255 - fr0) * scaleR + tr0) * INVSCALE;
-        out.greenMultiplier = ((255 - fg0) * scaleG + tg0) * INVSCALE;
-        out.blueMultiplier  = ((255 - fb0) * scaleB + tb0) * INVSCALE;
+        out.redMultiplier   = ((255 - fr0) * scaleR + tr0) * 0.00392156862745098;
+        out.greenMultiplier = ((255 - fg0) * scaleG + tg0) * 0.00392156862745098;
+        out.blueMultiplier  = ((255 - fb0) * scaleB + tb0) * 0.00392156862745098;
         out.alphaMultiplier = 1;
 
         out.redOffset       = -fr0 * scaleR + tr0;
