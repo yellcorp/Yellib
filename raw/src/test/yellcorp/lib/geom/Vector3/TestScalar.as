@@ -61,16 +61,16 @@ public class TestScalar extends BaseVector3TestCase
 
         for each (var v:Vector3 in testVectors)
         {
-            assertEqualsFloat(message, magSquared, v.magSquared(), TEST_FLOAT_TOLERANCE);
-            assertEqualsFloat(message, mag, v.magnitude(), TEST_FLOAT_TOLERANCE);
+            assertEqualsFloat(message, magSquared, v.normSquared(), TEST_FLOAT_TOLERANCE);
+            assertEqualsFloat(message, mag, v.norm(), TEST_FLOAT_TOLERANCE);
 
             if (isFinite(invmag))
             {
-                assertEqualsFloat(message, invmag, v.magInverse(), TEST_FLOAT_TOLERANCE);
+                assertEqualsFloat(message, invmag, v.normReciprocal(), TEST_FLOAT_TOLERANCE);
             }
             else
             {
-                assertFalse(message + " (should not be finite)", isFinite(v.magInverse()));
+                assertFalse(message + " (should not be finite)", isFinite(v.normReciprocal()));
             }
         }
     }

@@ -84,7 +84,11 @@ public class Vector3
 
     public function normalize():void
     {
-        scale(magInverse());
+        var n:Number = 1 / Math.sqrt(x * x + y * y + z * z);
+
+        x *= n;
+        y *= n;
+        z *= n;
     }
 
     // Setter operators (this = A op B)
@@ -126,7 +130,11 @@ public class Vector3
 
     public function setNormalize(a:Vector3):void
     {
-        setScale(a, a.magInverse());
+        var n:Number = 1 / Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+
+        x = a.x * n;
+        y = a.y * n;
+        z = a.z * n;
     }
 
     public function setCross(v:Vector3, w:Vector3):void
@@ -146,17 +154,17 @@ public class Vector3
 
     // Scalar
 
-    public function magnitude():Number
+    public function norm():Number
     {
         return Math.sqrt(x * x + y * y + z * z);
     }
 
-    public function magSquared():Number
+    public function normSquared():Number
     {
         return x * x + y * y + z * z;
     }
 
-    public function magInverse():Number
+    public function normReciprocal():Number
     {
         return 1 / Math.sqrt(x * x + y * y + z * z);
     }

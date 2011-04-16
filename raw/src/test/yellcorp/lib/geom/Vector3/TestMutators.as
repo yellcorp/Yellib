@@ -75,7 +75,7 @@ public class TestMutators extends BaseVector3TestCase
         function testNormalizeSingle(v:Vector3):void
         {
             v.normalize();
-            assertEqualsFloat("normalize", 1, v.magnitude(), TEST_FLOAT_TOLERANCE);
+            assertEqualsFloat("normalize", 1, v.norm(), TEST_FLOAT_TOLERANCE);
         }
 
         for each (var v:Vector3 in testVectors)

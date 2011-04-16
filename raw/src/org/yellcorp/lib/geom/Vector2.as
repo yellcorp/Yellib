@@ -62,7 +62,10 @@ public class Vector2
 
     public function normalize():void
     {
-        scale(magInverse());
+        var n:Number = 1 / Math.sqrt(x * x + y * y);
+
+        x *= n;
+        y *= n;
     }
 
     // Setter operators (this = A op B)
@@ -99,22 +102,25 @@ public class Vector2
 
     public function setNormalize(a:Vector2):void
     {
-        setScale(a, a.magInverse());
+        var n:Number = 1 / Math.sqrt(a.x * a.x + a.y * a.y);
+
+        x = a.x * n;
+        y = a.y * n;
     }
 
     // Scalar
 
-    public function magnitude():Number
+    public function norm():Number
     {
         return Math.sqrt(x * x + y * y);
     }
 
-    public function magSquared():Number
+    public function normSquared():Number
     {
         return x * x + y * y;
     }
 
-    public function magInverse():Number
+    public function normReciprocal():Number
     {
         return 1 / Math.sqrt(x * x + y * y);
     }

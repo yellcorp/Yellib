@@ -64,7 +64,7 @@ public class TestSetters extends BaseVector2TestCase
         function testNormalizeSingle(v:Vector2):void
         {
             target.setNormalize(v);
-            assertEqualsFloat("normalize", 1, target.magnitude(), TEST_FLOAT_TOLERANCE);
+            assertEqualsFloat("normalize", 1, target.norm(), TEST_FLOAT_TOLERANCE);
         }
 
         for each (var v:Vector2 in testVectors)
