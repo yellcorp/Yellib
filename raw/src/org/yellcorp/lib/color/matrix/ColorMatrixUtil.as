@@ -78,7 +78,6 @@ public class ColorMatrixUtil
 
     public static function setDefaultAlpha(cm:Array):void
     {
-
         cm[15] = cm[16] = cm[17] = cm[19] = 0;
         cm[18] = 1;
     }
@@ -249,14 +248,17 @@ public class ColorMatrixUtil
         // [ 0 0 0 m n ]
         // [ 0 0 0 0 1 ]
 
-        // easy way to zero out the last column, given that the bottom
+        // cheap way to zero out the last column, given that the bottom
         // row is an implicit [ 0 0 0 0 1 ]
         zeroOffsets(orig, aug);
 
         // now run backwards and up from row/column 3
         for (row = 3 * WIDTH, col = 3; row >= 0; row -= WIDTH, col--)
         {
-            zeroRows(orig, aug, row, col, true);
+            if (row > 0)
+            {
+                zeroRows(orig, aug, row, col, true);
+            }
             divideRow(aug, row, orig[row + col]);
         }
     }
