@@ -6,22 +6,6 @@ import flash.geom.ColorTransform;
 
 public class ColorTransformUtil
 {
-    public static function copyColorMatrix(m:Array, out:ColorTransform = null):ColorTransform
-    {
-        if (!out) out = new ColorTransform();
-
-        out.redMultiplier   = m[0];
-        out.greenMultiplier = m[6];
-        out.blueMultiplier  = m[12];
-        out.alphaMultiplier = m[18];
-        out.redOffset       = m[4];
-        out.greenOffset     = m[9];
-        out.blueOffset      = m[14];
-        out.alphaOffset     = m[19];
-
-        return out;
-    }
-
     public static function clear(out:ColorTransform):ColorTransform
     {
         out.redMultiplier   =
@@ -36,7 +20,7 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setInvert(out:ColorTransform = null):ColorTransform
+    public static function makeNegative(out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
@@ -53,7 +37,7 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setMultiply(c:uint, out:ColorTransform = null):ColorTransform
+    public static function makeMultiply(c:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
@@ -61,9 +45,9 @@ public class ColorTransformUtil
         var g:Number = (c >>  8) & 0xFF;
         var b:Number = c & 0xFF;
 
-        out.redMultiplier   = r * 0.00392156862745098;
-        out.greenMultiplier = g * 0.00392156862745098;
-        out.blueMultiplier  = b * 0.00392156862745098;
+        out.redMultiplier   = r / 255;
+        out.greenMultiplier = g / 255;
+        out.blueMultiplier  = b / 255;
         out.alphaMultiplier = 1;
 
         out.redOffset       =
@@ -74,7 +58,7 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setAdd(c:uint, out:ColorTransform = null):ColorTransform
+    public static function makeAdd(c:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
@@ -95,7 +79,7 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setScreen(c:uint, out:ColorTransform = null):ColorTransform
+    public static function makeScreen(c:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
@@ -103,9 +87,9 @@ public class ColorTransformUtil
         var g:int = (c >>  8) & 0xFF;
         var b:int = c & 0xFF;
 
-        out.redMultiplier   = 1 - r * 0.00392156862745098;
-        out.greenMultiplier = 1 - g * 0.00392156862745098;
-        out.blueMultiplier  = 1 - b * 0.00392156862745098;
+        out.redMultiplier   = 1 - r / 255;
+        out.greenMultiplier = 1 - g / 255;
+        out.blueMultiplier  = 1 - b / 255;
         out.alphaMultiplier = 1;
 
         out.redOffset       = r;
@@ -116,7 +100,7 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setTint(c:uint, amount:Number = 1.0, out:ColorTransform = null):ColorTransform
+    public static function makeTint(c:uint, amount:Number = 1.0, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
@@ -137,7 +121,7 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setMap(newBlack:uint, newWhite:uint, out:ColorTransform = null):ColorTransform
+    public static function makeMap(newBlack:uint, newWhite:uint, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
@@ -149,9 +133,9 @@ public class ColorTransformUtil
         var wg:int = (newWhite >>  8) & 0xFF;
         var wb:int = newWhite & 0xFF;
 
-        out.redMultiplier   = (wr - br) * 0.00392156862745098;
-        out.greenMultiplier = (wg - bg) * 0.00392156862745098;
-        out.blueMultiplier  = (wb - bb) * 0.00392156862745098;
+        out.redMultiplier   = (wr - br) / 255;
+        out.greenMultiplier = (wg - bg) / 255;
+        out.blueMultiplier  = (wb - bb) / 255;
         out.alphaMultiplier = 1;
 
         out.redOffset       = br;
@@ -162,9 +146,9 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setRangeMap(fromLow:uint, fromHigh:uint,
-                                       toLow:uint,   toHigh:uint,
-                                       out:ColorTransform = null):ColorTransform
+    public static function makeRangeMap(fromLow:uint, fromHigh:uint,
+                                        toLow:uint,   toHigh:uint,
+                                        out:ColorTransform = null):ColorTransform
     {
 
         var fr0:int = (fromLow >> 16) & 0xFF;
@@ -211,9 +195,9 @@ public class ColorTransformUtil
         scaleG = (tg1 - tg0) / scaleG;
         scaleB = (tb1 - tb0) / scaleB;
 
-        out.redMultiplier   = ((255 - fr0) * scaleR + tr0) * 0.00392156862745098;
-        out.greenMultiplier = ((255 - fg0) * scaleG + tg0) * 0.00392156862745098;
-        out.blueMultiplier  = ((255 - fb0) * scaleB + tb0) * 0.00392156862745098;
+        out.redMultiplier   = ((255 - fr0) * scaleR + tr0) / 255;
+        out.greenMultiplier = ((255 - fg0) * scaleG + tg0) / 255;
+        out.blueMultiplier  = ((255 - fb0) * scaleB + tb0) / 255;
         out.alphaMultiplier = 1;
 
         out.redOffset       = -fr0 * scaleR + tr0;
@@ -224,7 +208,7 @@ public class ColorTransformUtil
         return out;
     }
 
-    public static function setLevels(blackPoint:Number, whitePoint:Number, channels:uint = 7, out:ColorTransform = null):ColorTransform
+    public static function makeLevels(blackPoint:Number, whitePoint:Number, channels:uint = 7, out:ColorTransform = null):ColorTransform
     {
         if (!out) out = new ColorTransform();
 
@@ -274,6 +258,44 @@ public class ColorTransformUtil
             out.alphaMultiplier = 1;
             out.alphaOffset = 0;
         }
+
+        return out;
+    }
+
+    public static function makeFromColorMatrix(m:Array, out:ColorTransform = null):ColorTransform
+    {
+        if (!out) out = new ColorTransform();
+
+        out.redMultiplier   = m[0];
+        out.greenMultiplier = m[6];
+        out.blueMultiplier  = m[12];
+        out.alphaMultiplier = m[18];
+        out.redOffset       = m[4];
+        out.greenOffset     = m[9];
+        out.blueOffset      = m[14];
+        out.alphaOffset     = m[19];
+
+        return out;
+    }
+
+    public static function invert(ct:ColorTransform, out:ColorTransform = null):ColorTransform
+    {
+        if (!out) out = new ColorTransform();
+
+        var irm:Number = 1 / ct.redMultiplier;
+        var igm:Number = 1 / ct.greenMultiplier;
+        var ibm:Number = 1 / ct.blueMultiplier;
+        var iam:Number = 1 / ct.alphaMultiplier;
+
+        out.redMultiplier =   irm;
+        out.greenMultiplier = igm;
+        out.blueMultiplier =  ibm;
+        out.alphaMultiplier = iam;
+
+        out.redOffset *=   -irm;
+        out.greenOffset *= -igm;
+        out.blueOffset *=  -ibm;
+        out.alphaOffset *= -iam;
 
         return out;
     }
