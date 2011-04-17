@@ -1,301 +1,272 @@
 package org.yellcorp.lib.color
 {
-import flash.display.BitmapDataChannel;
-import flash.geom.ColorTransform;
-
-
 public class ColorMatrixUtil
 {
-    public static const SCALE:Number = 255;
-    public static const INVSCALE:Number = 1 / 255;
-    public static const SQRT3:Number = Math.sqrt(3);    // used for hue rotate
+    public static const MAX:int = 20;
+    public static const WIDTH:int = 5;
 
-    public static function copyColorTransform(c:ColorTransform, out:ColorMatrix = null):ColorMatrix
+    public static function makeIdentity(cm:Array = null):Array
     {
-        if (!out) out = new ColorMatrix();
-        out.setDiagonalOffset( c.redMultiplier, c.greenMultiplier, c.blueMultiplier, c.alphaMultiplier,
-                               c.redOffset, c.greenOffset, c.blueOffset, c.alphaOffset );
-        return out;
+        if (!cm) cm = new Array(MAX);
+
+        setDiagonal(cm, 1, 1, 1, 1);
+        setOffset(cm, 0, 0, 0, 0);
+        clearCrossChannel(cm);
+
+        return cm;
     }
 
-    public static function setMultiply(c:VectorRGB, out:ColorMatrix = null):ColorMatrix
+    public static function toString(colorMatrix:Array):String
     {
-        if (!out) out = new ColorMatrix();
-        out.setDiagonalOffset( c.r * INVSCALE,
-                               c.g * INVSCALE,
-                               c.b * INVSCALE,
-                               1,
-                               0, 0, 0, 0 );
-        return out;
-    }
-
-    public static function setAdd(c:VectorRGB, out:ColorMatrix = null):ColorMatrix
-    {
-        if (!out) out = new ColorMatrix();
-        out.setDiagonalOffset(   1,   1,   1, 1,
-                               c.r, c.g, c.b, 0 );
-        return out;
-    }
-
-    public static function setScreen(c:VectorRGB, out:ColorMatrix = null):ColorMatrix
-    {
-        if (!out) out = new ColorMatrix();
-        out.setDiagonalOffset( 1 - c.r * INVSCALE,
-                               1 - c.g * INVSCALE,
-                               1 - c.b * INVSCALE,
-                               1,
-                               c.r, c.g, c.b, 0 );
-        return out;
-    }
-
-    public static function setTint(c:VectorRGB, amount:Number = 1.0, out:ColorMatrix = null):ColorMatrix
-    {
-        if (!out) out = new ColorMatrix();
-        var ainv:Number = 1 - amount;
-        out.setDiagonalOffset( ainv, ainv, ainv, 1,
-                               c.r * amount,
-                               c.g * amount,
-                               c.b * amount,
-                               0 );
-        return out;
-    }
-
-    public static function setMap(newBlack:VectorRGB, newWhite:VectorRGB, out:ColorMatrix = null):ColorMatrix
-    {
-        if (!out) out = new ColorMatrix();
-        out.setDiagonalOffset( (newWhite.r - newBlack.r) * INVSCALE,
-                               (newWhite.g - newBlack.g) * INVSCALE,
-                               (newWhite.b - newBlack.b) * INVSCALE,
-                               1,
-                               newBlack.r, newBlack.g, newBlack.b, 0 );
-        return out;
-    }
-
-    public static function setLevels(blackPoint:Number, whitePoint:Number, channels:uint = 7, out:ColorMatrix = null):ColorMatrix
-    {
-        var factor:Number = 255 / (whitePoint - blackPoint);
-        var offset:Number = -blackPoint * factor;
-
         var i:int;
-        var mask:uint = 1;
-        var mIndex:int = 0;
-        var oIndex:int = 4;
+        var str:String = "[ColorMatrix [";
 
-        if (!out) out = new ColorMatrix();
-
-        for (i = 0; i < 4; i++)
+        for (i = 0; i < MAX; i++)
         {
-            if ((channels & mask) > 0)
+            if (i > 0)
             {
-                out[mIndex] = factor;
-                out[oIndex] = offset;
+                if (i % WIDTH == 0)
+                {
+                    str += "], [";
+                }
+                else
+                {
+                    str += ", ";
+                }
             }
-            else
-            {
-                out[mIndex] = 1;
-                out[oIndex] = 0;
-            }
-            mask <<= 1;
-            mIndex += 6;
-            oIndex += 5;
+            str += colorMatrix[i].toFixed(3);
         }
 
-        return out;
+        str += "]]";
+
+        return str;
     }
 
-    public static function setHueSaturation(hueRadians:Number, saturation:Number, out:ColorMatrix = null):ColorMatrix
+    public static function setDiagonal(cm:Array, r:Number, g:Number, b:Number, a:Number = Number.NaN):Array
     {
-        // wow, completely overthought
-        // just 3d rotate with normalized(1,1,1) as the axis
-        // i.e. (3^-2, 3^-2, 3^-2)
+        cm[0] = r;
+        cm[6] = g;
+        cm[12] = b;
 
-        // don't even need to scale or xlate
+        if (isFinite(a)) cm[18] = a;
 
-        // if you can work it out you could apply a shear of some kind
-        // so the rotation axis stays as [1,1,1] but any point off the
-        // axis rotates parallel to the luma plane (0.2126, 0.7152, 0.0722)
+        return cm;
+    }
 
-        // this would maintain luma values but i don't think even
-        // real HSB does this
+    public static function setOffset(cm:Array, r:Number, g:Number, b:Number, a:Number = Number.NaN):Array
+    {
+        cm[4] = r;
+        cm[9] = g;
+        cm[14] = b;
 
-        var cosa:Number;
-        var sina:Number;
+        if (isFinite(a)) cm[19] = a;
 
-        var unsat:Number;
+        return cm;
+    }
 
-        var diag:Number;
-        var skewpos:Number;
-        var skewneg:Number;
+    public static function clearCrossChannel(cm:Array):void
+    {
+                 cm[ 1] = cm[ 2] = cm[ 3] =
+        cm[ 5] =          cm[ 7] = cm[ 8] =
+        cm[10] = cm[11] =          cm[13] =
+        cm[15] = cm[16] = cm[17] =          0;
+    }
 
-        if (!out) out = new ColorMatrix();
+    public static function setDefaultAlpha(cm:Array):void
+    {
 
-        if (saturation != 0)
+        cm[15] = cm[16] = cm[17] = cm[19] = 0;
+        cm[18] = 1;
+    }
+
+    public static function multiply(a:Array, b:Array, out:Array = null):Array
+    {
+        if (!out)
         {
-            cosa = Math.cos(hueRadians);
-            sina = Math.sin(hueRadians);
-
-            // compiler should optimize 1/3 to 0.3333...
-            saturation *= 1/3;
-            unsat = (1/3) - saturation;
-
-            diag = saturation * (1 + 2 * cosa) + unsat;
-            skewpos = saturation * (1 - cosa - SQRT3 * sina) + unsat;
-            skewneg = saturation * (1 - cosa + SQRT3 * sina) + unsat;
+            out = [ ];
         }
         else
         {
-            diag = skewpos = skewneg = 1/3;
+            if (a === out) a = a.concat();
+            if (b === out) b = b.concat();
         }
 
-        out[0] =
-        out[6] =
-        out[12] = diag;
+        out[0] = a[0] * b[0] + a[1] * b[5] + a[2] * b[10] + a[3] * b[15];
+        out[1] = a[0] * b[1] + a[1] * b[6] + a[2] * b[11] + a[3] * b[16];
+        out[2] = a[0] * b[2] + a[1] * b[7] + a[2] * b[12] + a[3] * b[17];
+        out[3] = a[0] * b[3] + a[1] * b[8] + a[2] * b[13] + a[3] * b[18];
+        out[4] = a[0] * b[4] + a[1] * b[9] + a[2] * b[14] + a[3] * b[19] + a[4];
 
-        out[1] =
-        out[7] =
-        out[10] = skewpos;
+        out[5] = a[5] * b[0] + a[6] * b[5] + a[7] * b[10] + a[8] * b[15];
+        out[6] = a[5] * b[1] + a[6] * b[6] + a[7] * b[11] + a[8] * b[16];
+        out[7] = a[5] * b[2] + a[6] * b[7] + a[7] * b[12] + a[8] * b[17];
+        out[8] = a[5] * b[3] + a[6] * b[8] + a[7] * b[13] + a[8] * b[18];
+        out[9] = a[5] * b[4] + a[6] * b[9] + a[7] * b[14] + a[8] * b[19] + a[9];
 
-        out[2] =
-        out[5] =
-        out[11] = skewneg;
+        out[10] = a[10] * b[0] + a[11] * b[5] + a[12] * b[10] + a[13] * b[15];
+        out[11] = a[10] * b[1] + a[11] * b[6] + a[12] * b[11] + a[13] * b[16];
+        out[12] = a[10] * b[2] + a[11] * b[7] + a[12] * b[12] + a[13] * b[17];
+        out[13] = a[10] * b[3] + a[11] * b[8] + a[12] * b[13] + a[13] * b[18];
+        out[14] = a[10] * b[4] + a[11] * b[9] + a[12] * b[14] + a[13] * b[19] + a[14];
 
-        out[3] =
-        out[4] =
-        out[8] =
-        out[9] =
-        out[13] =
-        out[14] =
-        out[15] =
-        out[16] =
-        out[17] =
-        out[19] = 0;
-
-        out[18] = 1;
+        out[15] = a[15] * b[0] + a[16] * b[5] + a[17] * b[10] + a[18] * b[15];
+        out[16] = a[15] * b[1] + a[16] * b[6] + a[17] * b[11] + a[18] * b[16];
+        out[17] = a[15] * b[2] + a[16] * b[7] + a[17] * b[12] + a[18] * b[17];
+        out[18] = a[15] * b[3] + a[16] * b[8] + a[17] * b[13] + a[18] * b[18];
+        out[19] = a[15] * b[4] + a[16] * b[9] + a[17] * b[14] + a[18] * b[19] + a[19];
 
         return out;
     }
 
-    public static function setChannelToAlpha(inChannelMask:uint, out:ColorMatrix = null):ColorMatrix
+    // same as multiply but with the order swapped.
+    // ColorMatrixFilter works with vertical colour vectors, unlike
+    // transform vectors which are horizontal, multiplying two together
+    // applies the effect of the right argument 'before' the left one.
+    // this version allows the order to be specified with order and wording
+    // matching the flash api
+    public static function concatenate(a:Array, b:Array, out:Array = null):Array
     {
-        if (!out) out = new ColorMatrix();
+        return multiply(b, a, out);
+    }
 
-        out[15] = inChannelMask & BitmapDataChannel.RED ? 1 : 0;
-        out[16] = inChannelMask & BitmapDataChannel.GREEN ? 1 : 0;
-        out[17] = inChannelMask & BitmapDataChannel.BLUE ? 1 : 0;
-        out[18] = inChannelMask & BitmapDataChannel.ALPHA ? 1 : 0;
+    public static function lerp(a:Array, b:Array, t:Number, out:Array = null):Array
+    {
+        var i:int;
+        if (!out) out = [ ];
+
+        for (i = 0; i < MAX; i++)
+            out[i] = a[i] + t * (b[i] - a[i]);
 
         return out;
     }
 
-    public static function setChannelUnion(inChannelMask:uint, outChannel:uint, out:ColorMatrix = null):ColorMatrix
+    public static function invert(m:Array, out:Array = null):Array
     {
-        if (!out) out = new ColorMatrix();
-
-        setChannelLogicOp(inChannelMask, outChannel, 0, out);
-
+        if (!out)
+        {
+            out = new Array(MAX);
+        }
+        makeIdentity(out);
+        rref(m.concat(), out);
         return out;
     }
 
-    public static function setChannelIntersection(inChannelMask:uint, outChannel:uint, out:ColorMatrix = null):ColorMatrix
+    // Helper functions for Gauss-Jordan elimination
+    // in each of these functions, the total augmented array remains
+    // in two separate objects: orig and aug. orig starts out as the
+    // original matrix, aug start out as the identity. at the end
+    // of the algorithm, aug contains the inverse.
+
+    // each row operation is applied to both Arrays
+
+    private static function rref(orig:Array, aug:Array):void
     {
-        var offset:Number;
-        var countBits:uint = inChannelMask;
+        var row:int;
+        var col:int;
 
-        if (!out) out = new ColorMatrix();
+        // [  0  1  2  3  4 ] [ 1 0 0 0 0 ]
+        // [  5  6  7  8  9 ] [ 0 1 0 0 0 ]
+        // [ 10 11 12 13 14 ] [ 0 0 1 0 0 ]
+        // [ 15 16 17 18 19 ] [ 0 0 0 1 0 ]
+        // [  0  0  0  0  1 ] [ 0 0 0 0 1 ]
 
-        // count the bits in inChannelMask, this tells us how many source
-        // channels are being used.  the offset result is
-        // ((number of channels used) - 1) * -255
-        offset = 255;
-        while (countBits > 0)
+        for (row = 0, col = 0; row < MAX; row += WIDTH, col++)
         {
-            if (countBits & 1) offset -= 255;
-            countBits >>>= 1;
+            if (orig[row + col] == 0 &&
+                !moveNonZeroToDiagonal(orig, aug, row, col))
+            {
+                // zero column: matrix is singular
+                aug[0] = Number.NaN;
+                return;
+            }
+            zeroRows(orig, aug, row, col, false);
         }
 
-        setChannelLogicOp(inChannelMask, outChannel, offset, out);
+        // by this point we have upper triangular matrix of the form:
+        // [ a b c d e ]
+        // [ 0 f g h i ]
+        // [ 0 0 j k l ]
+        // [ 0 0 0 m n ]
+        // [ 0 0 0 0 1 ]
 
-        return out;
-    }
+        // easy way to zero out the last column, given that the bottom
+        // row is an implicit [ 0 0 0 0 1 ]
+        zeroOffsets(orig, aug);
 
-    private static function setChannelLogicOp(inChannelMask:uint, outChannel:uint, offset:Number, out:ColorMatrix):void
-    {
-        var outRow:int;
-
-        switch (outChannel)
+        // now run backwards and up from row/column 3
+        for (row = 3 * WIDTH, col = 3; row >= 0; row -= WIDTH, col--)
         {
-            case BitmapDataChannel.RED :
-                outRow = 0;
-                break;
-
-            case BitmapDataChannel.GREEN :
-                outRow = 5;
-                break;
-
-            case BitmapDataChannel.BLUE :
-                outRow = 10;
-                break;
-
-            case BitmapDataChannel.ALPHA :
-                outRow = 15;
-                break;
-
-            default :
-                throw new ArgumentError("Must specify exactly one output channel");
-                break;
-        }
-
-        out[outRow++] = inChannelMask & BitmapDataChannel.RED ? 1 : 0;
-        out[outRow++] = inChannelMask & BitmapDataChannel.GREEN ? 1 : 0;
-        out[outRow++] = inChannelMask & BitmapDataChannel.BLUE ? 1 : 0;
-        out[outRow++] = inChannelMask & BitmapDataChannel.ALPHA ? 1 : 0;
-        out[outRow++] = offset;
-
-        // probably don't need to set the rest to identity.  if you only want the
-        // result of outChannel then it doesn't matter.  if you do want the
-        // other channels, you can set the matrix up before calling i guess
-        /*
-        if (outRow !=  0) { out[ 0] = 1; out[ 1] = 0; out[ 2] = 0; out[ 3] = 0; out[ 4] = 0; };
-        if (outRow !=  5) { out[ 5] = 0; out[ 6] = 1; out[ 7] = 0; out[ 8] = 0; out[ 9] = 0; };
-        if (outRow != 10) { out[10] = 0; out[11] = 0; out[12] = 1; out[13] = 0; out[14] = 0; };
-        if (outRow != 15) { out[15] = 0; out[16] = 0; out[17] = 0; out[18] = 1; out[19] = 0; };
-         */
-    }
-
-    /*
-    //debug
-    private static function copyMatRGBToGeo(c:Array, m:Matrix4x3):void
-    {
-        m.m00 = c[0];   m.m10 = c[1];   m.m20 = c[2];   m.m30 = c[4];
-        m.m01 = c[5];   m.m11 = c[6];   m.m21 = c[7];   m.m31 = c[9];
-        m.m02 = c[10];  m.m12 = c[11];  m.m22 = c[12];  m.m32 = c[14];
-    }
-
-    private static function copyMatGeoToRGB(m:Matrix4x3, c:Array):void
-    {
-        c[0]  = m.m00;  c[1]  = m.m10;  c[2]  = m.m20;  c[4]  = m.m30;
-        c[5]  = m.m01;  c[6]  = m.m11;  c[7]  = m.m21;  c[9]  = m.m31;
-        c[10] = m.m02;  c[11] = m.m12;  c[12] = m.m22;  c[14] = m.m32;
-    }
- */
-
-        // FACTORY METHODS: These produce invariant ColorMatrix objects
-        // so there is no 'out' option - they always return a new object
-
-        public static function createDesaturate():ColorMatrix
-        {
-            return new ColorMatrix([ 0.3334, 0.3333, 0.3333, 0, 0,
-                                     0.3334, 0.3333, 0.3333, 0, 0,
-                                     0.3334, 0.3333, 0.3333, 0, 0,
-                                         0,       0,      0, 1, 0 ]);
-        }
-
-        public static function createLumaSRGB():ColorMatrix
-        {
-            return new ColorMatrix([ 0.2126, 0.7152, 0.0722, 0, 0,
-                                     0.2126, 0.7152, 0.0722, 0, 0,
-                                     0.2126, 0.7152, 0.0722, 0, 0,
-                                          0,      0,      0, 1, 0 ]);
+            zeroRows(orig, aug, row, col, true);
+            divideRow(aug, row, orig[row + col]);
         }
     }
+
+    private static function moveNonZeroToDiagonal(orig:Array, aug:Array, row:int, col:int):Boolean
+    {
+        for (var searchRow:int = row + WIDTH; searchRow < MAX; searchRow += WIDTH)
+        {
+            if (orig[searchRow + col] != 0)
+            {
+                swapRows(orig, row, searchRow);
+                swapRows(aug, row, searchRow);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static function zeroRows(orig:Array, aug:Array, refRow:int, col:int, up:Boolean):void
+    {
+        var rowStep:int = up ? -WIDTH : WIDTH;
+        var pivot:Number = orig[refRow + col];
+        var eliminate:Number;
+
+        for (var row:int = refRow + rowStep; row >= 0 && row < MAX; row += rowStep)
+        {
+            eliminate = orig[row + col];
+            if (eliminate != 0)
+            {
+                addRowMultiple(orig, aug, refRow, row, -eliminate / pivot);
+            }
+        }
+    }
+
+    private static function swapRows(m:Array, rowA:int, rowB:int):void
+    {
+        var temp:Number;
+
+        for (var i:int = 0; i < WIDTH; i++)
+        {
+            temp = m[rowA + i];
+            m[rowA + i] = m[rowB + i];
+            m[rowB + i] = temp;
+        }
+    }
+
+    private static function addRowMultiple(orig:Array, aug:Array, fromRow:int, toRow:int, factor:Number):void
+    {
+        for (var col:int = 0; col < WIDTH; col++)
+        {
+            orig[toRow + col] += orig[fromRow + col] * factor;
+            aug[toRow + col]  += aug[fromRow + col]  * factor;
+        }
+    }
+
+    private static function divideRow(aug:Array, row:int, factor:Number):void
+    {
+        for (var col:int = 0; col < WIDTH; col++)
+        {
+            aug[row + col] /= factor;
+        }
+    }
+
+    private static function zeroOffsets(orig:Array, aug:Array):void
+    {
+        for (var i:int = WIDTH - 1; i < MAX; i += WIDTH)
+        {
+            aug[i] -= orig[i];
+            orig[i] = 0;
+        }
+    }
+}
 }

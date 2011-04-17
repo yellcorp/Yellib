@@ -1,8 +1,7 @@
-package scratch
+package scratch.colormatrix
 {
-import org.yellcorp.lib.color.ColorMatrix;
+import org.yellcorp.lib.color.ColorMatrixFactory;
 import org.yellcorp.lib.color.ColorMatrixUtil;
-import org.yellcorp.lib.color.VectorRGB;
 import org.yellcorp.lib.env.ResizableStage;
 
 import flash.display.Loader;
@@ -18,9 +17,9 @@ public class TestColorMatrix extends ResizableStage
     private var loader:Loader;
     private var cmFilter:ColorMatrixFilter;
 
-    private var cm1:ColorMatrix;
-    private var cm2:ColorMatrix;
-    private var cmOut:ColorMatrix;
+    private var cm1:Array;
+    private var cm2:Array;
+    private var cmOut:Array;
 
     private var t:Number = 0;
     private var delta:Number = 0.05;
@@ -36,19 +35,11 @@ public class TestColorMatrix extends ResizableStage
 
         var url:URLRequest = new URLRequest("test.jpg");
 
-        var testColour:VectorRGB = VectorRGB.fromUint24(0xCC9966);
-        var testColour2:VectorRGB = VectorRGB.fromUint24(0xFF3399);
-
         cmFilter = new ColorMatrixFilter( );
 
-        cm1 = ColorMatrixUtil.setMap(testColour2, testColour);
-        //cm2 = ColorMatrixUtil.createLumaSRGB();
-        cm2 = new ColorMatrix([  1,  0,  0, 0, 0,
-                                 0,  1,  0, 0, 0,
-                                 0,  0,  1, 0, 0,
-                                 0,  0,  0, 1, 0 ]);
-
-        cmOut = new ColorMatrix();
+        cm1 = ColorMatrixFactory.makeDuotone(0xFF0000, 0x00ffff);
+        cm2 = ColorMatrixUtil.makeIdentity();
+        cmOut = ColorMatrixUtil.makeIdentity();
 
         addChild(loader);
         loader.load(url);
@@ -79,20 +70,20 @@ public class TestColorMatrix extends ResizableStage
 
     private function onFrame(e:Event):void
     {
-        //ColorMatrix.lerp(cm1, cm2, t, cmOut);
-        ColorMatrixUtil.setHueSaturation(t * 2 * Math.PI, 1, cmOut);
+        ColorMatrixUtil.lerp(cm1, cm2, t, cmOut);
+//            ColorMatrixFactory.makeHueSaturation(t * 2 * Math.PI, 1, cmOut);
 
-        cmFilter.matrix = cmOut;
+            cmFilter.matrix = cmOut;
 
-        debugField.text = cmOut.toString();// + "\n" + cmOut.rgbDet();
+            debugField.text = ColorMatrixUtil.toString(cmOut);// + "\n" + cmOut.rgbDet();
 
-        loader.filters = [ cmFilter ];
+            loader.filters = [ cmFilter ];
 
-        t += delta;
-        if ((delta > 0 && t > 1) || (delta < 0 && t < 0))
-        {
-             delta *= -1;
+            t += delta;
+            if ((delta > 0 && t > 1) || (delta < 0 && t < 0))
+            {
+                 delta *= -1;
+            }
         }
     }
-}
 }
