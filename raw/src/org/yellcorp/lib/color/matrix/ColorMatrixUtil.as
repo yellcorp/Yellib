@@ -5,13 +5,11 @@ import flash.geom.ColorTransform;
 
 public class ColorMatrixUtil
 {
-    public static const MAX:int = 20;
-    public static const WIDTH:int = 5;
     public static const EPSILON:Number = 1 / 512;
 
     public static function makeIdentity(cm:Array = null):Array
     {
-        if (!cm) cm = new Array(MAX);
+        if (!cm) cm = new Array(20);
 
         setDiagonal(cm, 1, 1, 1, 1);
         setOffset(cm, 0, 0, 0, 0);
@@ -25,11 +23,11 @@ public class ColorMatrixUtil
         var i:int;
         var str:String = "[ColorMatrix [";
 
-        for (i = 0; i < MAX; i++)
+        for (i = 0; i < 20; i++)
         {
             if (i > 0)
             {
-                if (i % WIDTH == 0)
+                if (i % 5 == 0)
                 {
                     str += "], [";
                 }
@@ -158,7 +156,7 @@ public class ColorMatrixUtil
         var i:int;
         if (!out) out = [ ];
 
-        for (i = 0; i < MAX; i++)
+        for (i = 0; i < 20; i++)
             out[i] = a[i] + t * (b[i] - a[i]);
 
         return out;
@@ -167,7 +165,7 @@ public class ColorMatrixUtil
     public static function isfinite(m:Array):Boolean
     {
         var e:Number;
-        for (var i:int = 0; i < MAX; i++)
+        for (var i:int = 0; i < 20; i++)
         {
             e = m[i];
             if (!isFinite(e))
@@ -203,7 +201,7 @@ public class ColorMatrixUtil
         // some kind of decomposition? does anyone even invert colormatrices?
         if (!out)
         {
-            out = new Array(MAX);
+            out = new Array(20);
         }
         makeIdentity(out);
         rref(m.concat(), out);
@@ -229,7 +227,7 @@ public class ColorMatrixUtil
         // [ 15 16 17 18 19 ] [ 0 0 0 1 0 ]
         // [  0  0  0  0  1 ] [ 0 0 0 0 1 ]
 
-        for (row = 0, col = 0; row < MAX; row += WIDTH, col++)
+        for (row = 0, col = 0; row < 20; row += 5, col++)
         {
             if (orig[row + col] == 0 &&
                 !moveNonZeroToDiagonal(orig, aug, row, col))
@@ -253,7 +251,7 @@ public class ColorMatrixUtil
         zeroOffsets(orig, aug);
 
         // now run backwards and up from row/column 3
-        for (row = 3 * WIDTH, col = 3; row >= 0; row -= WIDTH, col--)
+        for (row = 15, col = 3; row >= 0; row -= 5, col--)
         {
             if (row > 0)
             {
@@ -265,7 +263,7 @@ public class ColorMatrixUtil
 
     private static function moveNonZeroToDiagonal(orig:Array, aug:Array, row:int, col:int):Boolean
     {
-        for (var searchRow:int = row + WIDTH; searchRow < MAX; searchRow += WIDTH)
+        for (var searchRow:int = row + 5; searchRow < 20; searchRow += 5)
         {
             if (orig[searchRow + col] != 0)
             {
@@ -279,11 +277,11 @@ public class ColorMatrixUtil
 
     private static function zeroRows(orig:Array, aug:Array, refRow:int, col:int, up:Boolean):void
     {
-        var rowStep:int = up ? -WIDTH : WIDTH;
+        var rowStep:int = up ? -5 : 5;
         var pivot:Number = orig[refRow + col];
         var eliminate:Number;
 
-        for (var row:int = refRow + rowStep; row >= 0 && row < MAX; row += rowStep)
+        for (var row:int = refRow + rowStep; row >= 0 && row < 20; row += rowStep)
         {
             eliminate = orig[row + col];
             if (eliminate != 0)
@@ -297,7 +295,7 @@ public class ColorMatrixUtil
     {
         var temp:Number;
 
-        for (var i:int = 0; i < WIDTH; i++)
+        for (var i:int = 0; i < 5; i++)
         {
             temp = m[rowA + i];
             m[rowA + i] = m[rowB + i];
@@ -307,7 +305,7 @@ public class ColorMatrixUtil
 
     private static function addRowMultiple(orig:Array, aug:Array, fromRow:int, toRow:int, factor:Number):void
     {
-        for (var col:int = 0; col < WIDTH; col++)
+        for (var col:int = 0; col < 5; col++)
         {
             orig[toRow + col] += orig[fromRow + col] * factor;
             aug[toRow + col]  += aug[fromRow + col]  * factor;
@@ -316,7 +314,7 @@ public class ColorMatrixUtil
 
     private static function divideRow(aug:Array, row:int, factor:Number):void
     {
-        for (var col:int = 0; col < WIDTH; col++)
+        for (var col:int = 0; col < 5; col++)
         {
             aug[row + col] /= factor;
         }
@@ -324,7 +322,7 @@ public class ColorMatrixUtil
 
     private static function zeroOffsets(orig:Array, aug:Array):void
     {
-        for (var i:int = WIDTH - 1; i < MAX; i += WIDTH)
+        for (var i:int = 5 - 1; i < 20; i += 5)
         {
             aug[i] -= orig[i];
             orig[i] = 0;
