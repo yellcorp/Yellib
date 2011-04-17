@@ -1,7 +1,7 @@
 package scratch.colormatrix
 {
-import org.yellcorp.lib.color.ColorMatrixFactory;
-import org.yellcorp.lib.color.ColorMatrixUtil;
+import org.yellcorp.lib.color.matrix.ColorMatrixFactory;
+import org.yellcorp.lib.color.matrix.ColorMatrixUtil;
 import org.yellcorp.lib.env.ResizableStage;
 
 import flash.display.Loader;

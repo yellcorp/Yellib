@@ -1,6 +1,6 @@
 package scratch.colormatrix
 {
-import org.yellcorp.lib.color.ColorMatrixUtil;
+import org.yellcorp.lib.color.matrix.ColorMatrixUtil;
 import org.yellcorp.lib.core.ArrayUtil;
 
 import flash.display.Sprite;
