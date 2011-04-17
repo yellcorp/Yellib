@@ -4,6 +4,7 @@ public class ColorMatrixUtil
 {
     public static const MAX:int = 20;
     public static const WIDTH:int = 5;
+    public static const EPSILON:Number = 1 / 512;
 
     public static function makeIdentity(cm:Array = null):Array
     {
@@ -149,6 +150,26 @@ public class ColorMatrixUtil
             if (!isFinite(e))
                 return false;
         }
+        return true;
+    }
+
+    /**
+     * Returns true if the color matrix cm is representable as a
+     * ColorTransform. This is true if a color matrix has zeros everywhere
+     * outside the diagonal and the last column.
+     */
+    public static function isColorTransform(cm:Array):Boolean
+    {
+        // skip 0, 18 and 19
+        for (var i:int = 1; i < 18; i++)
+        {
+            if (i % 6 != 0  &&  i % 5 != 4  // skip diagonal and last col
+                && (cm[i] >= EPSILON || cm[i] < -EPSILON))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static function invert(m:Array, out:Array = null):Array
