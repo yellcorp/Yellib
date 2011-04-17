@@ -203,8 +203,12 @@ public class ColorMatrixUtil
         {
             out = new Array(20);
         }
+
+        // copy the array at this point in case it's aliased to out
+        m = m.concat();
+
         makeIdentity(out);
-        rref(m.concat(), out);
+        rref(m, out);
         return out;
     }
 
@@ -221,11 +225,11 @@ public class ColorMatrixUtil
         var row:int;
         var col:int;
 
-        // [  0  1  2  3  4 ] [ 1 0 0 0 0 ]
-        // [  5  6  7  8  9 ] [ 0 1 0 0 0 ]
-        // [ 10 11 12 13 14 ] [ 0 0 1 0 0 ]
-        // [ 15 16 17 18 19 ] [ 0 0 0 1 0 ]
-        // [  0  0  0  0  1 ] [ 0 0 0 0 1 ]
+        // [  0  1  2  3  4  |  1 0 0 0 0 ]
+        // [  5  6  7  8  9  |  0 1 0 0 0 ]
+        // [ 10 11 12 13 14  |  0 0 1 0 0 ]
+        // [ 15 16 17 18 19  |  0 0 0 1 0 ]
+        // [  0  0  0  0  1  |  0 0 0 0 1 ] <-- implicit row
 
         for (row = 0, col = 0; row < 20; row += 5, col++)
         {
@@ -247,7 +251,7 @@ public class ColorMatrixUtil
         // [ 0 0 0 0 1 ]
 
         // cheap way to zero out the last column, given that the bottom
-        // row is an implicit [ 0 0 0 0 1 ]
+        // row is an implicit [ 0 0 0 0 1 | 0 0 0 0 1 ]
         zeroOffsets(orig, aug);
 
         // now run backwards and up from row/column 3
