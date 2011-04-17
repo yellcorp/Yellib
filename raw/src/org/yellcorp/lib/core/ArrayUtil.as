@@ -210,18 +210,18 @@ public class ArrayUtil
      * var hex:Array = ArrayUtil.mapToMethod(numbers, "toString", [ 16 ]);
      * // hex == [ "66", "99", "cc" ];
      *
-     * @param array     An array of objects.
-     * @param method    The name of the method to call on each object.
-     * @param arguments An array of arguments to pass to each method. If
-     *                  omitted, passes no arguments.
-     * @return          A new <code>Array</code> of the results of each
-     *                  method call.
+     * @param array      An array of objects.
+     * @param method     The name of the method to call on each object.
+     * @param methodArgs An array of arguments to pass to each method. If
+     *                   omitted, passes no arguments.
+     * @return           A new <code>Array</code> of the results of each
+     *                   method call.
      */
-    public static function mapToMethod(array:Array, methodName:String, arguments:Array = null):Array
+    public static function mapToMethod(array:Array, methodName:String, methodArgs:Array = null):Array
     {
         var mapper:Function = function (m:*, i:int, a:Array):*
         {
-            return m[methodName].apply(m, arguments);
+            return m[methodName].apply(m, methodArgs);
         };
         return array.map(mapper);
     }
