@@ -1,5 +1,8 @@
 package org.yellcorp.lib.color.matrix
 {
+import flash.geom.ColorTransform;
+
+
 public class ColorMatrixUtil
 {
     public static const MAX:int = 20;
@@ -78,6 +81,27 @@ public class ColorMatrixUtil
 
         cm[15] = cm[16] = cm[17] = cm[19] = 0;
         cm[18] = 1;
+    }
+
+    public static function fromColorTransform(ct:ColorTransform, out:Array = null):Array
+    {
+        if (!out) out = [ ];
+
+        ColorMatrixUtil.setDiagonal(out,
+            ct.redMultiplier,
+            ct.greenMultiplier,
+            ct.blueMultiplier,
+            ct.alphaMultiplier);
+
+        ColorMatrixUtil.setOffset(out,
+            ct.redOffset,
+            ct.greenOffset,
+            ct.blueOffset,
+            ct.alphaOffset);
+
+        ColorMatrixUtil.clearCrossChannel(out);
+
+        return out;
     }
 
     public static function multiply(a:Array, b:Array, out:Array = null):Array

@@ -3,33 +3,11 @@ package org.yellcorp.lib.color.matrix
 import org.yellcorp.lib.color.SRGB;
 
 import flash.display.BitmapDataChannel;
-import flash.geom.ColorTransform;
 
 
 public class ColorMatrixFactory
 {
     public static const SQRT3:Number = Math.sqrt(3);
-
-    public static function makeFromColorTransform(ct:ColorTransform, out:Array = null):Array
-    {
-        if (!out) out = [ ];
-
-        ColorMatrixUtil.setDiagonal(out,
-            ct.redMultiplier,
-            ct.greenMultiplier,
-            ct.blueMultiplier,
-            ct.alphaMultiplier);
-
-        ColorMatrixUtil.setOffset(out,
-            ct.redOffset,
-            ct.greenOffset,
-            ct.blueOffset,
-            ct.alphaOffset);
-
-        ColorMatrixUtil.clearCrossChannel(out);
-
-        return out;
-    }
 
     public static function makeDesaturate(out:Array = null):Array
     {
