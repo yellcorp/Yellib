@@ -1,4 +1,4 @@
-package org.yellcorp.lib.color
+package org.yellcorp.lib.color.matrix
 {
 public class ColorMatrixUtil
 {
@@ -140,8 +140,23 @@ public class ColorMatrixUtil
         return out;
     }
 
+    public static function isfinite(m:Array):Boolean
+    {
+        var e:Number;
+        for (var i:int = 0; i < MAX; i++)
+        {
+            e = m[i];
+            if (!isFinite(e))
+                return false;
+        }
+    }
+
     public static function invert(m:Array, out:Array = null):Array
     {
+        // uses a fairly dumb guass-jordan algorithm to transform
+        // the augmented matrix into RREF, with float roundoff everywhere.
+        // probably a better way but i don't know it. using determinants?
+        // some kind of decomposition? does anyone even invert colormatrices?
         if (!out)
         {
             out = new Array(MAX);
@@ -152,8 +167,8 @@ public class ColorMatrixUtil
     }
 
     // Helper functions for Gauss-Jordan elimination
-    // in each of these functions, the total augmented array remains
-    // in two separate objects: orig and aug. orig starts out as the
+    // in each of these functions, the total augmented matrix remains
+    // in two separate arrays: orig and aug. orig starts out as the
     // original matrix, aug start out as the identity. at the end
     // of the algorithm, aug contains the inverse.
 

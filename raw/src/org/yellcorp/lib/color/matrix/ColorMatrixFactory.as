@@ -1,5 +1,7 @@
-package org.yellcorp.lib.color
+package org.yellcorp.lib.color.matrix
 {
+import org.yellcorp.lib.color.SRGB;
+
 import flash.display.BitmapDataChannel;
 import flash.geom.ColorTransform;
 
