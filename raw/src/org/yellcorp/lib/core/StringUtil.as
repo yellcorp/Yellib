@@ -30,8 +30,7 @@ public class StringUtil
         var result:String = "";
         if (times > 0)
         {
-            do
-            {
+            do {
                 if (times & 1) result += str;
             } while ((times >>= 1) && (str += str));
         }
