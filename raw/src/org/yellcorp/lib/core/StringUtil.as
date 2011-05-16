@@ -2,26 +2,33 @@ package org.yellcorp.lib.core
 {
 public class StringUtil
 {
-    public static const TRIM_LEFT:RegExp = /^[\s\0]+/;
-    public static const TRIM_RIGHT:RegExp = /[\s\0]+$/;
-    public static const ALL_WHITESPACE:RegExp = /^[\s\0]+$/;
+    public static const WHITESPACE:RegExp = /[\s\0]+/;
+    public static const LEADING_WHITESPACE:RegExp = /^[\s\0]+/;
+    public static const TRAILING_WHITESPACE:RegExp = /[\s\0]+$/;
+    public static const ENTIRELY_WHITESPACE:RegExp = /^[\s\0]+$/;
 
 
     public static function trimLeft(str:String):String
     {
-        return str.replace(TRIM_LEFT, "");
+        return str.replace(LEADING_WHITESPACE, "");
     }
 
 
     public static function trimRight(str:String):String
     {
-        return str.replace(TRIM_RIGHT, "");
+        return str.replace(TRAILING_WHITESPACE, "");
     }
 
 
     public static function trim(str:String):String
     {
         return trimLeft(trimRight(str));
+    }
+
+
+    public static function condenseWhitespace(str:String):String
+    {
+        return trim(str).replace(WHITESPACE, " ");
     }
 
 
@@ -74,7 +81,7 @@ public class StringUtil
 
     public static function hasContent(query:String):Boolean
     {
-        return Boolean(query) && !ALL_WHITESPACE.test(query);
+        return Boolean(query) && !ENTIRELY_WHITESPACE.test(query);
     }
 
 
