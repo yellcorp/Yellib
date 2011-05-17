@@ -26,7 +26,6 @@ import flash.net.URLRequest;
 [Event(name="xmlParseError", type="org.yellcorp.lib.events.XMLParseErrorEvent")]
 public class URLXMLLoader extends URLLoader
 {
-    private var inProgress:Boolean;
     private var privateLoader:URLLoader;
 
     public function URLXMLLoader(request:URLRequest = null)
@@ -125,8 +124,6 @@ public class URLXMLLoader extends URLLoader
 
     private function listen(loader:URLLoader):void
     {
-        inProgress = true;
-
         loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, dispatchEvent);
         loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
         loader.addEventListener(IOErrorEvent.IO_ERROR, onError);
@@ -137,8 +134,6 @@ public class URLXMLLoader extends URLLoader
 
     private function unlisten(loader:URLLoader):void
     {
-        inProgress = false;
-
         loader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, dispatchEvent);
         loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
         loader.removeEventListener(IOErrorEvent.IO_ERROR, onError);
