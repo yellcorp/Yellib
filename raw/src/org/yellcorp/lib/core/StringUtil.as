@@ -8,38 +8,70 @@ public class StringUtil
     public static const ENTIRELY_WHITESPACE:RegExp = /^[\s\0]+$/;
 
 
+    /**
+     * Returns <code>str</code> with contiguous leading whitespace removed.
+     * @param str The string to trim.
+     * @return    The trimmed string.
+     */
     public static function trimLeft(str:String):String
     {
         return str.replace(LEADING_WHITESPACE, "");
     }
 
 
+    /**
+     * Returns <code>str</code> with contiguous trailing whitespace removed.
+     * @param str The string to trim.
+     * @return    The trimmed string.
+     */
     public static function trimRight(str:String):String
     {
         return str.replace(TRAILING_WHITESPACE, "");
     }
 
 
+    /**
+     * Returns <code>str</code> with contiguous leading and trailing
+     * whitespace removed.
+     * @param str The string to trim.
+     * @return    The trimmed string.
+     */
     public static function trim(str:String):String
     {
         return trimLeft(trimRight(str));
     }
 
 
+    /**
+     * Returns a trimmed copy of <code>str</code> with interior whitespace
+     * sequences each replaced with a single space.
+     * @param str The string in which to condense whitespace.
+     * @return    The string with whitespace condensed.
+     */
     public static function condenseWhitespace(str:String):String
     {
         return trim(str).replace(WHITESPACE, " ");
     }
 
 
-    public static function repeat(str:String, times:int):String
+    /**
+     * Repeats a string a given number of times.
+     * @param sequence  The string to repeat. An empty string, null or
+     *                  undefined will return an empty string.
+     * @param n         The number of times to repeat the string. A value
+     *                  less than or equal to zero will return an empty
+     *                  string.
+     * @return          A string composed of <code>n</code> repetitions of
+     *                  <code>sequence</code>.
+     */
+    public static function repeat(sequence:String, n:int):String
     {
         var result:String = "";
-        if (times > 0)
+        if (sequence && n > 0)
         {
             do {
-                if (times & 1) result += str;
-            } while ((times >>= 1) && (str += str));
+                if (n & 1) result += sequence;
+            } while ((n >>= 1) && (sequence += sequence));
         }
         return result;
     }
@@ -172,6 +204,7 @@ public class StringUtil
         }
         return filterValues.join(delimeter);
     }
+
 
     public static function isDigit(digit:String, base:int):Boolean
     {

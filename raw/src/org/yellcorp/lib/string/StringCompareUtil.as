@@ -78,6 +78,9 @@ public class StringCompareUtil
         return d[bLen][aLen];
     }
 
+    /**
+     * Converts a string to a 1-based array of char codes.
+     */
     private static function stringToCharArray1(str:String):Array
     {
         var ca:Array = new Array(str.length + 1);
