@@ -20,6 +20,33 @@ public class TestColorMatrixInvert2 extends Sprite
         var inv:Array = ColorMatrixUtil.invert(m);
 
         dumpMatrices(m, inv);
+        trace("");
+
+        m = [
+            0, 0, 1, 0, 0,
+            2, 0, 0, 1, 0,
+            0, 1, 0, 0, 0,
+            3, 0, 0, 0, 0,
+        ];
+
+        inv = ColorMatrixUtil.invert(m);
+
+        dumpMatrices(m, inv);
+        trace("");
+
+        // singular.
+        m = [
+            1, 2, 3, 0, 0,
+            2, 4, 6, 0, 0,
+            0, 2, 3, 0, 0,
+            0, 0, 0, 1, 0,
+        ];
+
+        // inv should contain a NaN and return false for CMU.isfinite
+        inv = ColorMatrixUtil.invert(m);
+
+        dumpMatrices(m, inv);
+        trace(ColorMatrixUtil.isfinite(inv));
     }
 
     private static function dumpMatrices(from:Array, to:Array):void

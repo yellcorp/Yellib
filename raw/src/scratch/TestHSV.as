@@ -1,8 +1,8 @@
 package scratch
 {
-import org.yellcorp.lib.color.HSV;
-import org.yellcorp.lib.color.VectorRGB;
+import org.yellcorp.lib.color.vector.VectorColorUtil;
 import org.yellcorp.lib.env.ResizableStage;
+import org.yellcorp.lib.geom.Vector3;
 
 import flash.events.Event;
 import flash.text.TextField;
@@ -10,16 +10,16 @@ import flash.text.TextField;
 
 public class TestHSV extends ResizableStage
 {
-    private var rgb:VectorRGB;
-    private var hsv:HSV;
+    private var rgb:Vector3;
+    private var hsv:Vector3;
     private var t:TextField;
     private var so:Number;
     private var vo:Number;
 
     public function TestHSV()
     {
-        rgb = new VectorRGB();
-        hsv = new HSV(0, 1, 1);
+        rgb = new Vector3();
+        hsv = new Vector3(0, 1, 1);
 
         so = 0;
         vo = 0;
@@ -35,36 +35,35 @@ public class TestHSV extends ResizableStage
 
     private function traceStuff():void
     {
-        var baseCol:VectorRGB = VectorRGB.fromUint24(0x11BDD3);
-        var baseHue:HSV = new HSV();
+        var baseCol:Vector3 = VectorColorUtil.uintToVector(0x11BDD3);
+        var baseHue:Vector3 = new Vector3();
 
-        var targetCol:VectorRGB = VectorRGB.fromUint24(0xFFFF00);
-        var targetHue:HSV = new HSV();
+        var targetCol:Vector3 = VectorColorUtil.uintToVector(0xFFFF00);
+        var targetHue:Vector3 = new Vector3();
 
-        baseHue.convertFromRGB(baseCol);
-        targetHue.convertFromRGB(targetCol);
+        VectorColorUtil.convertRGBtoHSV(baseCol, baseHue);
+        VectorColorUtil.convertRGBtoHSV(targetCol, targetHue);
 
-        trace(baseHue.h - targetHue.h);
+        trace(baseHue.x - targetHue.x);
     }
 
     private function frame(e:Event):void
     {
-        hsv.h++;
+        hsv.y = Math.sin(so) / 2 + .5;
+        hsv.z = Math.cos(vo) / 2 + .5;
 
-        so += 0.05;
-        vo += 0.03;
-
-        hsv.s = Math.sin(so) / 2 + .5;
-        hsv.v = Math.cos(vo) / 2 + .5;
-
-        hsv.convertToRGB(rgb);
+        VectorColorUtil.convertHSVtoRGB(hsv, rgb);
 
         graphics.clear();
-        graphics.beginFill(rgb.getUint24());
+        graphics.beginFill(VectorColorUtil.vectorToUint(rgb));
         graphics.drawRoundRect(20, 20, 100, 100, 12, 12);
         graphics.endFill();
 
         t.text = hsv.toString();
+
+        hsv.x += 1 / 60;
+        so += 0.05;
+        vo += 0.03;
     }
 }
 }

@@ -13,9 +13,9 @@ public class IntColorUtilTest extends TestCase
     }
     public function testMake():void
     {
-        assertEquals("Black", 0x0, IntColorUtil.make(0, 0, 0));
-        assertEquals("White", 0xFFFFFF, IntColorUtil.make(255,255,255));
-        assertEquals("Ochre or something", 0xCC9966, IntColorUtil.make(0xCC, 0x99, 0x66));
+        assertEquals("Black", 0x0, IntColorUtil.makeRGB(0, 0, 0));
+        assertEquals("White", 0xFFFFFF, IntColorUtil.makeRGB(255,255,255));
+        assertEquals("Ochre or something", 0xCC9966, IntColorUtil.makeRGB(0xCC, 0x99, 0x66));
     }
     public function testAdd():void
     {
