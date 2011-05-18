@@ -30,7 +30,7 @@ public class RegExpUtil
     /**
      * Returns a copy of the passed-in RegExp with modified flags.
      * Flags are expressed as a string of characters in the style of
-     * the RegExp constructor or suffix after the trailing slash, like
+     * the RegExp constructor, or suffix after the trailing slash, like
      * PERL.  Flags are copied from the original RegExp unless they are
      * specified in either flagsToSet or flagsToUnset.  Unrecognized flags
      * are ignored.  If a flag is specified in both flagsToSet and

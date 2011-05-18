@@ -15,5 +15,10 @@ public class Token
     {
         return new Token(text.substr(start, length), charIndex + start);
     }
+
+    public function toString():String
+    {
+        return "[Token text=" + text + " charIndex=" + charIndex + "]";
+    }
 }
 }

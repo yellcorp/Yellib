@@ -23,16 +23,15 @@ public class Lexer
     public function nextToken():Token
     {
         var token:Token;
+        var tokenText:String;
 
-        if (currentToken >= textTokens.length)
-        {
-            token = makeToken("");
-        }
-        else
-        {
-            token = makeToken(textTokens[currentToken]);
+        do {
+            tokenText = textTokens[currentToken] || "";
             currentToken++;
         }
+        while (currentToken < textTokens.length && tokenText == "");
+
+        token = makeToken(tokenText);
         _currentChar += token.text.length;
 
         return token;
@@ -50,7 +49,7 @@ public class Lexer
 
     public function get atEnd():Boolean
     {
-        return _currentChar >= _text.length;
+        return currentToken >= textTokens.length;
     }
 
     private function reset():void
@@ -63,7 +62,7 @@ public class Lexer
 
     private function makeToken(text:String):Token
     {
-        return new Token(text, _currentChar);
+        return new Token(text || "", _currentChar);
     }
 }
 }
