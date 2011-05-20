@@ -37,13 +37,19 @@ public class DisplayUtil
         return toSpace.globalToLocal(global);
     }
 
-    public static function replaceDisplay(guide:DisplayObject, real:DisplayObject):DisplayObject
+    public static function replaceDisplay(guide:DisplayObject, real:DisplayObject, copySize:Boolean = false):DisplayObject
     {
         var container:DisplayObjectContainer = guide.parent;
+
         real.x = guide.x;
         real.y = guide.y;
-        real.width = guide.width;
-        real.height = guide.height;
+
+        if (copySize)
+        {
+            real.width = guide.width;
+            real.height = guide.height;
+        }
+
         container.addChildAt(real, container.getChildIndex(guide));
         container.removeChild(guide);
         return real;
