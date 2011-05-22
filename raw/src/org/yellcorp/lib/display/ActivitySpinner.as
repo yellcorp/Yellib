@@ -25,7 +25,7 @@ public class ActivitySpinner extends Sprite
     public function ActivitySpinner()
     {
         idleParams = new ActivitySpinnerParams(
-            0x808080, 0, 4, 16, 32);
+            0x808080, 0, 4, 16, 32, 1, 2);
 
         pulseParams = new ActivitySpinnerParams(
             Number.NaN, 1);
@@ -87,8 +87,7 @@ public class ActivitySpinner extends Sprite
 
         for (var i:int = 0; i < _petalCount; i++)
         {
-            petalPhase = (i / (_petalCount) + phase) % 1;
-            petalPhase = 1 - petalPhase / trail;
+            petalPhase = 1 - ((i / _petalCount + phase) % 1) / trail;
             if (petalPhase < 0) petalPhase = 0;
 
             drawLerpPetal(Shape(getChildAt(i)), petalPhase);
@@ -118,14 +117,15 @@ public class ActivitySpinner extends Sprite
 
     private static function drawPetal(g:Graphics, params:ActivitySpinnerParams):void
     {
-        var cornerRadius:Number = params.width * .5;
+        var icr:Number = Math.min(params.innerCornerRadius, params.width * .5);
+        var ocr:Number = Math.min(params.outerCornerRadius, params.width * .5);
 
         g.clear();
         g.beginFill(params.color, params.alpha);
         g.drawRoundRectComplex(
             params.innerRadius, -params.width * .5,
             params.outerRadius - params.innerRadius, params.width,
-            cornerRadius, cornerRadius, cornerRadius, cornerRadius);
+            icr, ocr, icr, ocr);
         g.endFill();
     }
 }
