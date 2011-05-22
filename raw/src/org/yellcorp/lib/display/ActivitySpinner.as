@@ -25,10 +25,10 @@ public class ActivitySpinner extends Sprite
     public function ActivitySpinner()
     {
         idleParams = new ActivitySpinnerParams(
-            0x808080, 1, 4, 16, 32);
+            0x808080, 0, 4, 16, 32);
 
         pulseParams = new ActivitySpinnerParams(
-            0x808080, .5);
+            Number.NaN, 1);
 
         calcPulseParams = new ActivitySpinnerParams();
         workParams = new ActivitySpinnerParams();
