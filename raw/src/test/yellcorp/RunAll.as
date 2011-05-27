@@ -4,7 +4,7 @@ import asunit.framework.TestSuite;
 import asunit.textui.TestRunner;
 
 import test.yellcorp.lib.binary.NumberInfoTest;
-import test.yellcorp.lib.color.IntColorUtilTest;
+import test.yellcorp.lib.color.ColorUtilTest;
 import test.yellcorp.lib.core.SetTest;
 import test.yellcorp.lib.format.DateFormatFlexTest;
 import test.yellcorp.lib.format.NumberFormatUtilTest;
@@ -26,7 +26,7 @@ public class RunAll extends TestRunner
         super();
         tests = new TestSuite();
         tests.addTest(new NumberInfoTest());
-        tests.addTest(new IntColorUtilTest());
+        tests.addTest(new ColorUtilTest());
         tests.addTest(new GeoFormatTest());
         tests.addTest(new PrintfSuite());
         tests.addTest(new TemplateTest());

@@ -1,6 +1,6 @@
 package org.yellcorp.lib.color.vector
 {
-import org.yellcorp.lib.color.IntColorUtil;
+import org.yellcorp.lib.color.ColorUtil;
 import org.yellcorp.lib.error.AssertError;
 import org.yellcorp.lib.geom.Vector3;
 
@@ -36,7 +36,7 @@ public class VectorColorUtil
 
     public static function vectorToUint(v:Vector3):uint
     {
-        return IntColorUtil.makeRGB(v.x * 0xFF, v.y * 0xFF, v.z * 0xFF);
+        return ColorUtil.makeRGB(v.x * 0xFF, v.y * 0xFF, v.z * 0xFF);
     }
 
     public static function convertRGBtoHSV(rgb:Vector3, out:Vector3 = null):Vector3

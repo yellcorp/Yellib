@@ -3,7 +3,7 @@ package org.yellcorp.lib.color
 import flash.geom.ColorTransform;
 
 
-public class IntColorUtil
+public class ColorUtil
 {
     public static function makeRGB(r:Number, g:Number, b:Number):uint
     {

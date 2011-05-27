@@ -1,6 +1,6 @@
 package org.yellcorp.lib.display
 {
-import org.yellcorp.lib.color.IntColorUtil;
+import org.yellcorp.lib.color.ColorUtil;
 
 
 public class ActivitySpinnerParams
@@ -57,7 +57,7 @@ public class ActivitySpinnerParams
 
     public function lerp(a:ActivitySpinnerParams, b:ActivitySpinnerParams, t:Number):void
     {
-        color = IntColorUtil.lerp(a.color, b.color, t);
+        color = ColorUtil.lerp(a.color, b.color, t);
         alpha = a.alpha + t * (b.alpha - a.alpha);
         width = a.width + t * (b.width - a.width);
         innerRadius = a.innerRadius + t * (b.innerRadius - a.innerRadius);
