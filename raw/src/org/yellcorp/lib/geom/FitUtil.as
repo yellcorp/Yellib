@@ -5,33 +5,31 @@ import flash.geom.Rectangle;
 
 
 /**
- * Utility functions for scaling one rectangle up or down until one of its
- * axes match the target rectangle.  Which axis matches depends on whether
- * the mode is <code>MODE_FIT</code> or <code>MODE_FILL</code>.
+ * Utility functions for scaling a source rectangular area to fit inside a
+ * target area, while maintaining the aspect ratio of the source.
+ * <code>MODE_FIT</code> calculates a rectangle that is equal to or smaller
+ * than the target.  <code>MODE_FILL</code> is always equal or larger.
  */
 public class FitUtil
 {
     /**
-     * Scales the source rectangle proportionally to fit entirely within
-     * the target rectangle.
+     * Constant value that directs the <code>fitRect</code> function to
+     * calculate a result that is always smaller or equal to the target
+     * area. One of the axes of the result may not fully span the target.
      */
     public static const MODE_FIT:String = "fit";
 
     /**
-     * Scales the source rectangle proportionally to fill the target
-     * rectangle.  Parts of the source rectangle may sit outside the
-     * target rectangle.
+     * Constant value that directs the <code>fitRect</code> function to
+     * calculate a result that is always larget or equal to the target
+     * area. One of the axes of the result may exceed the target area.
      */
     public static const MODE_FILL:String = "fill";
 
     /**
-     * Modifies one rectangle to fit or fill another rectangle.
+     * Scales one rectangle to fit or fill another rectangle.
      *
-     * @param source   The source rectangle. The aspect ratio is preserved,
-     *                 and <code>x</code>, <code>y</code>, <code>width</code>
-     *                 and <code>height</code> are modified.  To keep
-     *                 a copy of the source rectangle, the caller should
-     *                 clone it themselves.
+     * @param source   The source rectangle.
      * @param target   The rectangle to fit <code>source</code> into.
      * @param mode     Calculation mode: <code>MODE_FIT</code> or
      *                 <code>MODE_FILL</code>
@@ -46,53 +44,62 @@ public class FitUtil
      * @param rounding Rounds the calculated values of <code>x</code>,
      *                 <code>y</code>, <code>width</code> and
      *                 <code>height</code> to the nearest whole number.
-     * @return         Nothing. The <code>Rectangle</code> passed into the
-     *                 source argument is modified.
+     * @param output   A reference to a Rectangle in which to store the
+     *                 result. If this is null, a new Rectangle will be
+     *                 constructed and returned.
+     * @return         The Rectangle passed into <code>output</code>, or a
+     *                 new Rectangle, with the calculated result.
      */
     public static function fitRect(source:Rectangle, target:Rectangle,
-                                   mode:String = "fit",
+                                   mode:String,
                                    xAlign:Number = 0.5,
                                    yAlign:Number = 0.5,
-                                   rounding:Boolean = false):void
+                                   rounding:Boolean = false,
+                                   output:Rectangle = null):Rectangle
     {
+        // copy values to guard against aliasing
+        var sw:Number = source.width, sh:Number = source.height;
+        var tw:Number = target.width, th:Number = target.height;
+
         var scale:Number;
+
+        if (!output)
+        {
+            output = new Rectangle();
+        }
 
         if (mode == MODE_FILL)
         {
-            scale = Math.max(target.width / source.width,
-                             target.height / source.height);
+            scale = Math.max(tw / sw, th / sh);
         }
         else
         {
-            scale = Math.min(target.width / source.width,
-                             target.height / source.height);
+            scale = Math.min(tw / sw, th / sh);
         }
 
         if (rounding)
         {
-            source.width =  int(.5 + source.width * scale);
-            source.height = int(.5 + source.height * scale);
+            output.width =  int(.5 + sw * scale);
+            output.height = int(.5 + sh * scale);
         }
         else
         {
-            source.height *= scale;
-            source.width *= scale;
+            output.width = sw * scale;
+            output.height = sh * scale;
         }
-        alignRects(source, target, xAlign, yAlign);
+        alignRects(output, target, xAlign, yAlign, output);
         if (rounding)
         {
-            source.x = int(.5 + source.x);
-            source.y = int(.5 + source.y);
+            output.x = int(.5 + output.x);
+            output.y = int(.5 + output.y);
         }
+        return output;
     }
 
     /**
      * Aligns one rectangle's edges relative to another rectangle's.
      *
-     * @param source   The source rectangle. Its <code>x</code> and
-     *                 <code>y</code> properties are modified.
-     *                 To keep a copy of the source rectangle,
-     *                 the caller should clone it themselves.
+     * @param source   The source rectangle.
      * @param target   The rectangle to align <code>source</code> to.
      * @param xAlign   X alignment. A number from 0 to 1. 0 aligns left
      *                 edges, 1 aligns right edges, and 0.5 centres
@@ -103,13 +110,23 @@ public class FitUtil
      *                 vertically. Other values interpolate between these
      *                 values.
      *                 Other values interpolate between these values.
-     * @return         Nothing. The <code>Rectangle</code> passed into the
-     *                 <code>source</code> argument is modified.
+     * @param output   A reference to a Rectangle in which to store the
+     *                 result. If this is null, a new Rectangle will be
+     *                 constructed and returned.
+     * @return         The Rectangle passed into <code>output</code>, or a
+     *                 new Rectangle, with the calculated result.
      */
-    public static function alignRects(source:Rectangle, target:Rectangle, xAlign:Number, yAlign:Number):void
+    public static function alignRects(
+        source:Rectangle, target:Rectangle,
+        xAlign:Number, yAlign:Number,
+        output:Rectangle = null):Rectangle
     {
-        source.x = target.x + xAlign * (target.width - source.width);
-        source.y = target.y + yAlign * (target.height - source.height);
+        if (!output) output = new Rectangle();
+        output.x = target.x + xAlign * (target.width - source.width);
+        output.y = target.y + yAlign * (target.height - source.height);
+        output.width = source.width;
+        output.height = source.height;
+        return output;
     }
 
     /**
@@ -119,11 +136,13 @@ public class FitUtil
      *                  applied to this rectangle, will produce a rectangle
      *                  equal to the target rectangle.
      * @param target    The target rectangle.
-     * @param outMatrix An existing <code>Matrix</code> to store the result
-     *                  in. If none provided, will create a new
-     *                  <code>Matrix</code> object.
-     * @return The result stored in <code>outMatrix</code> if it exists, or
-     *         a new <code>Matrix</code> object otherwise.
+     * @param output    A reference to a Matrix in which to store the
+     *                  result. If this is null, a new Matrix will be
+     *                  constructed and returned.
+     * @return          The Matrix passed into <code>output</code>, or a
+     *                  new Matrix, with the calculated result. If source
+     *                  has a width or height of zero, returns
+     *                  <code>null</code>.
      */
     public static function getRectTransform(source:Rectangle, target:Rectangle, outMatrix:Matrix = null):Matrix
     {
