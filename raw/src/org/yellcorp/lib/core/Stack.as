@@ -1,4 +1,4 @@
-package org.yellcorp.lib.xml.validator.utils
+package org.yellcorp.lib.core
 {
 public class Stack
 {

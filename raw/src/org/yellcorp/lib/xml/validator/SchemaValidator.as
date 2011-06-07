@@ -1,5 +1,6 @@
 package org.yellcorp.lib.xml.validator
 {
+import org.yellcorp.lib.core.Stack;
 import org.yellcorp.lib.xml.XMLTraverser;
 import org.yellcorp.lib.xml.XMLUtil;
 import org.yellcorp.lib.xml.validator.core.AttributeValidator;
@@ -10,7 +11,6 @@ import org.yellcorp.lib.xml.validator.core.UnorderedContentValidator;
 import org.yellcorp.lib.xml.validator.core.ValidatorState;
 import org.yellcorp.lib.xml.validator.errors.SchemaValidationError;
 import org.yellcorp.lib.xml.validator.types.SchemaElement;
-import org.yellcorp.lib.xml.validator.utils.Stack;
 
 
 public class SchemaValidator
