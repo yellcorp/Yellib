@@ -15,7 +15,7 @@ public class TestDeser extends Sprite
 
         deser.setConstructor(IInterface, function ():* { return new Implementor(); } );
 
-        deser.deserialize(target, testClassDocument, new XMLReader());
+        deser.deserialize(target, testClassDocumentAttributes, new XMLReader(true));
         trace(target);
     }
 }
