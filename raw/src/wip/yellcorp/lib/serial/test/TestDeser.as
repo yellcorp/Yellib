@@ -1,7 +1,7 @@
 package wip.yellcorp.lib.serial.test
 {
 import org.yellcorp.lib.serial.Deserializer;
-import org.yellcorp.lib.serial.source.xml.XMLSource;
+import org.yellcorp.lib.serial.readers.XMLReader;
 
 import flash.display.Sprite;
 
@@ -15,7 +15,7 @@ public class TestDeser extends Sprite
 
         deser.setConstructor(IInterface, function ():* { return new Implementor(); } );
 
-        deser.deserialize(target, new XMLSource(testClassDocument));
+        deser.deserialize(target, testClassDocument, new XMLReader());
         trace(target);
     }
 }

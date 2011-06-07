@@ -1,6 +1,6 @@
 package org.yellcorp.lib.serial.target
 {
-public class VectorTarget implements KeyValueTarget
+public class VectorTarget implements ValueTarget
 {
     private var _vector:*;
     private var keys:Array;

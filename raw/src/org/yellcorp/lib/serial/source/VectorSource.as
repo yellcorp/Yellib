@@ -1,6 +1,6 @@
 package org.yellcorp.lib.serial.source
 {
-public interface VectorSource extends KeyValueSource
+public interface VectorSource extends ValueSource
 {
     function get length():int;
 }

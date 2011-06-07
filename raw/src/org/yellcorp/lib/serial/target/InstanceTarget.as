@@ -6,7 +6,7 @@ import flash.utils.describeType;
 import flash.utils.getQualifiedClassName;
 
 
-public class InstanceTarget implements KeyValueTarget
+public class InstanceTarget implements ValueTarget
 {
     private var _instance:*;
     private var keys:Array;

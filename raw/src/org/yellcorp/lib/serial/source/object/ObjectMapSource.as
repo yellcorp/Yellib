@@ -3,7 +3,7 @@ package org.yellcorp.lib.serial.source.object
 import org.yellcorp.lib.serial.source.MapSource;
 
 
-public class ObjectMapSource extends ObjectSource implements MapSource
+public class ObjectMapSource extends ObjectValueSource implements MapSource
 {
     public function ObjectMapSource(source:Object)
     {

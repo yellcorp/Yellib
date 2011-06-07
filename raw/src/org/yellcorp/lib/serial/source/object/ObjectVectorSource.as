@@ -3,7 +3,7 @@ package org.yellcorp.lib.serial.source.object
 import org.yellcorp.lib.serial.source.VectorSource;
 
 
-public class ObjectVectorSource extends ObjectSource implements VectorSource
+public class ObjectVectorSource extends ObjectValueSource implements VectorSource
 {
     public function ObjectVectorSource(source:Object)
     {

@@ -3,7 +3,7 @@ package org.yellcorp.lib.serial.target
 import flash.utils.getQualifiedClassName;
 
 
-public class MapTarget implements KeyValueTarget
+public class MapTarget implements ValueTarget
 {
     private var _map:*;
     private var keys:Array;

@@ -3,14 +3,21 @@ package org.yellcorp.lib.serial.source.xml
 import org.yellcorp.lib.serial.source.VectorSource;
 
 
-public class XMLVectorSource extends BaseXMLSource implements VectorSource
+public class XMLVectorSource implements VectorSource
 {
+    public var root:XML;
+
     public function XMLVectorSource(root:XML)
     {
-        super(root);
+        this.root = root;
     }
 
-    protected override function getValue(key:*):*
+    public function getPrimitiveValue(key:*):*
+    {
+        return getStructuredValue(key);
+    }
+
+    public function getStructuredValue(key:*):*
     {
         return root.children()[key];
     }

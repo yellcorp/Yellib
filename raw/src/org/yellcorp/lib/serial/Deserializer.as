@@ -1,12 +1,13 @@
 package org.yellcorp.lib.serial
 {
 import org.yellcorp.lib.core.Stack;
-import org.yellcorp.lib.serial.source.KeyValueSource;
+import org.yellcorp.lib.serial.readers.Reader;
 import org.yellcorp.lib.serial.source.MapSource;
+import org.yellcorp.lib.serial.source.ValueSource;
 import org.yellcorp.lib.serial.source.VectorSource;
 import org.yellcorp.lib.serial.target.InstanceTarget;
-import org.yellcorp.lib.serial.target.KeyValueTarget;
 import org.yellcorp.lib.serial.target.MapTarget;
+import org.yellcorp.lib.serial.target.ValueTarget;
 import org.yellcorp.lib.serial.target.VectorTarget;
 import org.yellcorp.lib.serial.util.MapMap;
 import org.yellcorp.lib.serial.util.Reflector;
@@ -18,12 +19,17 @@ import flash.utils.getQualifiedClassName;
 
 public class Deserializer
 {
+    private var reader:Reader;
+
     private var reflector:Reflector;
-    private var classParsers:Object;
-    private var constructors:Object;
 
     private var types:Stack;
 
+    // class metadata
+    // TODO: refactor this into Metadata objects rather than having
+    // parallel mappings
+    private var classParsers:Object;
+    private var constructors:Object;
     private var classParamByName:MapMap;
     private var classParamByClass:MapMap;
 
@@ -83,12 +89,15 @@ public class Deserializer
         classParamByName[parentType][propertyType] = parameterType;
     }
 
-    public function deserialize(target:*, source:KeyValueSource):void
+    public function deserialize(instance:*, serialized:*, reader:Reader):void
     {
-        deserializeKeyValues(new InstanceTarget(target), source);
+        this.reader = reader;
+        var source:ValueSource = reader.createValueSource(serialized);
+        deserializeKeyValues(new InstanceTarget(instance), source);
+        this.reader = null;
     }
 
-    private function deserializeKeyValues(target:KeyValueTarget, source:KeyValueSource):void
+    private function deserializeKeyValues(target:ValueTarget, source:ValueSource):void
     {
         for each (var key:* in target.getKeys())
         {
@@ -96,7 +105,7 @@ public class Deserializer
         }
     }
 
-    private function getValue(source:KeyValueSource, key:String, type:String):*
+    private function getValue(source:ValueSource, key:String, type:String):*
     {
         var parseFunc:Function = classParsers[type];
         var newValue:*;
@@ -114,7 +123,7 @@ public class Deserializer
         else if (reflector.isMapType(type))
         {
             newValue = createInstance(type);
-            buildMap(newValue, source, key, type);
+            populateMap(newValue, source, key, type);
             return newValue;
         }
         else
@@ -125,22 +134,22 @@ public class Deserializer
         }
     }
 
-    private function populateInstance(instance:*, source:KeyValueSource, key:*, type:String):void
+    private function populateInstance(instance:*, source:ValueSource, key:*, type:String):void
     {
         var subTarget:InstanceTarget;
-        var subSource:KeyValueSource;
+        var subSource:ValueSource;
 
         subTarget = new InstanceTarget(instance);
-        subSource = source.getKeyValueSource(key);
+        subSource = reader.createValueSource(source.getStructuredValue(key));
 
         types.push(type);
         deserializeKeyValues(subTarget, subSource);
         types.pop();
     }
 
-    private function populateVector(vector:*, source:KeyValueSource, key:*, type:String):void
+    private function populateVector(vector:*, source:ValueSource, key:*, type:String):void
     {
-        var vectorSource:VectorSource = source.getVectorSource(key);
+        var vectorSource:VectorSource = reader.createVectorSource(source.getStructuredValue(key));
         var valueType:String = getTypeParameter(type, key);
         var vectorTarget:VectorTarget =
             new VectorTarget(vector, vectorSource.length, valueType);
@@ -150,9 +159,9 @@ public class Deserializer
         types.pop();
     }
 
-    private function buildMap(object:*, source:KeyValueSource, key:*, type:String):void
+    private function populateMap(object:*, source:ValueSource, key:*, type:String):void
     {
-        var mapSource:MapSource = source.getMapSource(key);
+        var mapSource:MapSource = reader.createMapSource(source.getStructuredValue(key));
         var valueType:String = getTypeParameter(type, key);
         var mapTarget:MapTarget =
             new MapTarget(object, mapSource.keys, valueType);
@@ -190,7 +199,6 @@ public class Deserializer
         else
         {
             clazz = Class(getDefinitionByName(type));
-            trace(describeType(clazz));
             // TODO: if clazz is an interface, this will throw a VerifyError #1001
             return new clazz();
         }

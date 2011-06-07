@@ -1,14 +1,26 @@
 package org.yellcorp.lib.serial.source.xml
 {
-import org.yellcorp.lib.serial.error.SourceError;
 import org.yellcorp.lib.serial.source.MapSource;
 
 
-public class XMLMapSource extends BaseXMLSource implements MapSource
+public class XMLMapSource implements MapSource
 {
+    public var root:XML;
+
     public function XMLMapSource(root:XML)
     {
-        super(root);
+        this.root = root;
+    }
+
+    public function getPrimitiveValue(key:*):*
+    {
+        return getStructuredValue(key);
+    }
+
+    public function getStructuredValue(key:*):*
+    {
+        var values:XMLList = root.*.(@id == key);
+        return XMLSourceUtil.assertSingle(values, "*.@id==" + key);
     }
 
     public function get keys():Array
@@ -20,19 +32,6 @@ public class XMLMapSource extends BaseXMLSource implements MapSource
             keys.push(value.@id);
         }
         return keys;
-    }
-
-    protected override function getValue(key:*):*
-    {
-        var values:XMLList = root.*.(@id == key);
-
-        if (values.length() != 1)
-        {
-            throw new SourceError(
-                "Non-unique id attribute " + key +
-                " (found" + values.length() +")");
-        }
-        return values[0];
     }
 }
 }

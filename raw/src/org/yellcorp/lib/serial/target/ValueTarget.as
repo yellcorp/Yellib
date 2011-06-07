@@ -1,6 +1,6 @@
 package org.yellcorp.lib.serial.target
 {
-public interface KeyValueTarget
+public interface ValueTarget
 {
     function getKeys():Array;
     function getValueType(key:*):String;
