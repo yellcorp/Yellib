@@ -29,7 +29,7 @@ public class ArrayUtil
         // TODO: this is not quite how Python works, Python returns
         // values with equal indices as tuples
 
-        var result:Array = new Array();
+        var result:Array = [ ];
         var currentArray:Array;
         var len:int = 0;
         var i:int;
@@ -94,7 +94,7 @@ public class ArrayUtil
      *                          <code>reductionFunction(array[0], array[1])</code>
      * </listing>
      */
-    public static function reduce(array:Array, reductionFunction:Function, initialValue:* = null):*
+    public static function reduce(array:*, reductionFunction:Function, initialValue:* = null):*
     {
         var i:int;
         var acc:*;
@@ -157,7 +157,7 @@ public class ArrayUtil
      * @return              An array with the specified index/property
      *                      values from the Array/Object
      */
-    public static function pick(arrayOrObject:*, indices:Array):Array
+    public static function pick(arrayOrObject:*, indices:*):Array
     {
         var i:int;
         var picked:Array = [ ];
@@ -188,9 +188,9 @@ public class ArrayUtil
      * @return         A new <code>Array</code> of each object's property
      *                 value.
      */
-    public static function mapToProperty(array:Array, property:*):Array
+    public static function mapToProperty(array:*, property:*):Array
     {
-        var mapper:Function = function (m:*, i:int, a:Array):*
+        var mapper:Function = function (m:*, i:int, a:*):*
         {
             return m[property];
         };
@@ -217,9 +217,9 @@ public class ArrayUtil
      * @return           A new <code>Array</code> of the results of each
      *                   method call.
      */
-    public static function mapToMethod(array:Array, methodName:String, methodArgs:Array = null):Array
+    public static function mapToMethod(array:*, methodName:String, methodArgs:* = null):Array
     {
-        var mapper:Function = function (m:*, i:int, a:Array):*
+        var mapper:Function = function (m:*, i:int, a:*):*
         {
             return m[methodName].apply(m, methodArgs);
         };
@@ -248,7 +248,7 @@ public class ArrayUtil
      *                     that cast to <code>Boolean</code> as <code>true</code>.
      * @return The number of calls to <code>boolFunction</code> that returned <code>true</code>
      */
-    public static function count(array:Array, boolFunction:Function = null):int
+    public static function count(array:*, boolFunction:Function = null):int
     {
         var i:int;
         var result:int;
@@ -296,7 +296,7 @@ public class ArrayUtil
      *                     assumes 0.
      * @return The index of the first member to return true, or -1 if none did.
      */
-    public static function indexOf(array:Array, boolFunction:Function = null, startIndex:int = 0):int
+    public static function indexOf(array:*, boolFunction:Function = null, startIndex:int = 0):int
     {
         var i:int;
         if (!array) return -1;
@@ -343,7 +343,7 @@ public class ArrayUtil
      *                     assumes the end of the array.
      * @return The index of the last member to return true, or -1 if none did.
      */
-    public static function lastIndexOf(array:Array, boolFunction:Function = null, startIndex:int = -1):int
+    public static function lastIndexOf(array:*, boolFunction:Function = null, startIndex:int = -1):int
     {
         var i:int;
         if (!array) return -1;
@@ -389,7 +389,7 @@ public class ArrayUtil
      *                     assumes 0.
      * @return The first member to return true, or null if none did.
      */
-    public static function getFirst(array:Array, boolFunction:Function, startIndex:int = 0):*
+    public static function getFirst(array:*, boolFunction:Function, startIndex:int = 0):*
     {
         var index:int = indexOf(array, boolFunction, startIndex);
         return index >= 0 ? array[index] : null;
@@ -421,7 +421,7 @@ public class ArrayUtil
      *                     assumes the end of the array.
      * @return The last member to return true, or null if none did.
      */
-    public static function getLast(array:Array, boolFunction:Function, startIndex:int = -1):*
+    public static function getLast(array:*, boolFunction:Function, startIndex:int = -1):*
     {
         var index:int = lastIndexOf(array, boolFunction, startIndex);
         return index >= 0 ? array[index] : null;
@@ -431,7 +431,7 @@ public class ArrayUtil
      * Returns a copy of an array with equal items removed.  Equality
      * checking is strict <code>===</code>.
      */
-    public static function unique(array:Array):Array
+    public static function unique(array:*):Array
     {
         var result:Array = [ ];
         var member:*;
@@ -467,7 +467,7 @@ public class ArrayUtil
      */
     public static function simpleCallback(closure:Function):Function
     {
-        function callback(item:*, index:int, array:Array):*
+        function callback(item:*, index:int, array:*):*
         {
             return closure(item);
         }
