@@ -9,6 +9,13 @@ import flash.utils.Dictionary;
  */
 public class ArrayUtil
 {
+    // these private singletons are used to represent null or undefined
+    // values when using a Dictionary to eliminate duplicate elements.
+    // This is because null and undefined values are converted to Strings
+    // when attempting to use them as keys in a Dictionary.
+    private static var nullKey:Object = { };
+    private static var undefinedKey:Object = { };
+
     /**
      * Creates one array from multiple arrays by interleaving each member
      * from each array.
@@ -68,6 +75,7 @@ public class ArrayUtil
         return result;
     }
 
+
     /**
      * Array reduction, AKA a left fold.
      * See http://en.wikipedia.org/wiki/Reduce_%28higher-order_function%29
@@ -121,6 +129,7 @@ public class ArrayUtil
         return acc;
     }
 
+
     /**
      * Given an object or array, and an array of indices or properties,
      * use the latter to index into the former.  Useful when calling
@@ -169,6 +178,7 @@ public class ArrayUtil
         return picked;
     }
 
+
     /**
      * Given an <code>Array</code> of objects, return the specified
      * property for each one.
@@ -191,13 +201,13 @@ public class ArrayUtil
     public static function mapToProperty(array:*, property:*):Array
     {
         var result:Array = [ ];
-
         for each (var member:* in array)
         {
             result.push(member[property]);
         }
         return result;
     }
+
 
     /**
      * Given an <code>Array</code> of objects, calls the specified method
@@ -221,12 +231,14 @@ public class ArrayUtil
      */
     public static function mapToMethod(array:*, methodName:String, methodArgs:* = null):Array
     {
-        var mapper:Function = function (m:*, i:int, a:*):*
+        var result:Array = [ ];
+        for each (var member:* in array)
         {
-            return m[methodName].apply(m, methodArgs);
-        };
-        return array.map(mapper);
+            result.push(member[methodName].apply(member, methodArgs));
+        }
+        return result;
     }
+
 
     /**
      * Calls a function for each member of an array, and returns how
@@ -272,6 +284,7 @@ public class ArrayUtil
         }
         return result;
     }
+
 
     /**
      * Calls a function for each member of an array, returning the index
@@ -367,6 +380,7 @@ public class ArrayUtil
         return -1;
     }
 
+
     /**
      * Calls a function for each member of an array, returning the first
      * member to return true.  If none return true, returns null.
@@ -429,6 +443,7 @@ public class ArrayUtil
         return index >= 0 ? array[index] : null;
     }
 
+
     /**
      * Returns a copy of an array with equal items removed.  Equality
      * checking is strict <code>===</code>.
@@ -437,29 +452,106 @@ public class ArrayUtil
     {
         var result:Array = [ ];
         var member:*;
-        var dict:Dictionary = new Dictionary();
+        var memberKey:*;
+        var seen:Dictionary = new Dictionary(true);
         var i:int;
 
         for (i = 0; i < array.length; i++)
         {
             member = array[i];
-            if (member !== null && member !== undefined)
+            memberKey = valueToKey(member);
+
+            if (!seen[memberKey])
             {
-                dict[member] = member;
+                result.push(member);
+                seen[memberKey] = member;
             }
         }
-        for each (member in dict)
-        {
-            result.push(member);
-        }
-        dict = null;
+        seen = null;
         return result;
     }
 
+
     /**
-     * Helper function: Wraps a 1-argument function with a function
-     * signature suitable for passing to the 3-argument functional methods
-     * of Array.
+     * Returns true if the elements in Array are strictly equal (===) to
+     * the elements in Array b, and appear in the same order.
+     */
+    public static function arraysEqual(a:*, b:*):Boolean
+    {
+        var len:int = a.length;
+
+        if (!a && !b)
+        {
+            return true;
+        }
+        else if (!a || !b)
+        {
+            return false;
+        }
+        else if (a.length !== b.length)
+        {
+            return false;
+        }
+        else
+        {
+            for (var i:int = 0; i < len; i++)
+            {
+                if (a[i] !== b[i])
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Returns true if the elements in Array are strictly equal (===) to
+     * the elements in Array b. Order is not considered.
+     */
+    public static function arraysEqualUnordered(a:*, b:*):Boolean
+    {
+        var aCount:Dictionary;
+        var bCount:Dictionary;
+        var item:*;
+
+        if (!a && !b)
+        {
+            return true;
+        }
+        else if (!a || !b)
+        {
+            return false;
+        }
+        else if (a.length !== b.length)
+        {
+            return false;
+        }
+        else
+        {
+            aCount = countElements(a);
+            bCount = countElements(b);
+
+            for (item in a)
+            {
+                if (aCount[item] !== bCount[item])
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Wraps a 1-argument function with a function signature suitable for
+     * passing to the 3-argument functional methods of Array.
+     *
+     * @param func  A function that accepts one argument, an array item.
+     * @return      A function that accepts three arguments, an array item,
+     *              an index, and an array.
      *
      * @see Array#every
      * @see Array#filter
@@ -467,13 +559,51 @@ public class ArrayUtil
      * @see Array#map
      * @see Array#some
      */
-    public static function simpleCallback(closure:Function):Function
+    public static function simpleCallback(func:Function):Function
     {
         function callback(item:*, index:int, array:*):*
         {
-            return closure(item);
+            return func(item);
         }
         return callback;
+    }
+
+
+    private static function countElements(a:*):Dictionary
+    {
+        var item:*;
+        var itemCount:Dictionary = new Dictionary(true);
+
+        for each (item in a)
+        {
+            item = valueToKey(item);
+            if (itemCount[item])
+            {
+                itemCount[item]++;
+            }
+            else
+            {
+                itemCount[item] = 1;
+            }
+        }
+        return itemCount;
+    }
+
+
+    private static function valueToKey(value:*):*
+    {
+        if (value === null)
+        {
+            return nullKey;
+        }
+        else if (value === undefined)
+        {
+            return undefinedKey;
+        }
+        else
+        {
+            return value;
+        }
     }
 }
 }
