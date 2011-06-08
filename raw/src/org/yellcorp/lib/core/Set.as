@@ -12,7 +12,7 @@ import flash.utils.flash_proxy;
  * keys in a flash.utils.Dictionary, that is, strict equality (===).
  *
  * This class extends flash.utils.Proxy to support
- * <code>for each...in</code> iteration, but as there are no keys,
+ * <code>for each...in</code> iteration, but because there are no keys,
  * <code>for...in</code> iteration is not supported, and neither is []
  * access.
  */
@@ -152,8 +152,8 @@ public class Set extends Proxy
     }
 
     /**
-     * Removes some element from the Set and returns it.  Exactly which
-     * element is returned is not defined, as the Set is unordered. This can
+     * Removes some element from the Set and returns it. The element that
+     * is returned is not defined, as the Set is unordered. This can
      * be used to destructively iterate over a Set's elements.
      *
      * @return An element from the Set, or <code>null</code> if the Set is
