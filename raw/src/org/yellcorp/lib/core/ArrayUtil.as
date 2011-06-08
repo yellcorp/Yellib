@@ -190,11 +190,13 @@ public class ArrayUtil
      */
     public static function mapToProperty(array:*, property:*):Array
     {
-        var mapper:Function = function (m:*, i:int, a:*):*
+        var result:Array = [ ];
+
+        for each (var member:* in array)
         {
-            return m[property];
-        };
-        return array.map(mapper);
+            result.push(member[property]);
+        }
+        return result;
     }
 
     /**
