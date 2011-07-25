@@ -3,36 +3,42 @@ package org.yellcorp.lib.date
 import org.yellcorp.lib.core.StringUtil;
 
 
-public class XSDDate {
-
+public class XSDDate
+{
     // http://www.w3.org/TR/xmlschema-2/#dateTime says:
     // '-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
 
     /**
      * RegExp for matching XSD:DateTimes
      */
-    private static var dateTimeRE:RegExp = /(-?\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?([0-9:Z+-]*)/i ;
-    //                                      Year      Month   Day     Hour    Minute  Second ms      timezone
+    private static var dateTimeRE:RegExp =
+    /(-?\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?([0-9:Z+-]*)/i ;
+    // Year      Month   Day     Hour    Minute  Second ms      timezone
 
     /**
      * RegExp for matching XSD:Times
      */
-    private static var timeRE:RegExp     = /(\d{2}):(\d{2}):(\d{2})(\.\d+)?([0-9:Z+-]*)/i ;
-    //                                      Hour    Minute  Second ms      timezone
+    private static var timeRE:RegExp =
+    /(\d{2}):(\d{2}):(\d{2})(\.\d+)?([0-9:Z+-]*)/i ;
+    // Hour    Minute  Second ms      timezone
 
     /**
      * RegExp for matching XSD:Dates
      */
-    private static var dateRE:RegExp     = /(-?\d{4})-(\d{2})-(\d{2})/i;
-    //                                      Year      Month   Day
+    private static var dateRE:RegExp =
+    /(-?\d{4})-(\d{2})-(\d{2})/i ;
+    // Year      Month   Day
 
     /**
      * Helper function. Returns true if any of its arguments are NaN
      */
-    private static function anyIsNaN(... args):Boolean {
+    private static function anyIsNaN(... args):Boolean
+    {
         var i:uint;
-        for (i=0; i<args.length; i++) {
-            if (isNaN(args[i] as Number)) {
+        for (i = 0; i < args.length; i++)
+        {
+            if (isNaN(args[i] as Number))
+            {
                 return true;
             }
         }
@@ -44,20 +50,25 @@ public class XSDDate {
      * returns the result in negative minutes, which matches the units
      * used by Date.timezoneOffset
      */
-    private static function parseXSDOffset(xsOffset:String):Number {
+    private static function parseXSDOffset(xsOffset:String):Number
+    {
         var sign:String;
         var hours:Number;
         var minutes:Number;
 
-        if (xsOffset.toLowerCase().charAt(0) == 'z') {
+        if (xsOffset.toLowerCase().charAt(0) == 'z')
+        {
             return 0;
-        } else {
+        }
+        else
+        {
             sign = xsOffset.charAt(0);
-            if ('+-'.indexOf(sign) == -1) {
+            if ('+-'.indexOf(sign) == -1)
+            {
                 return Number.NaN;
             }
-            hours = parseInt(xsOffset.substr(1,2));
-            minutes = parseInt(xsOffset.substr(4,2));
+            hours = parseInt(xsOffset.substr(1, 2));
+            minutes = parseInt(xsOffset.substr(4, 2));
 
             minutes += hours * 60;
             if (sign == '-') minutes = -minutes;
@@ -114,27 +125,25 @@ public class XSDDate {
                 // of the locale.
                 offset = (new Date(year, month, day, hour, minute, second)).timezoneOffset;
                 trace("DateParse.parseXSDateTime: Warning: Timezone not " +
-                      "specified. Timezone set to " + (offset / -60) +
-                      ". String was: '" + xsDateTime + "'");
+                    "specified. Timezone set to " + (offset / -60) +
+                    ". String was: '" + xsDateTime + "'");
             }
 
             if (anyIsNaN(year, month, day, hour, minute, second))
             {
+                throw new ArgumentError("Not a valid xsd:datetime string");
                 trace("DateParse.parseXSDateTime: Warning: ParseInt " +
-                      "failed. String was: '" + xsDateTime + "'");
-                return null;
+                    "failed. String was: '" + xsDateTime + "'");
             }
             else
             {
-                epoch = Date.UTC(year, month, day,
-                                 hour, minute, second, ms) + offset * TimeUnits.MINUTE;
+                epoch = Date.UTC(year, month, day, hour, minute, second, ms)
+                    + offset * TimeUnits.MINUTE;
             }
         }
         else
         {
-            trace("DateParse.parseXSDateTime: " + "RegExp failed. String " +
-                  "was: '" + xsDateTime + "'");
-            return null;
+            throw new ArgumentError("Not a valid xsd:datetime string");
         }
 
         return new Date(epoch);
@@ -165,17 +174,17 @@ public class XSDDate {
             second = parseInt(matchResult[3], 10);
 
             // again, leading decimal point is part of the matched group
-            ms = matchResult[4] ? 1000 * (parseFloat(matchResult[4]))
-                                : 0;
+            ms = matchResult[4] ? 1000 * (parseFloat(matchResult[4])) : 0;
 
             return hour * TimeUnits.HOUR +
-                   minute * TimeUnits.MINUTE +
-                   second * TimeUnits.SECOND +
-                   ms * TimeUnits.MILLISECOND;
+                minute * TimeUnits.MINUTE +
+                second * TimeUnits.SECOND +
+                ms * TimeUnits.MILLISECOND;
         }
         else
         {
-            trace("DateParse.parseXSTime: "+"RegExp failed. String was: '" + xsTime+"'");
+            trace("DateParse.parseXSTime: " +
+                "RegExp failed. String was: '" + xsTime + "'");
             return Number.NaN;
         }
     }
@@ -205,8 +214,7 @@ public class XSDDate {
         }
         else
         {
-            trace("DateParse.parseXSDate: "+"RegExp failed. String was: '" + xsDate+"'");
-            return null;
+            throw new ArgumentError("Not a valid xsd:date string");
         }
 
         return new Date(epoch);
@@ -216,13 +224,12 @@ public class XSDDate {
     {
         var str:String;
 
-        str = StringUtil.padLeft(date.fullYearUTC, 4, "0")  + "-" +
-              StringUtil.padLeft(date.monthUTC + 1, 2, "0") + "-" +
-              StringUtil.padLeft(date.dateUTC, 2, "0") + "T" +
-
-              StringUtil.padLeft(date.hoursUTC, 2, "0") + ":" +
-              StringUtil.padLeft(date.minutesUTC, 2, "0") + ":" +
-              StringUtil.padLeft(date.secondsUTC, 2, "0") + "Z";
+        str = StringUtil.padLeft(date.fullYearUTC, 4, "0") + "-" +
+            StringUtil.padLeft(date.monthUTC + 1, 2, "0") + "-" +
+            StringUtil.padLeft(date.dateUTC, 2, "0") + "T" +
+            StringUtil.padLeft(date.hoursUTC, 2, "0") + ":" +
+            StringUtil.padLeft(date.minutesUTC, 2, "0") + ":" +
+            StringUtil.padLeft(date.secondsUTC, 2, "0") + "Z";
 
         return str;
     }
