@@ -1,5 +1,6 @@
 package wip.yellcorp.lib.simplelog
 {
+import org.yellcorp.lib.layout.LayoutProperty;
 import org.yellcorp.lib.ui.BaseDisplay;
 
 import flash.display.DisplayObject;

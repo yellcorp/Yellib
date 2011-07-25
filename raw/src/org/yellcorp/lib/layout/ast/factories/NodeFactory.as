@@ -4,7 +4,6 @@ import org.yellcorp.lib.layout.LayoutProperty;
 import org.yellcorp.lib.layout.adapters.BaseAdapter;
 import org.yellcorp.lib.layout.ast.nodes.ASTNode;
 import org.yellcorp.lib.layout.ast.nodes.Add;
-import org.yellcorp.lib.layout.ast.nodes.BinaryNode;
 import org.yellcorp.lib.layout.ast.nodes.Capture;
 import org.yellcorp.lib.layout.ast.nodes.Constant;
 import org.yellcorp.lib.layout.ast.nodes.Divide;
@@ -50,20 +49,20 @@ public class NodeFactory
     {
         switch (property)
         {
-            case LayoutProperty.MID :
-                return add(
-                    _getter(adapter, LayoutProperty.MIN),
-                    multiply(
-                        constant(.5),
-                        _getter(adapter, LayoutProperty.SIZE)
-                    )
-                );
-            case LayoutProperty.MAX :
-                return add(
-                    _getter(adapter, LayoutProperty.MIN),
+        case LayoutProperty.MID :
+            return add(
+                _getter(adapter, LayoutProperty.MIN),
+                multiply(
+                    constant(.5),
                     _getter(adapter, LayoutProperty.SIZE)
-                );
-            default :
+                )
+            );
+        case LayoutProperty.MAX :
+            return add(
+                _getter(adapter, LayoutProperty.MIN),
+                _getter(adapter, LayoutProperty.SIZE)
+            );
+        default :
                 return _getter(adapter, property);
         }
     }

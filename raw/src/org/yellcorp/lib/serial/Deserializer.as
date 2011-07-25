@@ -12,7 +12,6 @@ import org.yellcorp.lib.serial.target.VectorTarget;
 import org.yellcorp.lib.serial.util.MapMap;
 import org.yellcorp.lib.serial.util.Reflector;
 
-import flash.utils.describeType;
 import flash.utils.getDefinitionByName;
 import flash.utils.getQualifiedClassName;
 

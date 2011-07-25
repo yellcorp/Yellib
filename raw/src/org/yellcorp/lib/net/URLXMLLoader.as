@@ -12,8 +12,6 @@ import flash.net.URLLoaderDataFormat;
 import flash.net.URLRequest;
 
 
-[Event(name="xmlParseError", type="org.yellcorp.lib.events.XMLParseErrorEvent")]
-
 /**
  * A subclass of flash.net.URLLoader which will automatically attempt to
  * parse received data as XML if its dataFormat property is set to "xml".
@@ -22,7 +20,6 @@ import flash.net.URLRequest;
  * Event.COMPLETE event will be suppressed and an
  * XMLParseErrorEvent.XML_PARSE_ERROR will be dispatched instead.
  */
-
 [Event(name="xmlParseError", type="org.yellcorp.lib.events.XMLParseErrorEvent")]
 public class URLXMLLoader extends URLLoader
 {

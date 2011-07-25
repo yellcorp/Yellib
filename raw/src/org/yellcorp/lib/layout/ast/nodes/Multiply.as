@@ -1,6 +1,5 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
-
 public class Multiply extends BinaryNode implements ASTNode
 {
     public function Multiply(left:ASTNode, right:ASTNode)
@@ -26,16 +25,16 @@ public class Multiply extends BinaryNode implements ASTNode
         {
             switch (left.evaluate())
             {
-                case 0: return new Constant(0);
-                case 1: return right;
+            case 0: return new Constant(0);
+            case 1: return right;
             }
         }
         else if (rightConst)
         {
             switch (right.evaluate())
             {
-                case 0: return new Constant(0);
-                case 1: return left;
+            case 0: return new Constant(0);
+            case 1: return left;
             }
         }
         return this;

@@ -46,89 +46,75 @@ public class DateFormatFlex
     {
         switch (field)
         {
-            case 'Y' :
-            {
-                // year
-                if (len <= 2)
-                    return date.fullYear.toString().substr(2);
-                else if (len <= 4)
-                    return date.fullYear.toString();
-                else
-                    return padNumber(date.fullYear, len);
-            }
-            case 'M' :
-            {
-                // month
-                if (len <= 2)
-                    return padNumber(date.month + 1, len);
-                else if (len == 3)
-                    return locale.getMonthNameShort(date.month);
-                else
-                    return locale.getMonthName(date.month);
-            }
-            case 'D' :
-            {
-                // day in month
-                return padNumber(date.date, len);
-            }
-            case 'E' :
-            {
-                // day in week
-                if (len <= 2)
-                    return padNumber(date.day, len);
-                else if (len == 3)
-                    return locale.getDayNameShort(date.day);
-                else
-                    return locale.getDayName(date.day);
-            }
-            case 'A' :
-            {
-                // am/pm
-                return locale.getDayHalf(date.hours);
-            }
-            case 'J' :
-            {
-                // hour: 0-23
-                return padNumber(date.hours, len);
-            }
-            case 'H' :
-            {
-                // hour: 1-24
-                return padNumber(DateFormatUtil.getHours1to24(date.hours), len);
-            }
-            case 'K' :
-            {
-                // hour: 0-11
-                return padNumber(DateFormatUtil.getHours0to11(date.hours), len);
-            }
-            case 'L' :
-            {
-                // hour: 1-12
-                return padNumber(DateFormatUtil.getHours1to12(date.hours), len);
-            }
-            case 'N' :
-            {
-                // minute
-                return padNumber(date.minutes, len);
-            }
-            case 'S' :
-            {
-                // seconds
-                return padNumber(date.seconds, len);
-            }
-            case 'T' :
-            {
-                // extension: ordinal suffix for day in month
-                return locale.getOrdinalSuffix(date.date);
-            }
-            case 'U' :
-            {
-                // extension: milliseconds
-                return padNumber(
-                    Math.round(date.milliseconds * Math.pow(10, len - 3)), len);
-            }
-            default :
-                throw new Error("Internal error - unhandled token '" + field + "'");
+        case 'Y' : {
+            // year
+            if (len <= 2)
+                return date.fullYear.toString().substr(2);
+            else if (len <= 4)
+                return date.fullYear.toString();
+            else
+                return padNumber(date.fullYear, len);
+        }
+        case 'M' : {
+            // month
+            if (len <= 2)
+                return padNumber(date.month + 1, len);
+            else if (len == 3)
+                return locale.getMonthNameShort(date.month);
+            else
+                return locale.getMonthName(date.month);
+        }
+        case 'D' : {
+            // day in month
+            return padNumber(date.date, len);
+        }
+        case 'E' : {
+            // day in week
+            if (len <= 2)
+                return padNumber(date.day, len);
+            else if (len == 3)
+                return locale.getDayNameShort(date.day);
+            else
+                return locale.getDayName(date.day);
+        }
+        case 'A' : {
+            // am/pm
+            return locale.getDayHalf(date.hours);
+        }
+        case 'J' : {
+            // hour: 0-23
+            return padNumber(date.hours, len);
+        }
+        case 'H' : {
+            // hour: 1-24
+            return padNumber(DateFormatUtil.getHours1to24(date.hours), len);
+        }
+        case 'K' : {
+            // hour: 0-11
+            return padNumber(DateFormatUtil.getHours0to11(date.hours), len);
+        }
+        case 'L' : {
+            // hour: 1-12
+            return padNumber(DateFormatUtil.getHours1to12(date.hours), len);
+        }
+        case 'N' : {
+            // minute
+            return padNumber(date.minutes, len);
+        }
+        case 'S' : {
+            // seconds
+            return padNumber(date.seconds, len);
+        }
+        case 'T' : {
+            // extension: ordinal suffix for day in month
+            return locale.getOrdinalSuffix(date.date);
+        }
+        case 'U' : {
+            // extension: milliseconds
+            return padNumber(Math.round(date.milliseconds * Math.pow(10, len - 3)), len);
+        }
+        default :
+            throw new Error("Internal error - unhandled token '" + field + "'");
         }
     }
 

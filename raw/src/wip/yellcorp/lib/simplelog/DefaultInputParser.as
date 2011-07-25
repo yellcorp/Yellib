@@ -16,20 +16,20 @@ public class DefaultInputParser implements LogInputParser
 
         switch (head)
         {
-            case "mem" :
-                logger.appendFormatText("Memory: " + System.totalMemory + "\n");
-                return true;
-                break;
+        case "mem" :
+            logger.appendFormatText("Memory: " + System.totalMemory + "\n");
+            return true;
+            break;
 
-            case "gc" :
-                System.gc();
-                logger.appendFormatText("System.gc() called\n");
-                return true;
-                break;
+        case "gc" :
+            System.gc();
+            logger.appendFormatText("System.gc() called\n");
+            return true;
+            break;
 
-            default :
-                return false;
-                break;
+        default :
+            return false;
+            break;
         }
     }
 }

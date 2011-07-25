@@ -65,19 +65,22 @@ public class DebugConsole implements Disposable, CompletionCandidates
     {
         switch (event.keyCode)
         {
-            case Keyboard.ENTER :
-                inputHistory.commit();
-                processInput(_view.getInput());
-                clearInput();
-            case Keyboard.TAB :
-                tabCompleter.advance(event.shiftKey ? -1 : 1);
-                break;
-            case Keyboard.UP :
-                inputHistory.step(-1);
-                break;
-            case Keyboard.DOWN :
-                inputHistory.step(1);
-                break;
+        case Keyboard.ENTER :
+            inputHistory.commit();
+            processInput(_view.getInput());
+            clearInput();
+
+        case Keyboard.TAB :
+            tabCompleter.advance(event.shiftKey ? -1 : 1);
+            break;
+
+        case Keyboard.UP :
+            inputHistory.step(-1);
+            break;
+
+        case Keyboard.DOWN :
+            inputHistory.step(1);
+            break;
         }
     }
 

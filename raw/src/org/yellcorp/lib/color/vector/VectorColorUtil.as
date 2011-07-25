@@ -124,39 +124,39 @@ public class VectorColorUtil
 
         switch (hzone)
         {
-            case 0 :
-                // red to yellow: r=v, g=rising, b=min
-                out.setValues(v, min + param, min);
-                break;
+        case 0 :
+            // red to yellow: r=v, g=rising, b=min
+            out.setValues(v, min + param, min);
+            break;
 
-            case 1 :
-                // yellow to green: r=falling, g=v, b=min
-                out.setValues(v - param, v, min);
-                break;
+        case 1 :
+            // yellow to green: r=falling, g=v, b=min
+            out.setValues(v - param, v, min);
+            break;
 
-            case 2 :
-                // green to cyan: r=min, g=v, b=rising
-                out.setValues(min, v, min + param);
-                break;
+        case 2 :
+            // green to cyan: r=min, g=v, b=rising
+            out.setValues(min, v, min + param);
+            break;
 
-            case 3 :
-                // cyan to blue: r=min, g=falling, b=v
-                out.setValues(min, v - param, v);
-                break;
+        case 3 :
+            // cyan to blue: r=min, g=falling, b=v
+            out.setValues(min, v - param, v);
+            break;
 
-            case 4 :
-                // blue to magenta: r=rising, g=min, b=v
-                out.setValues(min + param, min, v);
-                break;
+        case 4 :
+            // blue to magenta: r=rising, g=min, b=v
+            out.setValues(min + param, min, v);
+            break;
 
-            case 5 :
-                // magenta to red: r=v, g=min, b=falling
-                out.setValues(v, min, v - param);
-                break;
+        case 5 :
+            // magenta to red: r=v, g=min, b=falling
+            out.setValues(v, min, v - param);
+            break;
 
-            default :
-                AssertError.assert(false, "Bad hzone: " + hzone);
-                break;
+        default :
+            AssertError.assert(false, "Bad hzone: " + hzone);
+            break;
         }
 
         return out;

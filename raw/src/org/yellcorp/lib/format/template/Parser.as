@@ -149,20 +149,20 @@ internal class Parser
     {
         switch (token.type)
         {
-            case Token.TOGGLE :
-            case Token.OPEN :
-                pushLiteral();
-                currentState = stateField;
-                break;
+        case Token.TOGGLE :
+        case Token.OPEN :
+            pushLiteral();
+            currentState = stateField;
+            break;
 
-            case Token.END :
-                pushLiteral();
-                currentState = null;
-                break;
+        case Token.END :
+            pushLiteral();
+            currentState = null;
+            break;
 
-            default :
-                buffer.append(token.text);
-                break;
+        default :
+            buffer.append(token.text);
+            break;
         }
     }
 
@@ -170,19 +170,19 @@ internal class Parser
     {
         switch (token.type)
         {
-            case Token.TOGGLE :
-            case Token.CLOSE :
-                pushField();
-                currentState = stateText;
-                break;
+        case Token.TOGGLE :
+        case Token.CLOSE :
+            pushField();
+            currentState = stateText;
+            break;
 
-            case Token.END :
-                parseError("Unclosed field");
-                break;
+        case Token.END :
+            parseError("Unclosed field");
+            break;
 
-            default :
-                buffer.append(token.text);
-                break;
+        default :
+            buffer.append(token.text);
+            break;
         }
     }
 

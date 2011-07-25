@@ -111,12 +111,12 @@ public class TextFieldTest extends ResizableStage
     {
         switch (event.keyCode)
         {
-            case Keyboard.RIGHT :
-                charIndex += 1;
-                break;
-            case Keyboard.LEFT :
-                charIndex -= 1;
-                break;
+        case Keyboard.RIGHT :
+            charIndex += 1;
+            break;
+        case Keyboard.LEFT :
+            charIndex -= 1;
+            break;
         }
         drawCharRect();
     }

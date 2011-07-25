@@ -35,17 +35,17 @@ public class IntegerFormatOptions extends NumberFormatOptions
         {
             switch (base)
             {
-                case 8:
-                    basePrefix = "0";
-                    break;
+            case 8:
+                basePrefix = "0";
+                break;
 
-                case 16:
-                    basePrefix = "0x";
-                    break;
+            case 16:
+                basePrefix = "0x";
+                break;
 
-                default:
-                    // ignore
-                    break;
+            default:
+                // ignore
+                break;
             }
         }
     }

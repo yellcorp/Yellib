@@ -93,14 +93,14 @@ public class MultiLoader extends EventDispatcher implements Disposable
 
         switch (errorPolicy)
         {
-            case MultiLoaderErrorPolicy.ABORT :
-            case MultiLoaderErrorPolicy.COMPLETE_ALWAYS :
-            case MultiLoaderErrorPolicy.COMPLETE_IF_NO_ERRORS :
-                _errorPolicy = errorPolicy;
-                break;
-            default :
-                _errorPolicy = MultiLoaderErrorPolicy.ABORT;
-                break;
+        case MultiLoaderErrorPolicy.ABORT :
+        case MultiLoaderErrorPolicy.COMPLETE_ALWAYS :
+        case MultiLoaderErrorPolicy.COMPLETE_IF_NO_ERRORS :
+            _errorPolicy = errorPolicy;
+            break;
+        default :
+            _errorPolicy = MultiLoaderErrorPolicy.ABORT;
+            break;
         }
 
         _dispatchUnknownProgress = dispatchUnknownProgress;

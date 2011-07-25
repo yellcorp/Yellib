@@ -11,30 +11,27 @@ public class BaseAdapter
     {
         switch (axis)
         {
-            case LayoutAxis.X :
+        case LayoutAxis.X : {
+            switch (property)
             {
-                switch (property)
-                {
-                    case LayoutProperty.MIN :
-                        return wantSetter ? setX : getX;
-                    case LayoutProperty.SIZE :
-                        return wantSetter ? setWidth : getWidth;
-                }
+            case LayoutProperty.MIN :
+                return wantSetter ? setX : getX;
+            case LayoutProperty.SIZE :
+                return wantSetter ? setWidth : getWidth;
             }
-            case LayoutAxis.Y :
+        }
+        case LayoutAxis.Y : {
+            switch (property)
             {
-                switch (property)
-                {
-                    case LayoutProperty.MIN :
-                        return wantSetter ? setY : getY;
-                    case LayoutProperty.SIZE :
-                        return wantSetter ? setHeight : getHeight;
-                }
+            case LayoutProperty.MIN :
+                return wantSetter ? setY : getY;
+            case LayoutProperty.SIZE :
+                return wantSetter ? setHeight : getHeight;
             }
-            default :
-            {
-                throw new ArgumentError("Unsupported axis");
-            }
+        }
+        default : {
+            throw new ArgumentError("Unsupported axis");
+        }
         }
         throw new ArgumentError("Unsupported property");
     }

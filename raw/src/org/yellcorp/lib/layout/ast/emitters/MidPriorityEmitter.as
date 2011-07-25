@@ -16,25 +16,25 @@ public class MidPriorityEmitter extends BaseEmitter
     {
         switch (property2)
         {
-            case LayoutProperty.MIN :
-                emitMinMid(f, evalNode2, evalNode, out);
-                break;
+        case LayoutProperty.MIN :
+            emitMinMid(f, evalNode2, evalNode, out);
+            break;
 
-            case LayoutProperty.MAX :
-                emitMidMax(f, evalNode, evalNode2, out);
-                break;
+        case LayoutProperty.MAX :
+            emitMidMax(f, evalNode, evalNode2, out);
+            break;
 
-            case LayoutProperty.MID :
-                redefineError(property2);
-                break;
+        case LayoutProperty.MID :
+            redefineError(property2);
+            break;
 
-            case LayoutProperty.SIZE :
-                emitMidSize(f, evalNode, evalNode2, out);
-                break;
+        case LayoutProperty.SIZE :
+            emitMidSize(f, evalNode, evalNode2, out);
+            break;
 
-            default :
-                propertyError(property2);
-                break;
+        default :
+            propertyError(property2);
+            break;
         }
     }
     public override function emitSingle(f:NodeFactory, out:Array):void

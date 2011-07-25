@@ -343,25 +343,25 @@ public class ColorMatrixFactory
 
         switch (outChannel)
         {
-            case BitmapDataChannel.RED :
-                outRow = 0;
-                break;
+        case BitmapDataChannel.RED :
+            outRow = 0;
+            break;
 
-            case BitmapDataChannel.GREEN :
-                outRow = 5;
-                break;
+        case BitmapDataChannel.GREEN :
+            outRow = 5;
+            break;
 
-            case BitmapDataChannel.BLUE :
-                outRow = 10;
-                break;
+        case BitmapDataChannel.BLUE :
+            outRow = 10;
+            break;
 
-            case BitmapDataChannel.ALPHA :
-                outRow = 15;
-                break;
+        case BitmapDataChannel.ALPHA :
+            outRow = 15;
+            break;
 
-            default :
-                throw new ArgumentError("Must specify exactly one output channel");
-                break;
+        default :
+            throw new ArgumentError("Must specify exactly one output channel");
+            break;
         }
 
         out[outRow++] = inChannelMask & BitmapDataChannel.RED ? 1 : 0;

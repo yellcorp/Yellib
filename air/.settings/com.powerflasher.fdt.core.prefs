@@ -1,4 +1,4 @@
-#Sun Jan 23 17:47:30 GMT 2011
+#Sun Jul 17 18:54:56 BST 2011
 com.powerflasher.fdt.core.CompatiblePlayers=AIR_Debug_Launcher
 com.powerflasher.fdt.core.CompilerArguments=-static-link-runtime-shared-libraries\=true\n-target-player\={playerVersion}\n-library-path+\="{flexSDK}/frameworks/locale/en_US"\n-default-size\=550,400
 com.powerflasher.fdt.core.DefaultOutputFolder=bin
@@ -11,5 +11,5 @@ com.powerflasher.fdt.core.PassSwcs=true
 com.powerflasher.fdt.core.PlayerVersion=10
 com.powerflasher.fdt.core.ProjectTypeHint=AS 3 AIR
 com.powerflasher.fdt.core.Runtime=AIR
-com.powerflasher.fdt.core.SdkName=Flex 3.5
+com.powerflasher.fdt.core.SdkName=Flex 3.6
 eclipse.preferences.version=1

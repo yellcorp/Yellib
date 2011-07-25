@@ -88,25 +88,25 @@ public class TypeValidator
 
         switch (coercionPolicy)
         {
-            case COERCE_STRINGS_ONLY :
-                if (sourceType == TYPE_STRING)
-                {
-                    return copyKeyParse(sourceVal, target, key, targetType);
-                }
-                else
-                {
-                    return false;
-                }
-                break;
-
-            case COERCE_NATIVE :
-                return copyKeyNative(sourceVal, target, key, targetType);
-                break;
-
-            case COERCE_NONE :
-            default :
+        case COERCE_STRINGS_ONLY :
+            if (sourceType == TYPE_STRING)
+            {
+                return copyKeyParse(sourceVal, target, key, targetType);
+            }
+            else
+            {
                 return false;
-                break;
+            }
+            break;
+
+        case COERCE_NATIVE :
+            return copyKeyNative(sourceVal, target, key, targetType);
+            break;
+
+        case COERCE_NONE :
+        default :
+            return false;
+            break;
         }
     }
 
@@ -115,29 +115,29 @@ public class TypeValidator
         try {
             switch (targetType)
             {
-                case TYPE_STRING :
-                    target[key] = String(sourceVal);
-                    break;
+            case TYPE_STRING :
+                target[key] = String(sourceVal);
+                break;
 
-                case TYPE_NUMBER :
-                    target[key] = Number(sourceVal);
-                    break;
+            case TYPE_NUMBER :
+                target[key] = Number(sourceVal);
+                break;
 
-                case TYPE_INT :
-                    target[key] = int(sourceVal);
-                    break;
+            case TYPE_INT :
+                target[key] = int(sourceVal);
+                break;
 
-                case TYPE_UINT :
-                    target[key] = uint(sourceVal);
-                    break;
+            case TYPE_UINT :
+                target[key] = uint(sourceVal);
+                break;
 
-                case TYPE_BOOLEAN :
-                    target[key] = Boolean(sourceVal);
-                    break;
+            case TYPE_BOOLEAN :
+                target[key] = Boolean(sourceVal);
+                break;
 
-                default :
-                    target[key] = sourceVal;
-                    break;
+            default :
+                target[key] = sourceVal;
+                break;
             }
         }
         catch (err:TypeError)
@@ -153,34 +153,34 @@ public class TypeValidator
 
         switch (targetType)
         {
-            case TYPE_STRING :
-                // this shouldn't happen but here it is anyway
-                target[key] = sourceStr;
+        case TYPE_STRING :
+            // this shouldn't happen but here it is anyway
+            target[key] = sourceStr;
+            return true;
+            break;
+
+        case TYPE_NUMBER :
+        case TYPE_INT :
+        case TYPE_UINT :
+            return copyKeyParseNumber(sourceStr, target, key, targetType);
+            break;
+
+        case TYPE_BOOLEAN :
+            sourceStr = sourceStr.toLowerCase();
+            if (stringBooleanMap.hasOwnProperty(sourceStr))
+            {
+                target[key] = stringBooleanMap[sourceStr];
                 return true;
-                break;
-
-            case TYPE_NUMBER :
-            case TYPE_INT :
-            case TYPE_UINT :
-                return copyKeyParseNumber(sourceStr, target, key, targetType);
-                break;
-
-            case TYPE_BOOLEAN :
-                sourceStr = sourceStr.toLowerCase();
-                if (stringBooleanMap.hasOwnProperty(sourceStr))
-                {
-                    target[key] = stringBooleanMap[sourceStr];
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-                break;
-
-            default :
+            }
+            else
+            {
                 return false;
-                break;
+            }
+            break;
+
+        default :
+            return false;
+            break;
         }
     }
 
@@ -206,17 +206,17 @@ public class TypeValidator
         {
             switch (toType)
             {
-                case TYPE_NUMBER :
-                    return value === Number(value);
+            case TYPE_NUMBER :
+                return value === Number(value);
 
-                case TYPE_UINT :
-                    return value === uint(value);
+            case TYPE_UINT :
+                return value === uint(value);
 
-                case TYPE_INT :
-                    return value === int(value);
+            case TYPE_INT :
+                return value === int(value);
 
-                default :
-                    throw new ArgumentError("unsupported argument for numericType");
+            default :
+                throw new ArgumentError("unsupported argument for numericType");
             }
         }
         else

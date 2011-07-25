@@ -50,14 +50,14 @@ public class Locale_en implements Locale
         {
             switch(tens % 10)
             {
-                case 1:
-                    return "st";
-                case 2:
-                    return "nd";
-                case 3:
-                    return "rd";
-                default :
-                    return "th";
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default :
+                return "th";
             }
         }
         return "th";

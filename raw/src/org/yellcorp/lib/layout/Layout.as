@@ -72,40 +72,40 @@ public class Layout
 
         switch (type)
         {
-            case ConstraintType.OFFSET :
-            {
-                captureNode =
-                f.capture(
-                    f.subtract(
-                        f.getter(target, targetProp),
-                        f.getter(source, sourceProp)
-                    )
-                );
+        case ConstraintType.OFFSET :
+        {
+            captureNode =
+            f.capture(
+                f.subtract(
+                    f.getter(target, targetProp),
+                    f.getter(source, sourceProp)
+                )
+            );
 
-                evalNode =
-                f.add(
-                    f.getter(source, sourceProp),
-                    captureNode
-                );
-                break;
-            }
-            default :
-            {
-                captureNode =
-                f.capture(
-                    f.divide(
-                        f.getter(target, targetProp),
-                        f.getter(source, sourceProp)
-                    )
-                );
+            evalNode =
+            f.add(
+                f.getter(source, sourceProp),
+                captureNode
+            );
+            break;
+        }
+        default :
+        {
+            captureNode =
+            f.capture(
+                f.divide(
+                    f.getter(target, targetProp),
+                    f.getter(source, sourceProp)
+                )
+            );
 
-                evalNode =
-                f.multiply(
-                    f.getter(source, sourceProp),
-                    captureNode
-                );
-                break;
-            }
+            evalNode =
+            f.multiply(
+                f.getter(source, sourceProp),
+                captureNode
+            );
+            break;
+        }
         }
 
         emitter = axisEmitters[targetObject];
@@ -119,18 +119,18 @@ public class Layout
         {
             switch (targetProp)
             {
-                case LayoutProperty.MIN :
-                    emitter = new MinPriorityEmitter(target, evalNode);
-                    break;
-                case LayoutProperty.MID :
-                    emitter = new MidPriorityEmitter(target, evalNode);
-                    break;
-                case LayoutProperty.MAX :
-                    emitter = new MaxPriorityEmitter(target, evalNode);
-                    break;
-                case LayoutProperty.SIZE :
-                    emitter = new SizePriorityEmitter(target, evalNode);
-                    break;
+            case LayoutProperty.MIN :
+                emitter = new MinPriorityEmitter(target, evalNode);
+                break;
+            case LayoutProperty.MID :
+                emitter = new MidPriorityEmitter(target, evalNode);
+                break;
+            case LayoutProperty.MAX :
+                emitter = new MaxPriorityEmitter(target, evalNode);
+                break;
+            case LayoutProperty.SIZE :
+                emitter = new SizePriorityEmitter(target, evalNode);
+                break;
             }
             axisEmitters[targetObject] = emitter;
         }

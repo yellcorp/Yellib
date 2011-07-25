@@ -16,21 +16,21 @@ public class SizePriorityEmitter extends BaseEmitter
     {
         switch (property2)
         {
-            case LayoutProperty.MIN :
-                emitMinSize(f, evalNode2, evalNode, out);
-                break;
-            case LayoutProperty.MAX :
-                emitMaxSize(f, evalNode2, evalNode, out);
-                break;
-            case LayoutProperty.MID :
-                emitMidSize(f, evalNode2, evalNode, out);
-                break;
-            case LayoutProperty.SIZE :
-                redefineError(property2);
-                break;
-            default :
-                propertyError(property2);
-                break;
+        case LayoutProperty.MIN :
+            emitMinSize(f, evalNode2, evalNode, out);
+            break;
+        case LayoutProperty.MAX :
+            emitMaxSize(f, evalNode2, evalNode, out);
+            break;
+        case LayoutProperty.MID :
+            emitMidSize(f, evalNode2, evalNode, out);
+            break;
+        case LayoutProperty.SIZE :
+            redefineError(property2);
+            break;
+        default :
+            propertyError(property2);
+            break;
         }
     }
     public override function emitSingle(f:NodeFactory, out:Array):void

@@ -179,17 +179,17 @@ public class BitmapLoader extends EventDispatcher implements Disposable
         {
             switch (_fitMethod)
             {
-                case BitmapLoaderFitMethod.NULL :
-                    fitNull();
-                    return;
+            case BitmapLoaderFitMethod.NULL :
+                fitNull();
+                return;
 
-                case BitmapLoaderFitMethod.SCALE :
-                    fitScale();
-                    return;
+            case BitmapLoaderFitMethod.SCALE :
+                fitScale();
+                return;
 
-                default :
-                    fitCrop();
-                    return;
+            default :
+                fitCrop();
+                return;
             }
         }
         else

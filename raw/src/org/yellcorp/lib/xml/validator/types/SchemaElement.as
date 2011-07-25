@@ -69,17 +69,17 @@ public class SchemaElement
             asString = StringUtil.trim(input).toLowerCase();
             switch (asString)
             {
-                case "inf" :
-                case "infinity" :
-                case "+infinity" :
-                case "+inf" :
-                case "unlimited" :
-                case "unbounded" :
-                case "number.positive_infinity" :
-                case "positive_infinity" :
-                    return Number.POSITIVE_INFINITY;
-                default :
-                    return Number.NaN;
+            case "inf" :
+            case "infinity" :
+            case "+infinity" :
+            case "+inf" :
+            case "unlimited" :
+            case "unbounded" :
+            case "number.positive_infinity" :
+            case "positive_infinity" :
+                return Number.POSITIVE_INFINITY;
+            default :
+                return Number.NaN;
             }
         }
 
