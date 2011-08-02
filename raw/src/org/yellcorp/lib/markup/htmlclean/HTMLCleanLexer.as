@@ -24,11 +24,6 @@ import org.yellcorp.lib.markup.htmlclean.errors.HTMLCleanSyntaxError;
  *
  * <p>If it can't make sense of &lt; as the beginning of a tag, it will back
  * up and assume it should be changed to an &amp;lt; instead.</p>
- *
- * <p>For the most part, the lexer works a single character at a time,
- * which is fast in the land of C and Java but probably the slower way
- * of doing things in ActionScript.  Such is the cost of dealing with
- * dirty HTML.</p>
  */
 public class HTMLCleanLexer
 {
@@ -662,8 +657,7 @@ public class HTMLCleanLexer
 
         // just read up to >
 
-        // FIXME: quoted >s are legal and this is a copout,
-        // but i'm getting bored of this.
+        // FIXME: quoted >s are legal, do this properly
         var char:String = getch();
         emit(char);
         if (char == ">")

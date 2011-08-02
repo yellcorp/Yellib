@@ -5,6 +5,9 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 
 
+/**
+ * Linear interpolation of builtin Flash classes.
+ */
 public class InterpObjectUtil
 {
     public static function lerpPoint(a:Point, b:Point, t:Number, out:Point):Point

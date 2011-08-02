@@ -195,7 +195,7 @@ public class ColorMatrixUtil
 
     public static function invert(m:Array, out:Array = null):Array
     {
-        // uses a fairly dumb guass-jordan algorithm to transform
+        // uses a pokey guass-jordan algorithm to transform
         // the augmented matrix into RREF, with float roundoff everywhere.
         // probably a better way but i don't know it. using determinants?
         // some kind of decomposition? does anyone even invert colormatrices?

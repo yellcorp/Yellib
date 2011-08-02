@@ -13,7 +13,7 @@ import flash.utils.getQualifiedClassName;
 /**
  * This utility class captures the state of a filter or filters as authored
  * in the Flash IDE, and generates AS3 code to reconstruct them.  Intended
- * as a development aid and not a runtime library.
+ * as a development tool and not a runtime library.
  */
 public class FilterCapture
 {

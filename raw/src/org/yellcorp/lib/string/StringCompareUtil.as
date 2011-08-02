@@ -2,6 +2,9 @@ package org.yellcorp.lib.string
 {
 public class StringCompareUtil
 {
+    /**
+     * Calculates the Damerau-Levenshtein edit distance between two strings.
+     */
     public static function editDistance(aString:String, bString:String):int
     {
         // iterators

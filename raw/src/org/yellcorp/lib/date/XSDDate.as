@@ -132,8 +132,6 @@ public class XSDDate
             if (anyIsNaN(year, month, day, hour, minute, second))
             {
                 throw new ArgumentError("Not a valid xsd:datetime string");
-                trace("DateParse.parseXSDateTime: Warning: ParseInt " +
-                    "failed. String was: '" + xsDateTime + "'");
             }
             else
             {

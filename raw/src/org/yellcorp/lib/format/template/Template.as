@@ -81,7 +81,8 @@ import org.yellcorp.lib.format.template.renderer.Renderer;
  * // returns "The string {name} is replaced with Gunnar Magnusson"
  * </listing>
  *
- * The opening, closing, and escape sequences can all be changed.  Opening
+ * To adapt to the various string templating conventions in use,
+ * the opening, closing, and escape sequences can all be changed.  Opening
  * and closing sequences must be at least 1 character long.  The escape
  * sequence can only be 1 character long. Passing in an empty string ("")
  * for the escape string has the special meaning that opening and closing
@@ -214,12 +215,12 @@ public class Template
      * @param format     The format string containing a mix of literal text
      *                   and property placeholders.
      *
-     * @param   values         An object that supplies the values for the
+     * @param values           An object that supplies the values for the
      *                         placeholders in this instance's format
      *                         string. This can be any object that supports
      *                         property lookup with the [] operator.
      *
-     * @param   notFoundValue  A value that will be used if a property
+     * @param notFoundValue    A value that will be used if a property
      *                         doesn't exist.
      *
      * @param open       The string that marks the start of a property name.

@@ -32,7 +32,7 @@ public class ColorUtilTest extends TestCase
         assertEquals("White x Grey = Grey", 0x999999, ColorUtil.multiply(0xFFFFFF, 0x999999));
         assertEquals("Grey x White = Grey", 0x999999, ColorUtil.multiply(0x999999, 0xFFFFFF));
         assertEquals("Cyan x Magenta = Blue", 0x0000FF, ColorUtil.multiply(0x00FFFF, 0xFF00FF));
-        assertEquals("Burnt orange x Swampy green = Puke Yellow", 0x515100, ColorUtil.multiply(0xCC6600, 0x66CC00));
+        assertEquals("Burnt orange x Swampy green = Mud", 0x515100, ColorUtil.multiply(0xCC6600, 0x66CC00));
     }
     public function testScreen():void
     {
@@ -41,7 +41,7 @@ public class ColorUtilTest extends TestCase
         assertEquals("Black ~x Grey = Grey", 0x999999, ColorUtil.screen(0x000000, 0x999999));
         assertEquals("Grey ~x Black = Grey", 0x999999, ColorUtil.screen(0x999999, 0x000000));
         assertEquals("Red ~x Green = Yellow", 0xFFFF00, ColorUtil.screen(0xFF0000, 0x00FF00));
-        assertEquals("Burnt orange ~x Swampy green = Lighter Puke Yellow", 0xe0e000, ColorUtil.screen(0xCC6600, 0x66CC00));
+        assertEquals("Burnt orange ~x Swampy green = Sickly Yellow", 0xe0e000, ColorUtil.screen(0xCC6600, 0x66CC00));
     }
     public function testDifference():void
     {

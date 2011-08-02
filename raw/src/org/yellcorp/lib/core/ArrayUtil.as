@@ -549,8 +549,8 @@ public class ArrayUtil
      * Wraps a 1-argument function with a function signature suitable for
      * passing to the 3-argument functional methods of Array.
      *
-     * @param func  A function that accepts one argument, an array item.
-     * @return      A function that accepts three arguments, an array item,
+     * @param func  A function that accepts one argument: an array item.
+     * @return      A function that accepts three arguments: an array item,
      *              an index, and an array.
      *
      * @see Array#every

@@ -3,6 +3,10 @@ package org.yellcorp.lib.string
 import org.yellcorp.lib.core.StringUtil;
 
 
+/**
+ * Utilities for turning Strings into their AS3 literal representations.
+ * Useful for debugging, code generation, text interchange.
+ */
 public class StringLiteral
 {
     private static const escapeChars:RegExp = new RegExp(
@@ -72,11 +76,18 @@ public class StringLiteral
         standardSequences[0x5c] = "\\\\";
     }
 
+    /**
+     * Return a string with special characters escaped.
+     */
     public static function escape(text:String):String
     {
         return text ? text.replace(escapeChars, getEscapeSequence) : "";
     }
 
+    /**
+     * Returns a quoted string with special characters and delimiting
+     * quotes escaped.
+     */
     public static function quote(text:String, quoteChar:String = '"'):String
     {
         if (!quoteChar || quoteChar.length != 1)
@@ -96,6 +107,9 @@ public class StringLiteral
         }
     }
 
+    /**
+     * Returns the escape sequence for a given character.
+     */
     public static function getEscapeSequence(char:String, ... ignored):String
     {
         var code:uint = char.charCodeAt(0);

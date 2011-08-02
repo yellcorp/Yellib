@@ -1,12 +1,39 @@
 package org.yellcorp.lib.xml
 {
-
+/**
+ * Walks an XML tree in document order, optionally calling handlers for
+ * each type of node.
+ */
 public class XMLTraverser
 {
+    /**
+     * A function that will be called when an opening tag is encountered.
+     * Should take one parameter of type XML.
+     */
     public var openElementHandler:Function = null;
+
+    /**
+     * A function that will be called when a closing tag is encountered.
+     * Should take one parameter of type XML.
+     */
     public var closeElementHandler:Function = null;
+
+    /**
+     * A function that will be called when a text node is encountered.
+     * Should take one parameter of type XML.
+     */
     public var textHandler:Function = null;
+
+    /**
+     * A function that will be called when a comment node is encountered.
+     * Should take one parameter of type XML.
+     */
     public var commentHandler:Function = null;
+
+    /**
+     * A function that will be called when a processing instruction node is
+     * encountered.  Should take one parameter of type XML.
+     */
     public var processingInstructionHandler:Function = null;
 
     public function XMLTraverser() { }

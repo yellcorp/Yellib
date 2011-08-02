@@ -4,20 +4,17 @@ import org.yellcorp.lib.format.template.Template;
 import org.yellcorp.lib.string.StringLiteral;
 
 
+/**
+ * Utilities for turning camelCase style strings into
+ * UNDERSCORE_ALL_CAPS style.
+ */
 public class StringConstants
 {
-    private static const constForm:RegExp = /^[A-Z_$][A-Z0-9_$]*$/;
-
-    private static const tokenizer:RegExp =
-        /([A-Z]+)|([a-z]+)|([0-9]+)/g;
-
-    private static const declaration:Template =
-        new Template("public static const {0}:String = {1};");
-
     public static function valuesToCode(values:Array):Array
     {
         return nameTableToCode(generateNames(values));
     }
+
 
     public static function nameTableToCode(namesToValues:Object):Array
     {
@@ -38,10 +35,15 @@ public class StringConstants
         return lines;
     }
 
+
+    private static const declaration:Template =
+        new Template("public static const {0}:String = {1};");
+
     public static function formatDeclaration(name:String, value:String):String
     {
         return declaration.fill([ name, StringLiteral.quote(value) ]);
     }
+
 
     public static function generateNames(values:Array):Object
     {
@@ -64,6 +66,12 @@ public class StringConstants
         return names;
     }
 
+
+    private static const constForm:RegExp = /^[A-Z_$][A-Z0-9_$]*$/;
+
+    private static const tokenizer:RegExp =
+        /([A-Z]+)|([a-z]+)|([0-9]+)/g;
+
     public static function generateName(value:String):String
     {
         var match:Object;
@@ -75,6 +83,7 @@ public class StringConstants
         {
             return "";
         }
+        // early-out test to see if the value is already in ALL_CAPS style
         else if (constForm.test(value))
         {
             return value;
@@ -87,7 +96,7 @@ public class StringConstants
 
             while ((match = tokenizer.exec(value)))
             {
-                if (match[1])
+                if (match[1]) // matched a string of 1 or more capital letters
                 {
                     if (capWord)
                     {
@@ -95,10 +104,15 @@ public class StringConstants
                     }
                     capWord = match[1];
                 }
-                else if (match[2])
+                else if (match[2]) // matched a string of 1 or more lowercase letters
                 {
                     if (capWord)
                     {
+                        // if we saved a sequence of more than one capital
+                        // letter, assume all but the last is an acronym,
+                        // and therefore a separate word
+
+                        // for example the URLL in URLLoader
                         if (capWord.length > 1)
                         {
                             words.push(capWord.slice(0, -1));

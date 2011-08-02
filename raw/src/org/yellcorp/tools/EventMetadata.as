@@ -7,6 +7,11 @@ import flash.utils.describeType;
 import flash.utils.getDefinitionByName;
 
 
+/**
+ * Automatically generates a block of [Event] metadata declarations for
+ * each const static String found in a given Event class.  Intended
+ * as a development tool and not a runtime library.
+ */
 public class EventMetadata
 {
     private var _eventClass:Class;
