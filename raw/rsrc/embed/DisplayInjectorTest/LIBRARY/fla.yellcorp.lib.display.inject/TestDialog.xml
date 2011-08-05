@@ -1,0 +1,51 @@
+<DOMSymbolItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://ns.adobe.com/xfl/2008/" name="fla.yellcorp.lib.display.inject/TestDialog" itemID="4e3b5320-00000280" linkageExportForAS="true" linkageClassName="fla.yellcorp.lib.display.inject.TestDialog" lastModified="1312511766">
+  <timeline>
+    <DOMTimeline name="TestDialog">
+      <layers>
+        <DOMLayer name="Layer 1" color="#4FFF4F" current="true" isSelected="true">
+          <frames>
+            <DOMFrame index="0" keyMode="9728">
+              <elements>
+                <DOMSymbolInstance libraryItemName="fla.yellcorp.lib.display.inject/DialogBackground" name="background" centerPoint3DX="98.5" centerPoint3DY="54">
+                  <transformationPoint>
+                    <Point x="98.5" y="54"/>
+                  </transformationPoint>
+                </DOMSymbolInstance>
+                <DOMTLFText name="textField" top="-40" left="-40" right="981" bottom="242">
+                  <matrix>
+                    <Matrix tx="14" ty="14"/>
+                  </matrix>
+                  <tlfFonts>
+                    <TLFFont platformName="_sans" psName="_sans"/>
+                  </tlfFonts>
+                  <markup><tlfTextObject type="Point" editPolicy="readWrite" columnCount="auto" columnGap="20" verticalAlign="top" firstBaselineOffset="auto" paddingLeft="2" paddingTop="2" paddingRight="2" paddingBottom="2" background="false" backgroundColor="#ffffff" backgroundAlpha="1" border="false" borderColor="#000000" borderAlpha="1" borderWidth="1" paddingLock="false" multiline="true" antiAliasType="advanced" embedFonts="true" maxChars="0"><TextFlow lineBreak="explicit" locale="en_US" whiteSpaceCollapse="preserve" version="2.0.0" xmlns="http://ns.adobe.com/textLayout/2008"><p direction="ltr" paragraphEndIndent="0" paragraphStartIndent="0" textAlign="start" textIndent="0"><span baselineShift="0" color="#000000" fontFamily="_sans" fontLookup="device" fontSize="11" fontStyle="normal" fontWeight="normal" kerning="auto" lineHeight="118.181818%" trackingRight="0.000000%">TextField!</span></p></TextFlow></tlfTextObject></markup>
+                </DOMTLFText>
+                <DOMInputText name="classicField" width="123.85" height="13.7" lineType="multiline no wrap">
+                  <matrix>
+                    <Matrix tx="13.6" ty="46"/>
+                  </matrix>
+                  <textRuns>
+                    <DOMTextRun>
+                      <characters>TextField!</characters>
+                      <textAttrs>
+                        <DOMTextAttrs aliasText="false" rotation="true" lineSpacing="1.95" size="11" bitmapSize="220" face="_sans"/>
+                      </textAttrs>
+                    </DOMTextRun>
+                  </textRuns>
+                </DOMInputText>
+                <DOMSymbolInstance libraryItemName="fla.yellcorp.lib.display.inject/SomeButton" name="button" selected="true" centerPoint3DX="141.5" centerPoint3DY="86">
+                  <matrix>
+                    <Matrix tx="103" ty="75"/>
+                  </matrix>
+                  <transformationPoint>
+                    <Point x="38.5" y="11"/>
+                  </transformationPoint>
+                </DOMSymbolInstance>
+              </elements>
+            </DOMFrame>
+          </frames>
+        </DOMLayer>
+      </layers>
+    </DOMTimeline>
+  </timeline>
+</DOMSymbolItem>

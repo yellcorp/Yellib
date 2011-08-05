@@ -1,0 +1,41 @@
+<DOMDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://ns.adobe.com/xfl/2008/" currentTimeline="1" xflVersion="2.1" creatorInfo="Adobe Flash Professional CS5.5" platform="Macintosh" versionInfo="Saved by Adobe Flash Macintosh 11.5 build 325" majorVersion="11" minorVersion="5" buildNumber="325" pixelSnap="true" nextSceneIdentifier="2" playOptionsPlayLoop="false" playOptionsPlayPages="false" playOptionsPlayFrameActions="false" autoSaveEnabled="true" autoSaveHasPrompted="true">
+     <folders>
+          <DOMFolderItem name="fla.yellcorp.lib.display.inject" itemID="4e3b53f1-00000270" isExpanded="true"/>
+     </folders>
+     <symbols>
+          <Include href="fla.yellcorp.lib.display.inject/DialogBackground.xml" loadImmediate="false" itemID="4e3adb47-00000272" lastModified="1312480071"/>
+          <Include href="fla.yellcorp.lib.display.inject/SomeButton.xml" loadImmediate="false" itemID="4e3adbf0-00000279" lastModified="1312515065"/>
+          <Include href="fla.yellcorp.lib.display.inject/TestDialog.xml" itemID="4e3b5320-00000280" lastModified="1312511766"/>
+     </symbols>
+     <timelines>
+          <DOMTimeline name="Scene 1">
+               <layers>
+                    <DOMLayer name="Layer 1" color="#4FFF4F" current="true" isSelected="true">
+                         <frames>
+                              <DOMFrame index="0" keyMode="9728">
+                                   <elements>
+                                        <DOMSymbolInstance libraryItemName="fla.yellcorp.lib.display.inject/TestDialog" selected="true" centerPoint3DX="149" centerPoint3DY="104.5">
+                                             <matrix>
+                                                  <Matrix tx="50.5" ty="50.5"/>
+                                             </matrix>
+                                             <transformationPoint>
+                                                  <Point x="98.5" y="54"/>
+                                             </transformationPoint>
+                                        </DOMSymbolInstance>
+                                   </elements>
+                              </DOMFrame>
+                         </frames>
+                    </DOMLayer>
+               </layers>
+          </DOMTimeline>
+     </timelines>
+     <PrinterSettings platform="macintosh"/>
+     <publishHistory>
+          <PublishItem publishSize="489422" publishTime="1312511773"/>
+          <PublishItem publishSize="489417" publishTime="1312511490"/>
+          <PublishItem publishSize="489417" publishTime="1312510990"/>
+          <PublishItem publishSize="489366" publishTime="1312480869"/>
+          <PublishItem publishSize="43128" publishTime="1312480778"/>
+          <PublishItem publishSize="46502" publishTime="1312480711"/>
+     </publishHistory>
+</DOMDocument>
