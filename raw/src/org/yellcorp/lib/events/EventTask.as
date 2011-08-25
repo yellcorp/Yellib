@@ -2,6 +2,7 @@ package org.yellcorp.lib.events
 {
 import org.yellcorp.lib.core.Set;
 
+import flash.errors.IllegalOperationError;
 import flash.events.Event;
 import flash.events.IEventDispatcher;
 
@@ -12,7 +13,7 @@ public class EventTask
 
     private var listeners:Array; // <ListenerDescriptor>
     private var terminatingEventTypes:Set;
-    private var active:Boolean;
+    private var listened:Boolean;
 
     public function EventTask(target:IEventDispatcher)
     {
@@ -24,6 +25,9 @@ public class EventTask
     public function handleOnce(eventType:String, listener:Function,
         useCapture:Boolean = false, priority:int = 0):EventTask
     {
+        if (listened)
+            throw new IllegalOperationError("listen() must be the last method called");
+
         listeners.push(new ListenerDescriptor(eventType, listener, useCapture, priority));
         terminatingEventTypes.add(eventType);
         return this;
@@ -32,6 +36,9 @@ public class EventTask
     public function handle(eventType:String, listener:Function,
         useCapture:Boolean = false, priority:int = 0):EventTask
     {
+        if (listened)
+            throw new IllegalOperationError("listen() must be the last method called");
+
         listeners.push(new ListenerDescriptor(eventType, listener, useCapture, priority));
         return this;
     }
@@ -47,7 +54,7 @@ public class EventTask
         {
             target.addEventListener(eventType, onTerminate, false, int.MIN_VALUE);
         }
-        active = true;
+        listened = true;
         return this;
     }
 
@@ -62,13 +69,12 @@ public class EventTask
         {
             target.removeEventListener(eventType, onTerminate, false);
         }
-        active = false;
         return this;
     }
 
     private function onTerminate(event:Event):void
     {
-        if (active)
+        if (listened)
         {
             unlisten();
             destroy();
