@@ -151,7 +151,19 @@ public class QNameMap extends Proxy implements UntypedMap
 
     private function getLocalNameMapNew(uri:*):Object
     {
-        return uri === null ? nullUri : (uris[uri] = { });
+        if (uri === null)
+        {
+            return nullUri;
+        }
+        else
+        {
+            var map:Object = uris[uri];
+            if (!map)
+            {
+                map = uris[uri] = { };
+            }
+            return map;
+        }
     }
 
     private function deleteLocalNameMapIfEmpty(uri:*):void
