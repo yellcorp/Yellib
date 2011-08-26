@@ -1,5 +1,7 @@
 package org.yellcorp.lib.debug
 {
+import org.yellcorp.lib.core.ReflectUtil;
+
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.Graphics;
@@ -15,6 +17,7 @@ import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFieldType;
 import flash.text.TextFormat;
+import flash.utils.getQualifiedClassName;
 
 
 public class MouseDebugger
@@ -208,7 +211,7 @@ public class MouseDebugger
 
     private static function getDisplayName(target:DisplayObject):String
     {
-        var displayName:String = DebugUtil.getShortClassName(target);
+        var displayName:String = ReflectUtil.getShortClassName(getQualifiedClassName(target));
         if (target.parent)
         {
             displayName += "[" + target.parent.getChildIndex(target) + "]";

@@ -1,4 +1,4 @@
-package org.yellcorp.lib.debug.debugutil
+package org.yellcorp.lib.debug.dumputil
 {
 import org.yellcorp.lib.core.StringUtil;
 import org.yellcorp.lib.format.template.FormattingStringBuilder;

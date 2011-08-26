@@ -1,7 +1,7 @@
-package org.yellcorp.lib.debug.debugutil
+package org.yellcorp.lib.debug.dumputil
 {
+import org.yellcorp.lib.core.ReflectUtil;
 import org.yellcorp.lib.core.StringUtil;
-import org.yellcorp.lib.debug.DebugUtil;
 import org.yellcorp.lib.format.template.FormattingStringBuilder;
 import org.yellcorp.lib.format.template.Template;
 
@@ -99,7 +99,7 @@ public class ObjectDumper
             catch (getterError:Error)
             {
                 formatValues.error = getterError;
-                formatValues.errorType = DebugUtil.getShortClassName(getterError);
+                formatValues.errorType = ReflectUtil.getShortClassName(getQualifiedClassName(getterError));
                 output.appendFill(propertyErrorMessage, formatValues);
             }
         }

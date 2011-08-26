@@ -1,9 +1,10 @@
 package org.yellcorp.lib.debug.watcher
 {
-import org.yellcorp.lib.debug.DebugUtil;
+import org.yellcorp.lib.core.ReflectUtil;
 
 import flash.display.DisplayObject;
 import flash.geom.Matrix;
+import flash.utils.getQualifiedClassName;
 
 
 public class Difference
@@ -58,7 +59,7 @@ public class Difference
     public function toString():String
     {
         return "[WatchResult " + type + " " +
-               DebugUtil.getShortClassName(display) +
+               ReflectUtil.getShortClassName(getQualifiedClassName(display)) +
                '("' + display.name + '") ' +
                matrixChangeString + " " +
                indexChangeString + "]";
