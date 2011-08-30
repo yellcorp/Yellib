@@ -1,9 +1,8 @@
 package org.yellcorp.lib.display.inject
 {
-public class DisplayPathError extends Error
+public class DisplayPathError extends DisplayInjectorError
 {
     public var displayPath:String;
-    public var property:String;
 
     public function DisplayPathError(
         message:* = "",
@@ -11,10 +10,9 @@ public class DisplayPathError extends Error
         property:String = "",
         id:* = 0)
     {
-        super(message, id);
+        super(message, id, property);
         name = "DisplayPathError";
         this.displayPath = displayPath;
-        this.property = property;
     }
 }
 }

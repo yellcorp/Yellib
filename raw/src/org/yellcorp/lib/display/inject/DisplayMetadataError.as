@@ -1,13 +1,10 @@
 package org.yellcorp.lib.display.inject
 {
-public class DisplayMetadataError extends Error
+public class DisplayMetadataError extends DisplayInjectorError
 {
-    public var property:String;
-
     public function DisplayMetadataError(message:* = "", property:String = null, id:* = 0)
     {
-        super(message, id);
-        this.property = property;
+        super(message, property, id);
         name = "DisplayMetadataError";
     }
 }
