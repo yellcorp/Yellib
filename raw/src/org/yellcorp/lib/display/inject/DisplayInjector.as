@@ -26,12 +26,16 @@ import flash.utils.getDefinitionByName;
  * called the 'target'.
  *
  * For each qualifying instance variable of the target, the default
- * behaviour of DisplayInjector.inject is to search the
- * container for a child with the same name, and tries to cast it to the
- * variable's class.
+ * behaviour of DisplayInjector.inject is:
+ * <ul>
+ *   <li>Search the container for a child with the same name as the target
+ *       variable.</li>
+ *   <li>Cast it to the target variable class.</li>
+ *   <li>Assign it to the target variable.</li>
+ * </ul>
  *
- * A qualifying instance variable is one that is public and has the
- * metadata tag <code>[Display]</code>.
+ * A qualifying instance variable is one that is publically accessible and
+ * has the metadata tag <code>[Display]</code>.
  *
  * As an example, if a target instance has the following variable:
  *
@@ -63,29 +67,37 @@ import flash.utils.getDefinitionByName;
  *     </listing>
  *     will first search the container for a child called 'navBar', and
  *     then search 'navBar' for a child called 'nextButton'. If any of the
- *     intermediate children are not themselves DisplayObjectContainers,
+ *     intermediate children are not found, or not DisplayObjectContainers,
  *     an error is thrown.
  *   </dd>
  *
- *   <dt><code>wrapper</code></dt>
- *   <dd>Instead of casting the child DisplayObject to the property's
- *     class, use the specified class as a constructor, with the child
- *     DisplayObject as an argument. For example:
+ *   <dt><code>adapter</code></dt>
+ *   <dd>Instead of trying to cast the child DisplayObject to the property's
+ *     class, use the class as a constructor, with the child DisplayObject
+ *     as an argument. For example:
  *     <listing version="3.0">
- *       [Display(wrapper="org.yellcorp.ui.GlowButton")]
+ *       [Display(adapter)]
  *       public var nextButton:GlowButton;
+ *     </listing>
+ *     will essentially perform the following:
+ *     <listing version="3.0">
+ *       target.nextButton = new GlowButton(container.getChildByName("nextButton")));
+ *     </listing>
+ *     If the property's class is an interface or a base class, the concrete
+ *     class can be specified in the value for <code>adapter</code>.
+ *     <listing version="3.0">
+ *       [Display(adapter="org.yellcorp.ui.GlowButton")]
+ *       public var nextButton:IButton;
  *     </listing>
  *     will perform the following:
  *     <listing version="3.0">
  *       target.nextButton = new GlowButton(container.getChildByName("nextButton")));
  *     </listing>
+ *     In all cases, the constructor is assumed to take a single argument.
  *   </dd>
  * </dl>
  *
- * TODO: The <code>wrapper</code> parameter should support a default value,
- * which would be the class of the target property. Filling out the full
- * class name would only then be necessary if a subclass or an implemetor of
- * an interface was desired.
+ * TODO: adapter could also specify a static function
  */
 public class DisplayInjector
 {
@@ -126,16 +138,21 @@ public class DisplayInjector
     private static function injectProperty(property:XML, metadata:XML,
             source:DisplayObjectContainer, target:*):void
     {
-        var args:Object = { name: null, wrapper: null };
+        var args:Object = { name: null, adapter: null };
 
         try {
             collectArgs(metadata, args);
             var displayPath:String = args.name || property.@name;
             var child:* = getChildByPath(source, displayPath);
 
-            if (args.wrapper)
+            if (args.adapter === "")
             {
-                child = construct(args.wrapper, child);
+                args.adapter = property.@type;
+            }
+
+            if (args.adapter !== null)
+            {
+                child = construct(args.adapter, child);
             }
 
             target[property.@name] = child;
@@ -206,6 +223,22 @@ public class DisplayInjector
         {
             var key:String = arg.@key;
             var value:String = arg.@value;
+
+            // [Metadata(paramName="string")]
+            // becomes <arg key="paramName" value="string" />
+
+            // but...
+
+            // [Metadata(bareword)]
+            // becomes <arg key="" value="bareword" />
+
+            // so swap them
+            if (key == "")
+            {
+                key = value;
+                value = "";
+            }
+
             if (argDict.hasOwnProperty(key))
             {
                 argDict[key] = value;
@@ -219,9 +252,9 @@ public class DisplayInjector
     }
 
 
-    private static function construct(wrapper:String, displayObject:*):*
+    private static function construct(adapter:String, displayObject:*):*
     {
-        var clazz:Object = getDefinitionByName(wrapper);
+        var clazz:Object = getDefinitionByName(adapter);
         return new clazz(displayObject);
     }
 }
