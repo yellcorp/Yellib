@@ -44,6 +44,9 @@ public class DisplayUtil
         real.x = guide.x;
         real.y = guide.y;
 
+        guide.x = 0;
+        guide.y = 0;
+
         if (copySize)
         {
             real.width = guide.width;
@@ -84,33 +87,43 @@ public class DisplayUtil
         }
     }
 
-    public static function insertTransformNode(child:DisplayObject, regPointX:Number = 0, regPointY:Number = 0):Sprite
+    /**
+     * Concatenates the child's transform with its parent, and resets the
+     * child's transform.
+     */
+    public static function hoistTransform(child:DisplayObject):void
     {
-        var parent:DisplayObjectContainer;
-        var newNode:Sprite;
-        var offsetX:int;
-        var offsetY:Number;
-
         if (!child)
             throw new ArgumentError("child argument must not be null");
 
-        offsetX = int(child.width * regPointX);
-        offsetY = int(child.height * regPointY);
+        var parent:DisplayObjectContainer = child.parent;
 
-        parent = child.parent;
+        if (!parent)
+            throw new ArgumentError("child has no parent");
 
-        newNode = new Sprite();
-        newNode.x = child.x + offsetX;
-        newNode.y = child.y + offsetY;
+        parent.transform.matrix.concat(child.transform.matrix);
+        child.transform.matrix.identity();
+    }
 
-        newNode.addChild(child);
-        child.x = -offsetX;
-        child.y = -offsetY;
+    public static function insertParent(child:DisplayObject, newParent:DisplayObjectContainer = null):DisplayObjectContainer
+    {
+        if (!child)
+            throw new ArgumentError("child argument must not be null");
 
-        if (parent)
-            parent.addChild(newNode);
+        var oldParent:DisplayObjectContainer = child.parent;
 
-        return newNode;
+        if (!newParent)
+        {
+            newParent = new Sprite();
+        }
+
+        if (oldParent)
+        {
+            var oldIndex:int = oldParent.getChildIndex(child);
+            oldParent.addChildAt(newParent, oldIndex);
+        }
+        newParent.addChild(child);
+        return newParent;
     }
 
     public static function setChildAttached(child:DisplayObject, parent:DisplayObjectContainer, attach:Boolean):void
