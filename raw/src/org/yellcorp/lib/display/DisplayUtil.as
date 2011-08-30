@@ -16,7 +16,7 @@ public class DisplayUtil
      * @param out An optional Point variable to store the result in. This can
      *            be used to avoid calling the Point constructor.
      */
-    public static function getDisplayObjectPoint(dobj:DisplayObject, out:Point = null):Point
+    public static function getDisplayObjectLocation(dobj:DisplayObject, out:Point = null):Point
     {
         if (!out)
         {
