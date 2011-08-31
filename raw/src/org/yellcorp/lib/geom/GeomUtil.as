@@ -52,7 +52,7 @@ public class GeomUtil
     {
         if (!a && !b)
         {
-            return true;
+            return a == b;
         }
         else if (!a || !b)
         {
