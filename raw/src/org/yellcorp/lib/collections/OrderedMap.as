@@ -86,8 +86,7 @@ public class OrderedMap extends Proxy implements UntypedMap
         if (index < keyOrder.length)
         {
             key = keyOrder[index];
-            deleteIndexAndKey(index, key);
-            return true;
+            return deleteIndexAndKey(index, key);
         }
         else
         {
@@ -110,15 +109,13 @@ public class OrderedMap extends Proxy implements UntypedMap
     override flash_proxy function deleteProperty(key:*):Boolean
     {
         var index:int;
+        var result:Boolean = false;
         if (keyToValue.hasOwnProperty(key))
         {
             index = keyToIndex[key];
-            deleteIndexAndKey(index, key);
+            result = deleteIndexAndKey(index, key);
         }
-        else
-        {
-            return false;
-        }
+        return result;
     }
 
     override flash_proxy function getProperty(key:*):*
@@ -156,11 +153,12 @@ public class OrderedMap extends Proxy implements UntypedMap
         return keyToValue[keyOrder[index - 1]];
     }
 
-    private function deleteIndexAndKey(index:int, key:*):void
+    private function deleteIndexAndKey(index:int, key:*):Boolean
     {
         keyOrder.splice(index, 1);
-        delete keyToValue[key];
-        delete keyToIndex[key];
+        var v:Boolean = delete keyToValue[key];
+        var i:Boolean = delete keyToIndex[key];
+        return v && i;
     }
 }
 }
