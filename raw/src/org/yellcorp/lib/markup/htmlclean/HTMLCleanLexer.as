@@ -791,7 +791,7 @@ public class HTMLCleanLexer
             {
                 // if the entity parsed so far is valid, then allow it to
                 // be terminated with something other than a ;
-                if (HTMLReference.instance.isTextEntity(ent.substr(1).toLowerCase()) ||
+                if (HTMLReference.instance.isNamedEntity(ent) ||
                     HTMLReference.instance.isNumericEntity(ent))
                 {
                     ent += ";";

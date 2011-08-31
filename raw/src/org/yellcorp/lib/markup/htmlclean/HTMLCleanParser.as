@@ -6,7 +6,7 @@ import org.yellcorp.lib.markup.html.HTMLToken;
 
 
 /**
- * This class is responsible for structural analysis of an HTML
+ * Responsible for structural analysis of an HTML
  * document and its conversion into XML.  It makes sure tags are
  * balanced, using HTMLReference to judge whether a tag should be left
  * empty or automatically closed.  It also strips duplicate attributes

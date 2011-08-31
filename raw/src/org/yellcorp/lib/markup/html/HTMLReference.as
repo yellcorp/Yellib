@@ -9,6 +9,8 @@ import flash.errors.IllegalOperationError;
  * A partial database of HTML tags and entities taken from the HTML DTD.
  *
  * This class is a singleton, so access methods via HTMLReference.instance
+ *
+ * @see #instance
  */
 public class HTMLReference
 {
@@ -43,8 +45,9 @@ public class HTMLReference
     }
 
     /**
-     * True if passed the name of a standard HTML tag or popular
-     * non-standard one.  The name should be the string alone - no &lt; or &gt;
+     * Returns whether a string is the name of a standard HTML tag or
+     * popular non-standard one.  The name should be the string alone - no
+     * <code>&lt;</code> or <code>&gt;</code>
      */
     public function isHTMLTag(tagName:String):Boolean
     {
@@ -52,8 +55,9 @@ public class HTMLReference
     }
 
     /**
-     * True if passed the name of a tag defined as empty.  An empty tag
-     * is one that allows no child tags or text.  &lt;img&gt; is an example.
+     * Returns whether a tag is defined as empty.  An empty tag is one that
+     * allows no child tags or text.  <code>&lt;img&gt;</code> is an
+     * example.
      */
     public function isEmptyTag(tagName:String):Boolean
     {
@@ -61,7 +65,7 @@ public class HTMLReference
     }
 
     /**
-     * True if the tag is defined as having block layout.
+     * Returns whether a tag is defined as having block layout.
      */
     public function isBlockTag(tagName:String):Boolean
     {
@@ -69,7 +73,7 @@ public class HTMLReference
     }
 
     /**
-     * True if the tag is defined as having inline layout.
+     * Returns whether a tag is defined as having inline layout.
      */
     public function isInlineTag(tagName:String):Boolean
     {
@@ -77,11 +81,13 @@ public class HTMLReference
     }
 
     /**
-     * True if the tag does not require attributes.  This is more
-     * heuristic than strict.  For example, by the standard, &lt;script&gt; tags
-     * should always have attributes, but browsers widely assume JavaScript
-     * if a type is not defined.  Conversely, &lt;a&gt; can be empty but is
-     * rarely useful without either name or href.
+     * Returns whether a tag does not require attributes.  This is an
+     * heuristic based on de facto usage rather than strict definition.
+     * For example, by the standard, <code>&lt;script&gt;</code> tags should
+     * always have attributes, but browsers widely assume JavaScript if a
+     * <code>type</code> is not defined.  Conversely,
+     * <code>&lt;a&gt;</code> can be empty but is rarely useful without
+     * either <code>name</code> or <code>href</code>.
      */
     public function isAttrOptionalTag(tagName:String):Boolean
     {
@@ -89,7 +95,8 @@ public class HTMLReference
     }
 
     /**
-     * True if childTag is allowed as a child of parentTag
+     * Returns whether <code>childTag</code> is allowed as an immediate
+     * child of <code>parentTag</code>.
      */
     public function isTagAllowedInTag(parentTag:String, childTag:String):Boolean
     {
@@ -107,27 +114,44 @@ public class HTMLReference
     }
 
     /**
-     * True if query is a valid entity. Note that this function
-     * expects just the name part of the entity - i.e. between, but not
-     * including, the & and ;
+     * Returns whether a string is a valid named or numeric character code
+     * entity.
      */
-    public function isTextEntity(query:String):Boolean
+    public function isEntity(query:String):Boolean
     {
-        return textEntities.contains(query.toLowerCase());
+        return isNamedEntity(query) || isNumericEntity(query);
     }
 
     /**
-     * True if query is a valid character code entity. This is different
-     * to isTextEntity in that it expects the leading &
+     * Returns whether a string is a valid named entity.
+     */
+    public function isNamedEntity(query:String):Boolean
+    {
+        return textEntities.contains(stripEntity(query).toLowerCase());
+    }
+
+    /**
+     * Returns whether a string is a valid decimal or hexadecimal character
+     * code entity.
      */
     public function isNumericEntity(query:String):Boolean
     {
-        return numericEntityPattern.test(query);
+        return numericEntityPattern.test(stripEntity(query));
+    }
+
+    private function stripEntity(query:String):String
+    {
+        var first:int = 0;
+        var last:int = query.length;
+        if (query.charAt(0) == "&") first++;
+        if (query.charAt(query.length - 1) == ";") last--;
+        return query.substring(first, last);
     }
 
     /**
-     * Returns the entity for the character passed into literalChar, if
-     * it exists in the database
+     * Returns the HTML entity equivalent of a character, or undefined if
+     * one isn't defined.  Currently only supports <code>&lt; &gt; &amp;
+     * &apos;</code> and <code>&quot;</code>.
      */
     public function getEntityRepr(literalChar:String):String
     {
@@ -148,7 +172,7 @@ public class HTMLReference
         "times", "uacute", "ucirc", "ugrave", "uml", "uuml", "yacute",
         "yen", "yuml"]);
 
-        numericEntityPattern = /\&#([0-9]+|x[0-9a-f]+)/i;
+        numericEntityPattern = /#([0-9]+|x[0-9a-f]+)/i;
 
         charEntities = [ ];
         charEntities["<".charCodeAt(0)] = "&lt;";

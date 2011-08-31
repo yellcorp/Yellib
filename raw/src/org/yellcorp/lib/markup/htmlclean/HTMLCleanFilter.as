@@ -7,7 +7,7 @@ import org.yellcorp.lib.xml.XMLTraverser;
 
 
 /**
- * HTMLCleanFilter accepts XML objects representing XHTML documents and
+ * Accepts XML objects representing XHTML documents and
  * transforms them according to the subset of HTML supported by Flash's
  * native TextField.  This is an optional third step in cleaning HTML
  * documents for display in Flash.
