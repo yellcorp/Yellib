@@ -1,10 +1,12 @@
 package org.yellcorp.lib.core
 {
 /**
- * Generic utilities for manipulating mapping objects. That is, Objects
- * with dynamic properties, Dictionaries, Arrays, subclasses of
- * flash.utils.Proxy, anything containing values that can be accessed using
- * [ ].
+ * Generic utilities for manipulating mapping objects.  A mapping object is
+ * any object that contains values associated with keys, and supports the
+ * <code>[]</code> operator, <code>for&#x2026;in</code> enumeration, and
+ * <code>for&#x2026;each</code> enumeration.  This includes Objects with
+ * dynamic properties, Dictionaries, Arrays, and subclasses of
+ * flash.utils.Proxy.
  */
 public class MapUtil
 {
@@ -21,12 +23,15 @@ public class MapUtil
      * // obj.three == 3;
      * </listing>
      *
-     * @param keys   The keys to set on the target map.
-     * @param values The values to set each key to.
-     * @param target The target map. If omitted, will create a new Object
+     * @param keys   An <code>Array</code> or <code>Vector</code> of keys
+     *               to set on the target map.
+     * @param values An <code>Array</code> or <code>Vector</code> of values
+     *               to associate with each key.
+     * @param target The target map. If omitted or <code>null</code>, will
+     *               create a new <code>Object</code>.
      * @return       The target map.
      */
-    public static function setFromKeysValues(keys:Array, values:Array, target:* = null):*
+    public static function setFromKeysValues(keys:*, values:*, target:* = null):*
     {
         if (target === null) target = { };
         for (var i:int = 0; i < keys.length; i++)
@@ -49,12 +54,13 @@ public class MapUtil
      * // obj.three == 3;
      * </listing>
      *
-     * @param keysValues An array of alternating keys and values
+     * @param keysValues An <code>Array</code> or <code>Vector</code> of
+     *                   alternating keys and values
      * @param target     The target map. If omitted, will create a new
      *                   <code>Object</code>
      * @return           The target map.
      */
-    public static function setFromInterleaved(keysValues:Array, target:* = null):*
+    public static function setFromInterleaved(keysValues:*, target:* = null):*
     {
         if (target === null) target = { };
         for (var i:int = 0; i < keysValues.length; i += 2)
@@ -65,12 +71,13 @@ public class MapUtil
     }
 
     /**
-     * Copies the keys and values from one map to the target map. Values
-     * for source keys overwrite any identically named keys in target.
+     * Copies dynamic keys and values from one map to the target map. Values
+     * for source keys overwrite any identically named keys in
+     * <code>target</code>.
      *
      * @param source     The map to copy.
      * @param target     The target map. If omitted, will create a new
-     *                   <code>Object</code>
+     *                   <code>Object</code>.
      * @return           The target map.
      */
     public static function copy(source:*, target:* = null):*
@@ -85,7 +92,6 @@ public class MapUtil
 
     /**
      * Copies some keys and values from the source map to the target map.
-     * The keys to copy are passed in as an <code>Array</code>.
      *
      * @example
      * <listing version="3.0">
@@ -113,10 +119,11 @@ public class MapUtil
      *
      * @param source     The map to copy from.
      * @param target     The map to copy to.
-     * @param keyList    The list of keys to copy. If a key does not exist
-     *                   on <code>source</code>, it is ignored.
+     * @param keyList    An <code>Array</code> or <code>Vector</code> of
+     *                   keys to copy. If a key does not exist on
+     *                   <code>source</code>, it is ignored.
      */
-    public static function copySubset(source:*, target:*, keyList:Array):void
+    public static function copySubset(source:*, target:*, keyList:*):void
     {
         for each (var key:* in keyList)
         {
@@ -130,14 +137,15 @@ public class MapUtil
     /**
      * Removes some keys and values from the source map and sets them in
      * the target map.  The keys to move are passed in as an
-     * <code>Array</code>.
+     * <code>Array</code> or <code>Vector</code>.
      *
      * @param source     The map to move from.
      * @param target     The map to move to.
-     * @param keyList    The list of keys to move. If a key does not exist
-     *                   on <code>source</code>, it is ignored.
+     * @param keyList    An <code>Array</code> or <code>Vector</code> of
+     *                   keys to move. If a key does not exist on
+     *                   <code>source</code>, it is ignored.
      */
-    public static function moveSubset(source:*, target:*, keyList:Array):void
+    public static function moveSubset(source:*, target:*, keyList:*):void
     {
         for each (var key:* in keyList)
         {
@@ -150,9 +158,8 @@ public class MapUtil
     }
 
     /**
-     * Returns all the keys in a map as an <code>Array</code>. The order
-     * is undefined. This is implemented as a for...in loop, so sealed
-     * instances may return empty arrays.
+     * Returns all the dynamic keys in a map as an <code>Array</code>.
+     * The order is undefined.
      *
      * @param map  The map to retrieve keys from.
      * @return     An array of the map's keys.
@@ -169,8 +176,8 @@ public class MapUtil
     }
 
     /**
-     * Returns all the values in a map as an <code>Array</code>. The order
-     * is undefined.
+     * Returns all the dynamic values in a map as an <code>Array</code>.
+     * The order is undefined.
      *
      * @param map  The map to retrieve values from.
      * @return     An array of the map's values.
@@ -188,7 +195,7 @@ public class MapUtil
 
     /**
      * Returns all the keys and values as an <code>Array</code> of 2-member
-     * <code>Arrays</code>.
+     * <code>Arrays</code>. The order is undefined.
      * @example
      * <listing version="3.0">
      * var obj:Object = {
@@ -203,8 +210,9 @@ public class MapUtil
      * </listing>
      *
      * @param map  The map to retrieve keys and values from.
-     * @return     An array of 2-member arrays, where index 0 is a key, and
-     *             index 1 is that key's value.
+     * @return     An <code>Array</code> of 2-member <code>Array</code>s,
+     *             with index 0 of each containing keys and index 1
+     *             containing values.
      */
     public static function mapToArray(map:*):Array
     {
@@ -218,11 +226,7 @@ public class MapUtil
     }
 
     /**
-     * Returns the number of keys defined in a given map.
-     *
-     * Note: This is done using a <code>for ... in</code> loop, so only
-     * dynamic keys will be counted.  Will likely return 0 for instances
-     * of sealed classes.
+     * Returns the number of dynamic keys defined in a given map.
      *
      * @example
      * <listing version="3.0">
@@ -238,7 +242,7 @@ public class MapUtil
      * </listing>
      *
      * @param map  The map to count
-     * @return     The number of keys defined in map.
+     * @return     The number of keys defined in the map.
      */
     public static function count(map:*):uint
     {
@@ -249,7 +253,7 @@ public class MapUtil
     }
 
     /**
-     * Returns <code>true</code> if a map contains no keys.
+     * Returns <code>true</code> if a map contains no dynamic keys.
      *
      * @param map  The map to test for emptiness.
      * @returns    True if the map has no keys. False otherwise.
@@ -274,7 +278,7 @@ public class MapUtil
      *                      provided, a new <code>Object</code> is created.
      *                      The results of <code>indexingFunc</code> will
      *                      be used as keys, with the keys from
-     *                      <code>map</code> becoming the value.
+     *                      <code>map</code> becoming the values.
      * @return The map containing the index.
      */
     public static function indexKeys(map:*, indexingFunc:Function, target:* = null):*
@@ -283,11 +287,11 @@ public class MapUtil
     }
 
     /**
-     * Creates an index of a map's values. <code>indexingFunc</code> is called
-     * for each key/value pair in <code>map</code>, passing in the key and
-     * value as arguments.  The result of this function is then used as the
-     * key in the <code>target</code> map, with the original value becoming
-     * the new value.
+     * Creates an index of a map's values. <code>indexingFunc</code> is
+     * called for each key/value pair in <code>map</code>, passing in the
+     * key and value as arguments.  The result of this function is then used
+     * as the key in the <code>target</code> map, with the original value
+     * becoming the new value.
      *
      * @param map           The map to index.
      * @param indexingFunc  A function which accepts two arguments, the key
