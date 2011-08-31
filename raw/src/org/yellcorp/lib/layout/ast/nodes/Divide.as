@@ -1,6 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
-
+/**
+ * @private
+ */
 public class Divide extends BinaryNode implements ASTNode
 {
     public function Divide(left:ASTNode, right:ASTNode)

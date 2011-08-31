@@ -1,6 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
-
+/**
+ * @private
+ */
 public class Constant implements ASTNode
 {
     private var _value:Number;

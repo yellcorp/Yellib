@@ -1,6 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
-
+/**
+ * @private
+ */
 public class Subtract extends BinaryNode implements ASTNode
 {
     public function Subtract(left:ASTNode, right:ASTNode)

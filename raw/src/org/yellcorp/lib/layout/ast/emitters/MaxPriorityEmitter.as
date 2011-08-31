@@ -6,6 +6,9 @@ import org.yellcorp.lib.layout.ast.factories.NodeFactory;
 import org.yellcorp.lib.layout.ast.nodes.ASTNode;
 
 
+/**
+ * @private
+ */
 public class MaxPriorityEmitter extends BaseEmitter
 {
     public function MaxPriorityEmitter(target:BaseAdapter, evalNode:ASTNode)

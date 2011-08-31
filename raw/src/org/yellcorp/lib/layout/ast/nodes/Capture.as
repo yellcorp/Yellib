@@ -1,5 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
+/**
+ * @private
+ */
 public class Capture implements ASTNode
 {
     private var node:ASTNode;

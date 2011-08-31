@@ -1,5 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
+/**
+ * @private
+ */
 public interface ASTNode
 {
     function evaluate():Number;

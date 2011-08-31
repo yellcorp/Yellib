@@ -1,5 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
+/**
+ * @private
+ */
 public class Setter implements ASTNode
 {
     // commented out getFunc - decide later if evaluate should return

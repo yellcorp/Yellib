@@ -1,5 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
+/**
+ * @private
+ */
 public class Add extends BinaryNode implements ASTNode
 {
     public function Add(left:ASTNode, right:ASTNode)

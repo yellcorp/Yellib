@@ -10,6 +10,9 @@ import flash.display.Stage;
 import flash.geom.Rectangle;
 
 
+/**
+ * @private
+ */
 public class AdapterFactory
 {
     public function wrap(subject:Object):BaseAdapter

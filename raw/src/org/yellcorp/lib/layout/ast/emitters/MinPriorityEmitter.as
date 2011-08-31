@@ -6,6 +6,9 @@ import org.yellcorp.lib.layout.ast.factories.NodeFactory;
 import org.yellcorp.lib.layout.ast.nodes.ASTNode;
 
 
+/**
+ * @private
+ */
 public class MinPriorityEmitter extends BaseEmitter
 {
     public function MinPriorityEmitter(target:BaseAdapter, evalNode:ASTNode)

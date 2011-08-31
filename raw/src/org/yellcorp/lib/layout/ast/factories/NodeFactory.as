@@ -13,6 +13,9 @@ import org.yellcorp.lib.layout.ast.nodes.Setter;
 import org.yellcorp.lib.layout.ast.nodes.Subtract;
 
 
+/**
+ * @private
+ */
 public class NodeFactory
 {
     private var axis:String;

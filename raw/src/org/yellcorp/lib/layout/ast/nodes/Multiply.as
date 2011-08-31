@@ -1,5 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
+/**
+ * @private
+ */
 public class Multiply extends BinaryNode implements ASTNode
 {
     public function Multiply(left:ASTNode, right:ASTNode)

@@ -3,6 +3,9 @@ package org.yellcorp.lib.layout.ast.nodes
 import org.yellcorp.lib.error.AbstractCallError;
 
 
+/**
+ * @private
+ */
 public class BinaryNode implements ASTNode
 {
     protected var left:ASTNode;

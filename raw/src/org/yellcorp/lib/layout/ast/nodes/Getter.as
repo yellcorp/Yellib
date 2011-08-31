@@ -1,5 +1,8 @@
 package org.yellcorp.lib.layout.ast.nodes
 {
+/**
+ * @private
+ */
 public class Getter implements ASTNode
 {
     private var getFunc:Function;
