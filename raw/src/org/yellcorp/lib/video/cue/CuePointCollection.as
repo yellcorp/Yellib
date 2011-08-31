@@ -127,7 +127,7 @@ public class CuePointCollection
 
     public function indexOf(query:CuePoint):int
     {
-        return ArrayUtil.getFirst(cuePoints,
+        return ArrayUtil.findFirst(cuePoints,
             function (compare:CuePoint):Boolean
             {
                 return compare.name == query.name &&

@@ -4,8 +4,17 @@ import flash.utils.Dictionary;
 
 
 /**
- * Generic utilities for manipulating Arrays.  A lot of concepts
- * pilfered from functional programming and languages like Python.
+ * Utilities for manipulating array-like objects.  An array-like object is
+ * one that has the following characteristics:
+ * <ul>
+ *   <li>It supports iteration over its values using
+ *       <code>for each&#x2026;in</code>.</li>
+ *   <li>It contains values associated with integer indices.</li>
+ *   <li>It has a <code>length</code> property that is set to one higher
+ *       than its maximum valid index.</li>
+ * </ul>
+ * Array-like objects include instances of <code>Array</code>,
+ * <code>Vector</code> and the top-level <code>arguments</code> object.
  */
 public class ArrayUtil
 {
@@ -17,68 +26,82 @@ public class ArrayUtil
     private static var undefinedKey:Object = { };
 
     /**
-     * Creates one array from multiple arrays by interleaving each member
-     * from each array.
+     * Given a set of arrays, returns them grouped by identical index.
+     * If the arrays are unequal in length, the result is equal in length
+     * to the shortest array.
      *
-     * @example Given two input arrays:
+     * @example
      * <listing version="3.0">
-     * var a:Array = [ "1", "2", "3" ];
-     * var b:Array = [ "a", "b", "c" ];
+     * var u:Array = [ "a",  "b",  "c" ];
+     * var v:Array = [ "1",  "2",  "3" ];
+     * var w:Array = [ "do", "re", "mi" ];
      *
      * var z:Array = ArrayUtil.zip(a, b);
      *
-     * // z equals:
-     * // [ "1", "a", "2", "b", "3", "c" ];
+     * // z ==
+     * // [ [ "a", "1", "do" ],
+     * //   [ "b", "2", "re" ],
+     * //   [ "c", "3", "mi" ] ]
      * </listing>
      */
     public static function zip(... arrays):Array
     {
-        // TODO: this is not quite how Python works, Python returns
-        // values with equal indices as tuples
+        return zipv(arrays);
+    }
 
-        var result:Array = [ ];
-        var currentArray:Array;
-        var len:int = 0;
-        var i:int;
-        var j:int;
+    /**
+     * Identical to zip, but accepts an array of arrays, instead of a
+     * parameter list of arrays.
+     *
+     * @see #zip
+     */
+    public static function zipv(arrays:*):Array
+    {
+        var shortest:Number;
+        var result:Array;
+        var build:Array;
 
-        var nullPadding:Boolean = true;
-
-        for (j = 0;j < arrays.length; j++)
+        if (!arrays)
         {
-            currentArray = arrays[j] as Array;
-            if (currentArray === null)
+            return arrays;
+        }
+
+        if (arrays.length == 0)
+        {
+            return [ ];
+        }
+
+        for each (var a:* in arrays)
+        {
+            if (a.length < shortest)
             {
-                throw new ArgumentError("Argument " + j + " not an Array");
-            }
-            else
-            {
-                len = Math.max(len, currentArray.length);
+                shortest = a.length;
             }
         }
 
-        for (i = 0;i < len; i++)
+        if (isNaN(shortest))
         {
-            for (j = 0;j < arrays.length; j++)
-            {
-                currentArray = arrays[j] as Array;
-                if (i < currentArray.length)
-                {
-                    result.push(currentArray[i]);
-                } else if (nullPadding)
-                {
-                    result.push(null);
-                }
-            }
+            throw new ArgumentError("Couldn't get length property from any object");
         }
 
+        result = new Array(shortest);
+        for (var i:Number = 0; i < shortest; i++)
+        {
+            build = [ ];
+            for each (var v:* in arrays)
+            {
+                build.push(v[i]);
+            }
+            result[i] = build;
+        }
         return result;
     }
 
 
     /**
-     * Array reduction, AKA a left fold.
-     * See http://en.wikipedia.org/wiki/Reduce_%28higher-order_function%29
+     * Array reduction, also known as a left fold.
+     * See <a href="http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29">Fold
+     * (higher-order function) on Wikipedia</a>.
      *
      * @example
      * <listing version="3.0">
@@ -90,19 +113,20 @@ public class ArrayUtil
      * var sum:Number = ArrayUtil.reduce(arrayToSum, add, 0);
      *
      * // sum == 15
+     * </listing>
      *
-     * @param array             The array to reduce
+     * @param array             The array to reduce.
      * @param reductionFunction A function that takes two arguments and
      *                          returns the result of some operation on
-     *                          them
+     *                          them.
      * @param initialValue      The intial value. If present, the first
      *                          function call will be
      *                          <code>reductionFunction(initialValue, array[0])</code>
      *                          Otherwise it will be
-     *                          <code>reductionFunction(array[0], array[1])</code>
-     * </listing>
+     *                          <code>reductionFunction(array[0], array[1])</code>.
      */
-    public static function reduce(array:*, reductionFunction:Function, initialValue:* = null):*
+    public static function reduce(array:*, reductionFunction:Function,
+            initialValue:* = null):*
     {
         var i:int;
         var acc:*;
@@ -161,27 +185,26 @@ public class ArrayUtil
      * // newArray == [ "Steve", "steve.jpg", "http://steve.com" ]
      * </listing>
      *
-     * @param arrayOrObject The Array or Object to pick from
-     * @param indices       The indices or properties to pick
-     * @return              An array with the specified index/property
-     *                      values from the Array/Object
+     * @param source   The instance to pick from.
+     * @param indices  The indices or properties to pick.
+     * @return         An array with the specified index or property
+     *                 values from source.
      */
-    public static function pick(arrayOrObject:*, indices:*):Array
+    public static function pick(source:*, indices:*):Array
     {
         var i:int;
         var picked:Array = [ ];
 
         for (i = 0; i < indices.length; i++)
         {
-            picked.push(arrayOrObject[indices[i]]);
+            picked.push(source[indices[i]]);
         }
         return picked;
     }
 
 
     /**
-     * Given an <code>Array</code> of objects, return the specified
-     * property for each one.
+     * Given an array of objects, return the specified property for each one.
      *
      * @example <listing version="3.0">
      * var things:Array = [
@@ -192,6 +215,7 @@ public class ArrayUtil
      *
      * var heights:Array = ArrayUtil.mapToProperty(things, "height");
      * // heights == [ 240, 480, 768 ]
+     * </listing>
      *
      * @param array    An array of objects.
      * @param property The name of the property to return from each object.
@@ -210,8 +234,8 @@ public class ArrayUtil
 
 
     /**
-     * Given an <code>Array</code> of objects, calls the specified method
-     * on each one and return a new array of the results.
+     * Given an array of objects, calls the specified method on each one
+     * and return a new array of the results.
      *
      * @example <listing version="3.0">
      * var numbers:Array = [ 102, 153, 204 ];
@@ -221,11 +245,12 @@ public class ArrayUtil
      *
      * var hex:Array = ArrayUtil.mapToMethod(numbers, "toString", [ 16 ]);
      * // hex == [ "66", "99", "cc" ];
+     * </listing>
      *
      * @param array      An array of objects.
      * @param method     The name of the method to call on each object.
      * @param methodArgs An array of arguments to pass to each method. If
-     *                   omitted, passes no arguments.
+     *                   omitted or <code>null</code>, passes no arguments.
      * @return           A new <code>Array</code> of the results of each
      *                   method call.
      */
@@ -241,8 +266,8 @@ public class ArrayUtil
 
 
     /**
-     * Calls a function for each member of an array, and returns how
-     * many returned <code>true</code>.
+     * Returns the number of members in an array that return
+     * <code>true</code> when passed to the provided function.
      *
      * @example
      * <listing version="3.0">
@@ -254,13 +279,17 @@ public class ArrayUtil
      *
      * var numPositive:int = ArrayUtil.count(numbers, isPositive);
      * // numPositive == 3
+     * </listing>
      *
      * @param array        The array containing members to query
      * @param boolFunction A function that takes one argument
-     *                     and returns <code>true</code> or <code>false</code>.
-     *                     If omitted, will count the number of members
-     *                     that cast to <code>Boolean</code> as <code>true</code>.
-     * @return The number of calls to <code>boolFunction</code> that returned <code>true</code>
+     *                     and returns <code>true</code> or
+     *                     <code>false</code>.  If omitted or
+     *                     <code>null</code>, will count the number of
+     *                     members that cast to <code>Boolean</code> as
+     *                     <code>true</code>.
+     * @return The number of calls to <code>boolFunction</code> that
+     *         returned <code>true</code>
      */
     public static function count(array:*, boolFunction:Function = null):int
     {
@@ -288,7 +317,8 @@ public class ArrayUtil
 
     /**
      * Calls a function for each member of an array, returning the index
-     * of the first one to return true.  If none return true, returns -1.
+     * of the first one to return <code>true</code>.  If none return
+     * <code>true</code>, returns <code>-1</code>.
      *
      * @example
      * <listing version="3.0">
@@ -300,18 +330,22 @@ public class ArrayUtil
      *
      * var firstNumber:int = ArrayUtil.indexOf(junk, isNumber);
      * // firstNumber == 2
+     * </listing>
      *
      * @param array        The array containing members to query
      * @param boolFunction A function that takes one argument
-     *                     and returns <code>true</code> or <code>false</code>.
-     *                     If omitted, will return the index of the first
-     *                     member to cast to <code>Boolean</code> as
+     *                     and returns <code>true</code> or
+     *                     <code>false</code>.  If omitted or
+     *                     <code>null</code>, will return the index of the
+     *                     first member to cast to <code>Boolean</code> as
      *                     <code>true</code>.
      * @param startIndex   The index to start searching from.  If omitted,
-     *                     assumes 0.
-     * @return The index of the first member to return true, or -1 if none did.
+     *                     assumes <code>0</code>.
+     * @return The index of the first member to return <code>true</code>,
+     *         or <code>-1</code> if none did.
      */
-    public static function indexOf(array:*, boolFunction:Function = null, startIndex:int = 0):int
+    public static function indexOf(array:*, boolFunction:Function = null,
+            startIndex:int = 0):int
     {
         var i:int;
         if (!array) return -1;
@@ -335,7 +369,8 @@ public class ArrayUtil
 
     /**
      * Calls a function for each member of an array, returning the index
-     * of the last one to return true.  If none return true, returns -1.
+     * of the last one to return <code>true</code>.  If none return
+     * <code>true</code>, returns <code>-1</code>.
      *
      * @example
      * <listing version="3.0">
@@ -347,16 +382,19 @@ public class ArrayUtil
      *
      * var lastNumber:int = ArrayUtil.lastIndexOf(junk, isNumber);
      * // lastNumber == 4
+     * </listing>
      *
      * @param array        The array containing members to query
      * @param boolFunction A function that takes one argument
      *                     and returns <code>true</code> or
-     *                     <code>false</code>.  If omitted, will return
-     *                     the index of the last member to cast to
-     *                     <code>Boolean</code> as <code>true</code>.
+     *                     <code>false</code>.  If omitted or
+     *                     <code>null</code>, will return the index of the
+     *                     last member to cast to <code>Boolean</code> as
+     *                     <code>true</code>.
      * @param startIndex   The index to start searching from.  If omitted,
      *                     assumes the end of the array.
-     * @return The index of the last member to return true, or -1 if none did.
+     * @return The index of the last member to return <code>true</code>, or
+     *         <code>-1</code> if none did.
      */
     public static function lastIndexOf(array:*, boolFunction:Function = null, startIndex:int = -1):int
     {
@@ -383,7 +421,8 @@ public class ArrayUtil
 
     /**
      * Calls a function for each member of an array, returning the first
-     * member to return true.  If none return true, returns null.
+     * member to return <code>true</code>.  If none return
+     * <code>true</code>, returns <code>null</code>.
      *
      * @example
      * <listing version="3.0">
@@ -393,8 +432,9 @@ public class ArrayUtil
      *
      * var junk:Array = [ "oven", "grill", "1200", "microwave", "300" ];
      *
-     * var firstNumber:String = ArrayUtil.indexOf(junk, isNumber);
+     * var firstNumber:String = ArrayUtil.findFirst(junk, isNumber);
      * // firstNumber == "1200"
+     * </listing>
      *
      * @param array        The array containing members to query
      * @param boolFunction A function that takes one argument
@@ -402,10 +442,11 @@ public class ArrayUtil
      *                     If omitted, will return the first member to cast
      *                     to <code>Boolean</code> as <code>true</code>.
      * @param startIndex   The index to start searching from.  If omitted,
-     *                     assumes 0.
-     * @return The first member to return true, or null if none did.
+     *                     assumes <code>0</code>.
+     * @return The first member to return <code>true</code>, or
+     *         <code>null</code> if none did.
      */
-    public static function getFirst(array:*, boolFunction:Function, startIndex:int = 0):*
+    public static function findFirst(array:*, boolFunction:Function, startIndex:int = 0):*
     {
         var index:int = indexOf(array, boolFunction, startIndex);
         return index >= 0 ? array[index] : null;
@@ -414,7 +455,8 @@ public class ArrayUtil
 
     /**
      * Calls a function for each member of an array, returning the last one
-     * to return true.  If none return true, returns null.
+     * to return <code>true</code>.  If none return <code>true</code>,
+     * returns <code>null</code>.
      *
      * @example
      * <listing version="3.0">
@@ -424,8 +466,9 @@ public class ArrayUtil
      *
      * var junk:Array = [ "oven", "grill", "1200", "microwave", "300" ];
      *
-     * var lastNumber:String = ArrayUtil.lastIndexOf(junk, isNumber);
+     * var lastNumber:String = ArrayUtil.findLast(junk, isNumber);
      * // lastNumber == "300"
+     * </listing>
      *
      * @param array        The array containing members to query
      * @param boolFunction A function that takes one argument
@@ -435,9 +478,10 @@ public class ArrayUtil
      *                     <code>Boolean</code> as <code>true</code>.
      * @param startIndex   The index to start searching from.  If omitted,
      *                     assumes the end of the array.
-     * @return The last member to return true, or null if none did.
+     * @return The last member to return <code>true</code>, or
+     *         <code>null</code> if none did.
      */
-    public static function getLast(array:*, boolFunction:Function, startIndex:int = -1):*
+    public static function findLast(array:*, boolFunction:Function, startIndex:int = -1):*
     {
         var index:int = lastIndexOf(array, boolFunction, startIndex);
         return index >= 0 ? array[index] : null;
@@ -446,7 +490,7 @@ public class ArrayUtil
 
     /**
      * Returns a copy of an array with equal items removed.  Equality
-     * checking is strict <code>===</code>.
+     * checking is strict (<code>===</code>).
      */
     public static function unique(array:*):Array
     {
@@ -473,22 +517,23 @@ public class ArrayUtil
 
 
     /**
-     * Returns true if the elements in Array are strictly equal (===) to
-     * the elements in Array b, and appear in the same order.
+     * Returns <code>true</code> if the elements in array <code>v</code> are
+     * strictly equal (<code>===</code>) to the elements in array
+     * <code>w</code>, and appear in the same order.
      */
-    public static function arraysEqual(a:*, b:*):Boolean
+    public static function arraysEqual(v:*, w:*):Boolean
     {
-        var len:int = a.length;
+        var len:int = v.length;
 
-        if (!a && !b)
+        if (!v && !w)
         {
-            return true;
+            return v === w;
         }
-        else if (!a || !b)
+        else if (!v || !w)
         {
             return false;
         }
-        else if (a.length !== b.length)
+        else if (len !== w.length)
         {
             return false;
         }
@@ -496,7 +541,7 @@ public class ArrayUtil
         {
             for (var i:int = 0; i < len; i++)
             {
-                if (a[i] !== b[i])
+                if (v[i] !== w[i])
                 {
                     return false;
                 }
@@ -507,33 +552,34 @@ public class ArrayUtil
 
 
     /**
-     * Returns true if the elements in Array are strictly equal (===) to
-     * the elements in Array b. Order is not considered.
+     * Returns <code>true</code> if the elements in array <code>v</code>
+     * are strictly equal (===) to the elements in array <code>w</code>,
+     * without considering order.
      */
-    public static function arraysEqualUnordered(a:*, b:*):Boolean
+    public static function arraysEqualUnordered(v:*, w:*):Boolean
     {
         var aCount:Dictionary;
         var bCount:Dictionary;
         var item:*;
 
-        if (!a && !b)
+        if (!v && !w)
         {
-            return true;
+            return v === w;
         }
-        else if (!a || !b)
+        else if (!v || !w)
         {
             return false;
         }
-        else if (a.length !== b.length)
+        else if (v.length !== w.length)
         {
             return false;
         }
         else
         {
-            aCount = countElements(a);
-            bCount = countElements(b);
+            aCount = countElements(v);
+            bCount = countElements(w);
 
-            for (item in a)
+            for (item in v)
             {
                 if (aCount[item] !== bCount[item])
                 {
@@ -569,12 +615,12 @@ public class ArrayUtil
     }
 
 
-    private static function countElements(a:*):Dictionary
+    private static function countElements(v:*):Dictionary
     {
         var item:*;
         var itemCount:Dictionary = new Dictionary(true);
 
-        for each (item in a)
+        for each (item in v)
         {
             item = valueToKey(item);
             if (itemCount[item])
