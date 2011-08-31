@@ -25,9 +25,9 @@ import org.yellcorp.lib.format.template.renderer.Renderer;
  * Template.format("You reached level {0} with a score of {1}", [ level, score ]);
  * </listing>
  *
- * Any instance that supports [] property resolution can be used as a
- * source of values. The following example shows the use of a sealed class
- * instance:
+ * Any instance that supports <code>[]</code> property resolution can be
+ * used as a source of values. The following example shows the use of a
+ * sealed class instance:
  * <listing version="3.0">
  * Template.format("The image is {width} x {height} pixels.", contentLoaderInfo);
  * </listing>
@@ -38,8 +38,8 @@ import org.yellcorp.lib.format.template.renderer.Renderer;
  * </listing>
  *
  * If values themselves have properties, they can also be addressed by
- * appending a dot (.) and the property name. The following example
- * resolves <code>event.target.name</code>
+ * appending a dot (<code>.</code>) and the property name. The following
+ * example resolves <code>event.target.name</code>
  * <listing version="3.0">
  * Template.format("Received event from {target.name}", event);
  * </listing>
@@ -84,9 +84,10 @@ import org.yellcorp.lib.format.template.renderer.Renderer;
  * To adapt to the various string templating conventions in use,
  * the opening, closing, and escape sequences can all be changed.  Opening
  * and closing sequences must be at least 1 character long.  The escape
- * sequence can only be 1 character long. Passing in an empty string ("")
- * for the escape string has the special meaning that opening and closing
- * sequences are escaped by doubling their first character.
+ * sequence can only be 1 character long. Passing in an empty string
+ * (<code>""</code>) for the escape string has the special meaning that
+ * opening and closing sequences are escaped by doubling their first
+ * character.
  * <listing version="3.0">
  * // Same opening and closing sequences
  * Template.format("The volume is %volume%", soundTransform, null, "%", "%");
@@ -140,13 +141,14 @@ public class Template
      *                   string "", open and close sequences are escaped
      *                   by doubling their first character.
      *
-     * @throws TemplateFormatStringError If the <code>format</code> argument
-     *                   cannot be parsed, for example if a placeholder is
-     *                   left unclosed.
+     * @throws org.yellcorp.lib.format.template.TemplateFormatStringError
+     * If the <code>format</code> argument cannot be parsed, for example if
+     * a placeholder is left unclosed.
      *
-     * @throws ArgumentError If <code>open</code> or <code>close</code> is
-     *                   <code>null</code> or an empty String, or if
-     *                   <code>escapeChar</code> is longer than 1 character.
+     * @throws ArgumentError
+     * If <code>open</code> or <code>close</code> is <code>null</code> or
+     * an empty String, or if <code>escapeChar</code> is longer than 1
+     * character.
      */
     public function Template(format:String,
             open:String = "{", close:String = "}", escapeChar:String="\\")
@@ -202,7 +204,7 @@ public class Template
      */
     public function get renderers():Array
     {
-        return _renderers.splice();
+        return _renderers.concat();
     }
 
     /**
@@ -237,13 +239,14 @@ public class Template
      *
      * @return  The populated string.
      *
-     * @throws TemplateFormatStringError If the <code>format</code> argument
-     *                   cannot be parsed, for example if a placeholder is
-     *                   left unclosed.
+     * @throws org.yellcorp.lib.format.template.TemplateFormatStringError
+     * If the <code>format</code> argument cannot be parsed, for example if
+     * a placeholder is left unclosed.
      *
-     * @throws ArgumentError If <code>open</code> or <code>close</code> is
-     *                   null or an empty String, or if
-     *                   <code>escapeChar</code> is longer than 1 character.
+     * @throws ArgumentError
+     * If <code>open</code> or <code>close</code> is <code>null</code> or
+     * an empty String, or if <code>escapeChar</code> is longer than 1
+     * character.
      *
      * @see Template
      * @see #fill

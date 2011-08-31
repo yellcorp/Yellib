@@ -7,14 +7,14 @@ import flash.display.BitmapData;
 
 
 /**
- * BitmapDataPool is a factory class with a goal of maximising reuse of
- * BitmapData objects, while minimising disposal and reallocation.  Its
+ * A factory class with a goal of maximising reuse of BitmapData objects,
+ * while minimising disposal and reallocation.  Its
  * <code>getBitmapData</code> method returns a subclass of
  * <code>BitmapData</code>, with an overridden <code>dispose</code> method
- * that returns it to a pool instead of deallocating it.  This pool is then
- * used to fill subsequent requests to <code>getBitmapData</code>.  If a
- * matching object is already in the pool, it will be returned instead of
- * creating a new one.
+ * that returns it to its original pool instead of deallocating it. This
+ * pool is then used to fill subsequent requests to
+ * <code>getBitmapData</code>.  If a matching BitmapData object is already
+ * in the pool, it will be returned instead of creating a new one.
  */
 public class BitmapDataPool implements Disposable
 {
@@ -31,7 +31,7 @@ public class BitmapDataPool implements Disposable
      * the <code>BitmapData</code> constructor, except for the lack of a
      * <code>fillColor</code> parameter.
      *
-     * <p>Note that pooled <code>BitmapData</code> objects aren't
+     * <p>Note that pooled <code>BitmapData</code> objects are not
      * automatically cleared and may contain old content.  To erase the
      * bitmap, call <code>fillRect()</code>.</p>
      *

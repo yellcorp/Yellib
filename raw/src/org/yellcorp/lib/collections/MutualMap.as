@@ -6,7 +6,7 @@ import flash.utils.Dictionary;
 
 
 /**
- * An object that stores mutual relationships between keys and values.
+ * An object that stores two-way relationships between keys and values.
  * Values can be set and retrieved by key, and vice versa.  Note that
  * in addition to the usual requirement that keys are unique, all values
  * must be unique too.

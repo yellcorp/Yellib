@@ -15,6 +15,12 @@ import flash.events.ProgressEvent;
 import flash.utils.Dictionary;
 
 
+[Event(name="multiloaderError", type="org.yellcorp.lib.net.multiloader.events.MultiLoaderErrorEvent")]
+[Event(name="itemComplete", type="org.yellcorp.lib.net.multiloader.events.MultiLoaderItemEvent")]
+[Event(name="itemStart", type="org.yellcorp.lib.net.multiloader.events.MultiLoaderItemEvent")]
+[Event(name="complete", type="flash.events.Event")]
+[Event(name="progress", type="flash.events.ProgressEvent")]
+
 /**
  * A MultiLoader manages a set of resources to be loaded asynchronously. It
  * manages concurrent loading, and <code>PROGRESS</code> and
@@ -34,12 +40,6 @@ import flash.utils.Dictionary;
  * access the loaded data, and should be cast to their original type when
  * retrieved.
  */
-
-[Event(name="multiloaderError", type="org.yellcorp.lib.net.multiloader.events.MultiLoaderErrorEvent")]
-[Event(name="itemComplete", type="org.yellcorp.lib.net.multiloader.events.MultiLoaderItemEvent")]
-[Event(name="itemStart", type="org.yellcorp.lib.net.multiloader.events.MultiLoaderItemEvent")]
-[Event(name="complete", type="flash.events.Event")]
-[Event(name="progress", type="flash.events.ProgressEvent")]
 public class MultiLoader extends EventDispatcher implements Disposable
 {
     /**
@@ -69,7 +69,9 @@ public class MultiLoader extends EventDispatcher implements Disposable
     /**
      * Creates a new, empty MultiLoader.
      *
-     * @param order        The order in which waiting loaders are started.
+     * @param order        The order in which waiting loaders are started &#x2013;
+     *      <code>MultiLoaderOrder.FIFO</code> (first in first out), or
+     *      <code>MultiLoaderOrder.LIFO</code> (last in first out).
      *
      * @param errorPolicy  How the MultiLoader should behave when an
      *         attempted load results in an error.
@@ -116,7 +118,7 @@ public class MultiLoader extends EventDispatcher implements Disposable
     }
 
     /**
-     * Retrieve the current error policy for this MultiLoader. This value
+     * The current error policy for this MultiLoader. This value
      * can only be set in the constructor.
      */
     public function get errorPolicy():String
@@ -125,7 +127,7 @@ public class MultiLoader extends EventDispatcher implements Disposable
     }
 
     /**
-     * Retrieve whether to dispatch <code>Event.PROGRESS</code> when
+     * Whether to dispatch <code>Event.PROGRESS</code> when
      * <code>totalBytes</code> is not known. This value can only be set in
      * the constructor.
      */
@@ -158,7 +160,8 @@ public class MultiLoader extends EventDispatcher implements Disposable
      * a given id.
      *
      * @param id The id to test.
-     * @return true if there is an item with the specified id, false if not.
+     * @return <code>true</code> if there is an item with the specified id,
+     *         <code>false</code> if not.
      */
     public function hasId(id:String):Boolean
     {
@@ -170,8 +173,10 @@ public class MultiLoader extends EventDispatcher implements Disposable
      * MultiLoaderItem.
      *
      * @param item The instance to test.
-     * @return true if the MultiLoader is managing <code>item</code>. false
-     *         if not, or if <code>item</code> is null or undefined.
+     * @return <code>true</code> if the MultiLoader is managing
+     *      <code>item</code>. <code>false</code> if not, or if
+     *      <code>item</code> is <code>null</code> or
+     *      <code>undefined</code>.
      */
     public function hasItem(item:MultiLoaderItem):Boolean
     {
@@ -189,8 +194,8 @@ public class MultiLoader extends EventDispatcher implements Disposable
      * Returns a MultiLoaderItem associated with a given id, if it exists.
      *
      * @param id The id of the item to return.
-     * @return The item with the specified id, or null if there is no such
-     *         item.
+     * @return The item with the specified id, or <code>null</code> if there
+     *      is no such item.
      */
     public function getItemById(id:String):MultiLoaderItem
     {
@@ -201,8 +206,8 @@ public class MultiLoader extends EventDispatcher implements Disposable
      * Returns the id associated with a managed MultiLoaderItem instance.
      *
      * @param item The item to identify.
-     * @return The id by which the item is known, or null if the item is
-     *         not present in the MultiLoader.
+     * @return The id by which the item is known, or <code>null</code> if
+     *      the item is not present in the MultiLoader.
      */
     public function getItemId(item:MultiLoaderItem):String
     {
@@ -247,8 +252,8 @@ public class MultiLoader extends EventDispatcher implements Disposable
 
     /**
      * Whether queue processing is underway.
-     * @return true if <code>start()</code> has been called and queue
-     *         processing is underway
+     * @return <code>true</code> if <code>start()</code> has been called and queue
+     *         processing is underway.
      */
     public function get started():Boolean
     {
@@ -284,7 +289,7 @@ public class MultiLoader extends EventDispatcher implements Disposable
 
     /**
      * The total number of bytes to be loaded by all items in the
-     * MultiLoader. If this number is not known, it is set to 0.
+     * MultiLoader. If this number is not known, it is set to <code>0</code>.
      */
     public function get bytesTotal():uint
     {
@@ -306,7 +311,8 @@ public class MultiLoader extends EventDispatcher implements Disposable
 
     /**
      * Whether the total number of bytes is known. If this is
-     * <code>false</code>, querying <code>bytesTotal</code> will return 0.
+     * <code>false</code>, querying <code>bytesTotal</code> will return
+     * <code>0</code>.
      */
     public function get bytesTotalKnown():Boolean
     {
@@ -377,6 +383,9 @@ public class MultiLoader extends EventDispatcher implements Disposable
                (_errorPolicy == MultiLoaderErrorPolicy.COMPLETE_ALWAYS || errorCount == 0);
     }
 
+    /**
+     * @private
+     */
     ml_internal function onComplete(item:MultiLoaderItem):void
     {
         openItems.remove(item);
@@ -389,19 +398,31 @@ public class MultiLoader extends EventDispatcher implements Disposable
         itemFinished();
     }
 
+    /**
+     * @private
+     */
     ml_internal function onOpen(item:MultiLoaderItem):void
     {
     }
 
+    /**
+     * @private
+     */
     ml_internal function onStatus(item:MultiLoaderItem, status:int):void
     {
     }
 
+    /**
+     * @private
+     */
     ml_internal function onProgress(item:MultiLoaderItem, bytesLoaded:uint, bytesTotal:uint):void
     {
         dispatchProgress();
     }
 
+    /**
+     * @private
+     */
     ml_internal function onAsyncError(item:MultiLoaderItem, event:ErrorEvent):void
     {
         openItems.remove(item);

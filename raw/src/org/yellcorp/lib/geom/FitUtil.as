@@ -7,8 +7,8 @@ import flash.geom.Rectangle;
 /**
  * Utility functions for scaling a source rectangular area to fit inside a
  * target area, while maintaining the aspect ratio of the source.
- * <code>MODE_FIT</code> calculates a rectangle that is equal to or smaller
- * than the target.  <code>MODE_FILL</code> is always equal or larger.
+ * <code>INSIDE</code> calculates a rectangle that is equal to or smaller
+ * than the target.  <code>OUTSIDE</code> is always equal or larger.
  */
 public class FitUtil
 {
@@ -17,22 +17,22 @@ public class FitUtil
      * calculate a result that is always smaller or equal to the target
      * area. One of the axes of the result may not fully span the target.
      */
-    public static const MODE_FIT:String = "fit";
+    public static const INSIDE:String = "fit";
 
     /**
      * Constant value that directs the <code>fitRect</code> function to
      * calculate a result that is always larget or equal to the target
      * area. One of the axes of the result may exceed the target area.
      */
-    public static const MODE_FILL:String = "fill";
+    public static const OUTSIDE:String = "fill";
 
     /**
      * Scales one rectangle to fit or fill another rectangle.
      *
      * @param source   The source rectangle.
      * @param target   The rectangle to fit <code>source</code> into.
-     * @param mode     Calculation mode: <code>MODE_FIT</code> or
-     *                 <code>MODE_FILL</code>
+     * @param mode     Calculation mode: <code>INSIDE</code> or
+     *                 <code>OUTSIDE</code>
      * @param xAlign   X alignment. A number from 0 to 1. 0 aligns left
      *                 edges, 1 aligns right edges, and 0.5 centres
      *                 horizontally. Other values interpolate between these
@@ -68,7 +68,7 @@ public class FitUtil
             output = new Rectangle();
         }
 
-        if (mode == MODE_FILL)
+        if (mode == OUTSIDE)
         {
             scale = Math.max(tw / sw, th / sh);
         }

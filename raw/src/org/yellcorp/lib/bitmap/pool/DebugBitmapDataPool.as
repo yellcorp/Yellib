@@ -21,6 +21,9 @@ public class DebugBitmapDataPool extends BitmapDataPool
         super();
     }
 
+    /**
+     * @private
+     */
     internal override function recycle(bmp:BitmapDataPoolMember):void
     {
         stamp(bmp);

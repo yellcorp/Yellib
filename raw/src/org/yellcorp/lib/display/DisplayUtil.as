@@ -7,16 +7,23 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 
 
+/**
+ * A collection of functions to query and manipulate DisplayObjects and
+ * their display list relationships.  A number of these functions perform
+ * common tasks involved in adapting library symbols for interactivity and
+ * procedural animation.
+ */
 public class DisplayUtil
 {
     /**
      * Convenience method for getting a DisplayObject's location as a Point.
      *
      * @param dobj The DisplayObject to query.
-     * @param out An optional Point variable to store the result in. This can
-     *            be used to avoid calling the Point constructor.
+     * @param out An optional Point variable to store the result in. This
+     *            can be used to avoid calling the Point constructor.
      */
-    public static function getDisplayObjectLocation(dobj:DisplayObject, out:Point = null):Point
+    public static function getDisplayObjectLocation(
+            dobj:DisplayObject, out:Point = null):Point
     {
         if (!out)
         {
@@ -30,34 +37,68 @@ public class DisplayUtil
         return out;
     }
 
-    public static function convertPoint(pointInFromSpace:Point, fromSpace:DisplayObject, toSpace:DisplayObject):Point
+    /**
+     * Convert a point in one DisplayObject's local coordinaet space to the
+     * local space of another.
+     *
+     * @param pointInFromSpace
+     * The point in the source DisplayObject's coordinate space.
+     *
+     * @param fromSpace
+     * The source DisplayObject.
+     *
+     * @param toSpace
+     * The target DisplayObject.
+     *
+     * @return The point in the target DisplayObject's local coordinate space.
+     */
+    public static function convertPoint(
+            pointInFromSpace:Point, fromSpace:DisplayObject,
+            toSpace:DisplayObject):Point
     {
         if (fromSpace === toSpace) return pointInFromSpace.clone();
         var global:Point = fromSpace.localToGlobal(pointInFromSpace);
         return toSpace.globalToLocal(global);
     }
 
-    public static function replaceDisplay(guide:DisplayObject, real:DisplayObject, copySize:Boolean = false):DisplayObject
+    /**
+     * Replces one DisplayObject with another, maintaining its layering,
+     * position, and optionally its size.
+     *
+     * @param original     The DisplayObject to remove.
+     * @param replacement  The DisplayObject to put in place of original.
+     * @param copySize     If <code>true</code>, will set replacement's
+     *                     <code>width</code> and <code>height</code>
+     *                     to that of original.
+     * @return  The DisplayObject passed into <code>replacement</code>.
+     */
+    public static function replaceDisplay(
+            original:DisplayObject, replacement:DisplayObject,
+            copySize:Boolean = false):DisplayObject
     {
-        var container:DisplayObjectContainer = guide.parent;
+        var container:DisplayObjectContainer = original.parent;
 
-        real.x = guide.x;
-        real.y = guide.y;
+        replacement.x = original.x;
+        replacement.y = original.y;
 
-        guide.x = 0;
-        guide.y = 0;
+        original.x = 0;
+        original.y = 0;
 
         if (copySize)
         {
-            real.width = guide.width;
-            real.height = guide.height;
+            replacement.width = original.width;
+            replacement.height = original.height;
         }
 
-        container.addChildAt(real, container.getChildIndex(guide));
-        container.removeChild(guide);
-        return real;
+        container.addChildAt(replacement, container.getChildIndex(original));
+        container.removeChild(original);
+        return replacement;
     }
 
+    /**
+     * Returns an array of all the immediate children of a
+     * DisplayObjectContainer.
+     */
     public static function getAllChildren(container:DisplayObjectContainer):Array
     {
         var children:Array = [ ];
@@ -68,12 +109,22 @@ public class DisplayUtil
         return children;
     }
 
+    /**
+     * Removes all children from a DisplayObjectContainer.
+     */
     public static function removeAllChildren(container:DisplayObjectContainer):void
     {
         while (container.numChildren > 0)
             container.removeChildAt(0);
     }
 
+    /**
+     * Removes a DisplayObject from its parent, if it has one.
+     *
+     * @param child  The DisplayObject to remove from its parent.
+     * @return  <code>true</code> if successful,
+     *          <code>false</code> otherwise.
+     */
     public static function removeFromParent(child:DisplayObject):Boolean
     {
         if (child.parent)
@@ -105,7 +156,15 @@ public class DisplayUtil
         child.transform.matrix.identity();
     }
 
-    public static function insertParent(child:DisplayObject, newParent:DisplayObjectContainer = null):DisplayObjectContainer
+    /**
+     * Inserts a new DisplayObjectContainer between an existing
+     * DisplayObject and its parent.  The DisplayObject is made a child
+     * of the new parent, and the new parent is made a child of the old
+     * parent.
+     */
+    public static function insertParent(
+            child:DisplayObject,
+            newParent:DisplayObjectContainer = null):DisplayObjectContainer
     {
         if (!child)
             throw new ArgumentError("child argument must not be null");
@@ -126,7 +185,12 @@ public class DisplayUtil
         return newParent;
     }
 
-    public static function setChildAttached(child:DisplayObject, parent:DisplayObjectContainer, attach:Boolean):void
+    /**
+     * Sets whether a DisplayObject is a child of a DisplayObjectContainer
+     * based on a Boolean argument.
+     */
+    public static function setChildAttached(
+            child:DisplayObject, parent:DisplayObjectContainer, attach:Boolean):void
     {
         if (attach != (parent == child.parent))
         {
@@ -141,12 +205,23 @@ public class DisplayUtil
         }
     }
 
+    /**
+     * Sets the <code>alpha</code> property of a DisplayObject, and if its
+     * <code>alpha</code> is <code>0</code>, sets its <code>visible</code>
+     * to <code>false</code>.  Otherwise, sets its <code>visible</code> to
+     * <code>true</code>.
+     */
     public static function setAutoAlpha(display:DisplayObject, alpha:Number):void
     {
         display.alpha = alpha;
         display.visible = alpha > 0;
     }
 
+    /**
+     * Detatches a DisplayObject from its parent and returns its
+     * <code>x</code>, <code>y</code>, <code>width</code> and
+     * <code>height</code> as a Rectangle.
+     */
     public static function getGuideRect(guide:DisplayObject, out:Rectangle = null):Rectangle
     {
         if (out)
@@ -164,6 +239,10 @@ public class DisplayUtil
         return out;
     }
 
+    /**
+     * Detatches a DisplayObject from its parent and returns its
+     * <code>x</code> and <code>y</code> as a Point.
+     */
     public static function getGuidePoint(guide:DisplayObject, out:Point = null):Point
     {
         if (out)

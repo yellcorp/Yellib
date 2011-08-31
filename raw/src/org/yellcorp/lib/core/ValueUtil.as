@@ -1,7 +1,8 @@
 package org.yellcorp.lib.core
 {
 /**
- * Helper functions for turning null or undefined values into something more useful.
+ * Helper functions for turning <code>null</code> or <code>undefined</code>
+ * values into something more useful.
  */
 public class ValueUtil
 {

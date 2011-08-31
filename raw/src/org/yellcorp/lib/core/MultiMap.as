@@ -6,9 +6,9 @@ import flash.utils.Dictionary;
 
 
 /**
- * A generic mapping of key values to ordered <code>Arrays</code>.
+ * A generic mapping of keys values to arrays.
  * Implemented as a Dictionary, therefore keys can be of any type and
- * are matched using strict equality (===).
+ * are matched using strict equality (<code>===</code>).
  *
  * @see flash.utils.Dictionary
  */
@@ -35,7 +35,6 @@ public class MultiMap
      * array and the values are then added.
      *
      * @return The new length of the key's array.
-     * @see Array#push()
      */
     public function push(key:*, ... values):uint
     {
@@ -49,15 +48,12 @@ public class MultiMap
 
     /**
      * Removes the last value of an array for a given key and returns it.
-     * If the key doesn't exist, returns <code>null</code>.  If the key
-     * exists but has no values (an empty array), returns
+     * If the key doesn't exist, or its array is empty, returns
      * <code>undefined</code>.
-     *
-     * @see Array#pop()
      */
     public function pop(key:*):*
     {
-        return dict[key] ? getList(key).pop() : null;
+        return dict[key] ? getList(key).pop() : undefined;
     }
 
     /**
@@ -80,15 +76,12 @@ public class MultiMap
 
     /**
      * Removes the first value of an array for a given key and returns it.
-     * If the key doesn't exist, returns <code>null</code>.  If the key
-     * exists but has no values (an empty array), returns
+     * If the key doesn't exist, or its array is empty, returns
      * <code>undefined</code>.
-     *
-     * @see Array#shift()
      */
     public function shift(key:*):*
     {
-        return dict[key] ? getList(key).shift() : null;
+        return dict[key] ? getList(key).shift() : undefined;
     }
 
     /**
@@ -102,7 +95,7 @@ public class MultiMap
 
     /**
      * Returns the array for a given key, or <code>undefined</code> if the
-     * key doesn't exist.  The returned array is not copied - therefore
+     * key doesn't exist.  The returned array is not copied &#x2013; therefore
      * changes made to the array will also be reflected in the
      * <code>MultiMap</code> instance it came from.
      */
@@ -113,10 +106,10 @@ public class MultiMap
 
     /**
      * Returns the array for a given key, or a new empty array associated
-     * with the key if it doesn't exist.  The returned array is not copied -
-     * therefore changes made to the array will also be reflected in the
-     * <code>MultiMap</code> instance it came from.  This applies even if
-     * a new empty array was created.
+     * with the key if it doesn't exist.  The returned array is not copied
+     * &#x2013; therefore changes made to the array will also be reflected
+     * in the <code>MultiMap</code> instance it came from.  This applies
+     * even if a new empty array was created.
      */
     public function getListNew(key:*):Array
     {
@@ -133,7 +126,7 @@ public class MultiMap
 
     /**
      * Sets the array for a given key.  If the key already exists, the
-     * entire array is replaced and the old array is lost.
+     * entire array is replaced.
      *
      * @return The new array.
      */
@@ -147,7 +140,7 @@ public class MultiMap
      * Deletes the key and its associated array.
      *
      * @return <code>true</code> if the deletion succeded,
-     *         <code>false</code> otherwise.
+     *         <code>false</code> if not.
      */
     public function deleteList(key:*):Boolean
     {
@@ -178,6 +171,8 @@ public class MultiMap
      * Returns a MapIterator that iterates over all the keys in the MultiMap
      * with the values set to their associated arrays. Changes made to the
      * array will be reflected in the MultiMap.
+     *
+     * @see org.yellcorp.lib.iterators.map.MapIterator
      */
     public function get iterator():MapIterator
     {

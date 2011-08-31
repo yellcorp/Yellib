@@ -1,8 +1,7 @@
 package org.yellcorp.lib.core
 {
 /**
- * The Statistics class groups static methods for
- * basic statistical calculations.
+ * Functions for basic statistical calculations.
  */
 public class Statistics
 {
