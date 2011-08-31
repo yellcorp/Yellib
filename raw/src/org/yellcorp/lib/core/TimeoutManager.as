@@ -1,14 +1,16 @@
 package org.yellcorp.lib.core
 {
+import org.yellcorp.lib.error.AssertError;
+
 import flash.utils.clearTimeout;
 import flash.utils.setTimeout;
 
 
 /**
  * TimeoutManager is a class that manages single delayed function calls.
- * Each call is associated with an ID chosen by the user of this class.
- * Calls can be queried, replaced or cancelled by these IDs.  When calls
- * are invoked, their id and reference is removed.
+ * Each call is associated with an ID chosen by the caller.  Calls can be
+ * queried, replaced or cancelled by these IDs.  When calls are invoked,
+ * their ID and reference are removed.
  */
 public class TimeoutManager
 {
@@ -22,19 +24,19 @@ public class TimeoutManager
     /**
      * Schedules a function call after an amount of time has passed.
      *
-     * @param id        A user-defined id to associate this call with.  If
-     *                  the TimeoutManager already has a delayed call with
-     *                  this id, it is cancelled and replaced.
-     * @param closure   The function to call.
-     * @param delay     The time to wait before invoking the call. In
-     *                  milliseconds.
+     * @param id     A user-defined id to associate with this call.  If
+     *               the TimeoutManager already has a delayed call with
+     *               this id, it is cancelled and replaced.
+     * @param func   The function to call.
+     * @param delay  The time to wait before invoking the call, in
+     *               milliseconds.
      * @param arguments Arguments to pass to the function, when called.
      */
-    public function setTimeoutIn(id:String, closure:Function, delay:Number, arguments:Array = null):void
+    public function setTimeoutIn(id:String, func:Function, delay:Number, arguments:Array = null):void
     {
         var thunk:Function = function ():void { call(id); };
         var systemid:uint = setTimeout(thunk, delay);
-        var record:Object = { clientid: id, systemid: systemid, thunk: thunk, closure: closure, delay: delay, arguments: arguments };
+        var record:Object = { clientid: id, systemid: systemid, thunk: thunk, func: func, delay: delay, arguments: arguments };
         cancelTimeout(id);
         timeouts[id] = record;
     }
@@ -43,10 +45,10 @@ public class TimeoutManager
     /**
      * Schedules a function call at a certain point in time.
      *
-     * @param id        A user-defined id to associate this call with.  If
+     * @param id        A user-defined id to associate with this call.  If
      *                  the TimeoutManager already has a delayed call with
      *                  this id, it is cancelled and replaced.
-     * @param closure   The function to call.
+     * @param func      The function to call.
      * @param callTime  The time at which to invoke the call.  If the date
      *                  is in the past, the function is not scheduled.
      * @param arguments Arguments to pass to the function, when called.
@@ -54,12 +56,12 @@ public class TimeoutManager
      * @return <code>true</code> if the function was scheduled,
      *         <code>false</code> if the specified date is in the past.
      */
-    public function setTimeoutAt(id:String, closure:Function, callTime:Date, arguments:Array = null):Boolean
+    public function setTimeoutAt(id:String, func:Function, callTime:Date, arguments:Array = null):Boolean
     {
         var now:Date = new Date();
         if (now.time <= callTime.time)
         {
-            setTimeoutIn(id, closure, callTime.time - now.time, arguments);
+            setTimeoutIn(id, func, callTime.time - now.time, arguments);
             return true;
         }
         else
@@ -76,7 +78,7 @@ public class TimeoutManager
      *
      * @return <code>true</code> if there is a function waiting to be
      *         called by this id, <code>false</code> if there is no call
-     *         or it has already been executed.
+     *         or it has already been invoked.
      */
     public function hasTimeout(id:String):Boolean
     {
@@ -123,24 +125,25 @@ public class TimeoutManager
      * Gets the function reference associated with an id.
      *
      * @param id The id of the function to retrieve.
-     * @return A reference to the function, or null if id doesn't exist.
+     * @return   A reference to the function, or <code>null</code> if
+     *           <code>id</code> doesn't exist.
      */
-    public function getClosureById(id:String):Function
+    public function getFunctionById(id:String):Function
     {
-        return hasTimeout(id) ? timeouts[id].closure : null;
+        return hasTimeout(id) ? timeouts[id].func : null;
     }
 
     /**
      * Changes the function reference associated with an id
      *
      * @param id         The id of the function to change
-     * @param newClosure The new function
+     * @param newFunc    The new function
      * @return <code>true</code> if the id exists and the function was
      *         changed, <code>false</code> otherwise.
      */
-    public function setClosureById(id:String, newClosure:Function):Boolean
+    public function setFunctionById(id:String, newFunc:Function):Boolean
     {
-        return replaceById(id, newClosure, -1, null);
+        return replaceById(id, newFunc, -1, null);
     }
 
     /**
@@ -149,7 +152,8 @@ public class TimeoutManager
      * current time.
      *
      * @param id The id of the function to retrieve
-     * @return The delay in milliseconds, or Number.NaN if id doesn't exist.
+     * @return   The delay in milliseconds, or <code>NaN</code> if
+     *           <code>id</code> doesn't exist.
      */
     public function getDelayById(id:String):Number
     {
@@ -176,8 +180,8 @@ public class TimeoutManager
      * Gets the arguments associated with an id.
      *
      * @param  id  The id of the arguments to retrieve
-     * @return The arguments as an array, or <code>null</code> if id doesn't
-     *         exist.
+     * @return The arguments as an array, or <code>null</code> if
+     *         <code>id</code> doesn't exist.
      */
     public function getArgumentsById(id:String):Array
     {
@@ -212,19 +216,19 @@ public class TimeoutManager
         return linebuf.join("\n");
     }
 
-    private function replaceById(id:String, closure:Function, delay:Number, arguments:Array):Boolean
+    private function replaceById(id:String, func:Function, delay:Number, arguments:Array):Boolean
     {
         var oldRecord:Object;
         var newDelay:Number;
-        var newClosure:Function;
+        var newFunc:Function;
         var newArguments:Array;
         if (hasTimeout(id))
         {
             oldRecord = timeouts[id];
-            newClosure = closure !== null ? closure : oldRecord.closure;
+            newFunc = func !== null ? func : oldRecord.func;
             newDelay = delay >= 0 ? delay : oldRecord.delay;
             newArguments = arguments !== null ? copyArray(arguments) : copyArray(oldRecord.arguments);
-            setTimeoutIn(id, newClosure, newDelay, newArguments);
+            setTimeoutIn(id, newFunc, newDelay, newArguments);
             return true;
         }
         else
@@ -237,21 +241,17 @@ public class TimeoutManager
     {
         var record:Object = timeouts[id];
         var args:Array = record.arguments || [ ];
-        var func:Function = record.closure;
-        if (record)
-        {
-            delete timeouts[id];
-            func.apply(null, args);
-        }
-        else
-        {
-            throw new Error("Internal error: no record with id " + id);
-        }
+        var func:Function = record.func;
+
+        AssertError.assert(Boolean(record), "No record with id " + id);
+
+        delete timeouts[id];
+        func.apply(null, args);
     }
 
     private static function copyArray(arguments:Array):Array
     {
-        return arguments ? arguments.slice() : arguments;
+        return arguments ? arguments.concat() : arguments;
     }
 }
 }
