@@ -1,7 +1,7 @@
 package test.yellcorp.lib.color.Gradient
 {
 import org.yellcorp.lib.color.gradient.Gradient;
-import org.yellcorp.lib.color.gradient.GradientFill;
+import org.yellcorp.lib.color.gradient.GraphicsGradient;
 
 import flash.display.GradientType;
 import flash.display.Graphics;
@@ -39,7 +39,7 @@ public class GradientTestControl extends Sprite
         drawGradient(gradientDisplay.graphics, gradient, GRADIENT_WIDTH, HEIGHT);
     }
 
-    private function drawGradient(target:Graphics, gradient:GradientFill, width:int, height:int):void
+    private function drawGradient(target:Graphics, gradient:GraphicsGradient, width:int, height:int):void
     {
         var fillTransform:Matrix = new Matrix();
 

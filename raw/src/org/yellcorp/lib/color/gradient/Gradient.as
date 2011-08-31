@@ -3,7 +3,7 @@ package org.yellcorp.lib.color.gradient
 import org.yellcorp.lib.error.AssertError;
 
 
-public class Gradient implements GradientFill
+public class Gradient implements GraphicsGradient
 {
     public var useAlpha:Boolean;
 
