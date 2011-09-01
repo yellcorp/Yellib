@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exclude>
+  <resource>lib</resource>
+  <resource>src/profile</resource>
+  <resource>src/scratch</resource>
+  <resource>src/test</resource>
+  <resource>src/wip</resource>
+</exclude>
+
