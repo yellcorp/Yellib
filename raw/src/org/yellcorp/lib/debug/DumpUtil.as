@@ -109,7 +109,7 @@ public class DumpUtil
                 }
             }
 
-            outputBuffer.appendva(
+            outputBuffer.appendMany(
                     StringUtil.padRight(
                         valueBuffer.toString(),
                         valueBufferLength, " "),

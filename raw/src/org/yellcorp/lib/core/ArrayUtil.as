@@ -46,7 +46,7 @@ public class ArrayUtil
      */
     public static function zip(... arrays):Array
     {
-        return zipv(arrays);
+        return zipa(arrays);
     }
 
     /**
@@ -55,7 +55,7 @@ public class ArrayUtil
      *
      * @see #zip
      */
-    public static function zipv(arrays:*):Array
+    public static function zipa(arrays:*):Array
     {
         var shortest:Number;
         var result:Array;

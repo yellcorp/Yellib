@@ -188,7 +188,7 @@ internal class Parser
 
     private function pushLiteral():void
     {
-        var text:String = buffer.take();
+        var text:String = buffer.remove();
 
         if (text.length > 0)
         {
@@ -198,7 +198,7 @@ internal class Parser
 
     private function pushField():void
     {
-        var field:String = buffer.take();
+        var field:String = buffer.remove();
 
         if (field.indexOf(".") >= 0)
         {

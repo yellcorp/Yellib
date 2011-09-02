@@ -27,24 +27,30 @@ public class StringBuilder
         _length += string.length;
     }
 
+    public function appendArray(textArray:Array):void
+    {
+        var string:String = textArray.join("");
+        buffer.push(string);
+        _length += string.length;
+    }
+
+    public function appendMany(... textArgs):void
+    {
+        appendArray(textArgs);
+    }
+
+    public function appendIterable(iterable:*):void
+    {
+        for each (var item:* in iterable)
+        {
+            append(item);
+        }
+    }
+
     public function prepend(text:*):void
     {
         var string:String = text === undefined ? "undefined" : String(text);
         buffer.unshift(string);
-        _length += string.length;
-    }
-
-    public function appendv(textArray:Array):void
-    {
-        var string:String = textArray.join("");
-        buffer.push(string);
-        _length += string.length;
-    }
-
-    public function appendva(... textArray):void
-    {
-        var string:String = textArray.join("");
-        buffer.push(string);
         _length += string.length;
     }
 
@@ -53,7 +59,7 @@ public class StringBuilder
         return buffer.join("");
     }
 
-    public function take():String
+    public function remove():String
     {
         var string:String = toString();
         clear();
