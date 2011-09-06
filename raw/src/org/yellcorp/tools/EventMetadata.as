@@ -22,6 +22,9 @@ public class EventMetadata
     private static var declarationFormatter:Template =
         new Template('[Event(name="{stringValue}", type="{className}")]');
 
+    /**
+     * @private
+     */
     public function EventMetadata(eventClass:Class)
     {
         _eventClass = eventClass;
@@ -30,16 +33,25 @@ public class EventMetadata
         _superClassName = type.factory.extendsClass.@type[0];
     }
 
+    /**
+     * @private
+     */
     public function get className():String
     {
         return _eventClassName;
     }
 
+    /**
+     * @private
+     */
     public function get superClassName():String
     {
         return _superClassName;
     }
 
+    /**
+     * @private
+     */
     public function get eventStrings():Object
     {
         var strings:Object = { };
@@ -54,6 +66,9 @@ public class EventMetadata
         return strings;
     }
 
+    /**
+     * @private
+     */
     public function get parent():EventMetadata
     {
         var superClass:Class;
@@ -68,6 +83,17 @@ public class EventMetadata
         return null;
     }
 
+    /**
+     * Generates an array of strings containing Event metadata declarations
+     * &#x2013; one for each const static String found in the provided event
+     * class and its superclasses.
+     *
+     * @param eventClass  The Class to use as the basis for Event metadata
+     *                    declarations.
+     * @param stopAtNative  If true, will not include declarations for
+     *                      Events native to Flash Player.
+     * @return  An Array of Strings, each one an Event metadata declaration.
+     */
     public static function generate(eventClass:Class, stopAtNative:Boolean = true):Array
     {
         var decls:Array = [];
