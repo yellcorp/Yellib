@@ -257,5 +257,22 @@ public class DisplayUtil
         removeFromParent(guide);
         return out;
     }
+
+    /**
+     * Queries whether a DisplayObjectContainer is equal to, or contains,
+     * the object with keyboard focus.
+     *
+     * @param query  The DisplayObjectContainer to query.
+     * @return <code>true</code> if <code>query</code> is the
+     * currently-focused object, or contains it as a descendant. Otherwise
+     * returns <code>false</code>. Also returns <code>false</code> if the
+     * query object is not on stage, or if there is no focused object.
+     */
+    public static function enclosesFocusedObject(query:DisplayObjectContainer):Boolean
+    {
+        return query && query.stage && query.stage.focus &&
+                (query == query.stage.focus ||
+                 query.contains(query.stage.focus));
+    }
 }
 }
