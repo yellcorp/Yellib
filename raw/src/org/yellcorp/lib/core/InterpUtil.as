@@ -12,6 +12,8 @@ public class InterpUtil
      * @param inMin The value at t = 0.
      * @param inMax The value at t = 1.
      * @param t     Interpolant.
+     *
+     * @return   The interpolated value.
      */
     public static function lerp(inMin:Number, inMax:Number, t:Number):Number
     {
@@ -55,6 +57,8 @@ public class InterpUtil
      * @param v11 The value at (1, 1).
      * @param x   X interpolant.
      * @param y   Y interpolant.
+     *
+     * @return   The interpolated value.
      */
     public static function lerp2d(v00:Number, v01:Number,
                                   v10:Number, v11:Number,
@@ -79,6 +83,8 @@ public class InterpUtil
      * @param v2 The value at t = 1.
      * @param v3 The value at t = 2.
      * @param t  Interpolant.
+     *
+     * @return   The interpolated value.
      */
     public static function clerp(v0:Number, v1:Number, v2:Number, v3:Number, t:Number):Number
     {
