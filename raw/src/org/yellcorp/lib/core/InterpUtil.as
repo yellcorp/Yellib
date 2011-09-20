@@ -21,6 +21,21 @@ public class InterpUtil
     }
 
     /**
+     * Inverse linear interpolation.  Returns the linear interpolant between
+     * inMin and inMax required to return a given value.
+     *
+     * @param inMin The value at t = 0.
+     * @param inMax The value at t = 1.
+     * @param value The value for which to find the interpolant.
+     *
+     * @return   The interpolant.
+     */
+    public static function invLerp(inMin:Number, inMax:Number, value:Number):Number
+    {
+        return (value - inMin) / (inMax - inMin);
+    }
+
+    /**
      * Given a number on input range, returns that number scaled to the
      * same relative quantity on an output range.  Numbers are not clamped
      * to ranges.
