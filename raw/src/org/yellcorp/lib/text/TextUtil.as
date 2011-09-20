@@ -65,7 +65,7 @@ public class TextUtil
     }
 
     /**
-     * Awful hack to fix author-time attributes of TextField formats which
+     * Hack to fix author-time attributes of TextField formats which
      * get forgotten at run time (particularly letterSpacing).  It gets
      * format attributes common to all characters and merges it with the
      * field's default text format.
