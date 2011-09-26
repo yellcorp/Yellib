@@ -20,7 +20,7 @@ public class ParseUtil
         }
         else
         {
-            asString = String(value);
+            asString = String(value).toLowerCase();
             switch (asString)
             {
             case "t":
