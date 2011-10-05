@@ -1,5 +1,6 @@
 package org.yellcorp.lib.text
 {
+import flash.text.Font;
 import flash.text.TextField;
 import flash.text.TextFormat;
 
@@ -87,6 +88,66 @@ public class TextUtil
         {
             fixField(field);
         }
+    }
+
+    /**
+     * Chooses a font from an ordered list in a similar way to CSS.
+     * That is, chooses the first available font. If no fonts are available,
+     * returns the last one. Note that the CSS values of sans-serif, serif,
+     * and monospace map to Flash's builtin font names of _sans, _serif, and
+     * _typewriter respectively. Also, mono maps to _typewriter for
+     * compatibility with flash.text.StyleSheet.
+     *
+     * @param fontNameList  A list of fonts. The first available one of
+     *                      these will be returned. If none are available,
+     *                      the last one will be returned. If null or an
+     *                      empty list, will return null.
+     *
+     * @param includeDevice Whether to consider device fonts in addition to
+     *                      embedded fonts. If true, will consider both
+     *                      device and embedded fonts. If false, will
+     *                      consider embedded fonts only. _sans, _serif, and
+     *                      _typewriter are always considered available.
+     */
+    public static function pickFont(fontNameList:Array, includeDevice:Boolean = true):String
+    {
+        var fontSet:Object = {};
+        var font:Font;
+        var fontName:String;
+        var ifontName:String;
+
+        if (!fontNameList || fontNameList.length == 0)
+        {
+            return null;
+        }
+
+        for each (font in Font.enumerateFonts(includeDevice))
+        {
+            fontSet[font.fontName.toLowerCase()] = true;
+        }
+        for each (fontName in fontNameList)
+        {
+            ifontName = fontName.toLowerCase();
+            switch (ifontName)
+            {
+            case "_sans":
+            case "sans-serif":
+                return "_sans";
+            case "_serif":
+            case "serif":
+                return "_serif";
+            case "_typewriter":
+            case "monospace":
+            case "mono":
+                return "_typewriter";
+            default:
+                if (fontSet[ifontName])
+                {
+                    return fontName;
+                }
+            }
+        }
+        return fontNameList[fontNameList.length - 1];
     }
 
     public static function mergeTextFormat(base:TextFormat, ... formatList):TextFormat
