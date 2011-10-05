@@ -40,19 +40,19 @@ public class TextFieldBuilder
 
     // FORMAT
     private var _align:String = TextFormatAlign.LEFT;
-    private var _blockIndent:Object;
+    private var _blockIndent:Number = 0;
     private var _bold:Boolean;
     private var _bullet:Boolean;
     private var _color:uint = 0x000000;
     private var _font:String = "_sans";
-    private var _indent:int = 0;
+    private var _indent:Number = 0;
     private var _italic:Boolean;
     private var _kerning:Boolean;
     private var _leading:Number = 0;
-    private var _leftMargin:int = 0;
-    private var _rightMargin:int = 0;
+    private var _leftMargin:Number = 0;
+    private var _rightMargin:Number = 0;
     private var _letterSpacing:Number = 0;
-    private var _size:Number = 12;
+    private var _fontSize:Number = 12;
     private var _tabStops:Array = null;
 
     // FIELD
@@ -205,7 +205,7 @@ public class TextFieldBuilder
     }
 
 
-    public function size(newWidth:Number, newHeight:Number):TextFieldBuilder
+    public function dimensions(newWidth:Number, newHeight:Number):TextFieldBuilder
     {
         _width = newWidth;
         _height = newHeight;
@@ -214,6 +214,26 @@ public class TextFieldBuilder
 
 
     // FORMAT
+    public function textFormat(format:TextFormat):TextFieldBuilder
+    {
+        if (format.align !== null) _align = format.align;
+        if (format.blockIndent !== null) _blockIndent = Number(format.blockIndent);
+        if (format.bold !== null) _bold = Boolean(format.bold);
+        if (format.bullet !== null) _bullet = Boolean(format.bullet);
+        if (format.color !== null) _color = uint(format.color);
+        if (format.font !== null) _font = format.font;
+        if (format.indent !== null) _indent = Number(format.indent);
+        if (format.italic !== null) _italic = Boolean(format.italic);
+        if (format.kerning !== null) _kerning = Boolean(format.kerning);
+        if (format.leading !== null) _leading = Number(format.leading);
+        if (format.leftMargin !== null) _leftMargin = Number(format.leftMargin);
+        if (format.rightMargin !== null) _rightMargin = Number(format.rightMargin);
+        if (format.letterSpacing !== null) _letterSpacing = Number(format.letterSpacing);
+        if (format.size !== null) _fontSize = Number(format.size);
+        if (format.tabStops !== null) _tabStops = format.tabStops;
+        return this;
+    }
+
     public function align(newAlign:String):TextFieldBuilder
     {
         _align = newAlign;
@@ -221,7 +241,7 @@ public class TextFieldBuilder
     }
 
 
-    public function blockIndent(newBlockIndent:Object):TextFieldBuilder
+    public function blockIndent(newBlockIndent:Number):TextFieldBuilder
     {
         _blockIndent = newBlockIndent;
         return this;
@@ -256,7 +276,14 @@ public class TextFieldBuilder
     }
 
 
-    public function indent(newIndent:int):TextFieldBuilder
+    public function fontSize(newFontSize:Number):TextFieldBuilder
+    {
+        _fontSize = newFontSize;
+        return this;
+    }
+
+
+    public function indent(newIndent:Number):TextFieldBuilder
     {
         _indent = newIndent;
         return this;
@@ -284,14 +311,14 @@ public class TextFieldBuilder
     }
 
 
-    public function leftMargin(newLeftMargin:int):TextFieldBuilder
+    public function leftMargin(newLeftMargin:Number):TextFieldBuilder
     {
         _leftMargin = newLeftMargin;
         return this;
     }
 
 
-    public function rightMargin(newRightMargin:int):TextFieldBuilder
+    public function rightMargin(newRightMargin:Number):TextFieldBuilder
     {
         _rightMargin = newRightMargin;
         return this;
@@ -435,7 +462,7 @@ public class TextFieldBuilder
 
     private function createTextFormat():TextFormat
     {
-        var tf:TextFormat = new TextFormat(_font, _size, _color, _bold,
+        var tf:TextFormat = new TextFormat(_font, _fontSize, _color, _bold,
                 _italic, false, null, null, _align, _leftMargin,
                 _rightMargin, _indent, _leading);
 
