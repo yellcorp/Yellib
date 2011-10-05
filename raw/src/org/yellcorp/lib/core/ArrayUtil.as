@@ -489,8 +489,9 @@ public class ArrayUtil
 
 
     /**
-     * Returns a copy of an array with equal items removed.  Equality
-     * checking is strict (<code>===</code>).
+     * Returns a copy of an array containing one copy of each unique
+     * element.  Uniqueness is defined by strict equality
+     * (<code>===</code>).
      */
     public static function unique(array:*):Array
     {
