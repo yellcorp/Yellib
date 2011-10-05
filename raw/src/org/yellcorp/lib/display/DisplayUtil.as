@@ -3,6 +3,7 @@ package org.yellcorp.lib.display
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.Sprite;
+import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
@@ -152,8 +153,11 @@ public class DisplayUtil
         if (!parent)
             throw new ArgumentError("child has no parent");
 
-        parent.transform.matrix.concat(child.transform.matrix);
-        child.transform.matrix.identity();
+        var parentMatrix:Matrix = parent.transform.matrix.clone();
+        parentMatrix.concat(child.transform.matrix);
+
+        parent.transform.matrix = parentMatrix;
+        child.transform.matrix = new Matrix();
     }
 
     /**
