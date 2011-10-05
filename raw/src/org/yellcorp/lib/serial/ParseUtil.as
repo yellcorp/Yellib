@@ -73,7 +73,7 @@ public class ParseUtil
 
         if (isNaN(result))
         {
-            throw new ArgumentError("Value is not a number: " + value);
+            throw new ParseError("Value is not a number: " + value);
         }
         return result;
     }
