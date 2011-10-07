@@ -43,7 +43,7 @@ public class EventTask
         return this;
     }
 
-    public function listen():EventTask
+    public function listen():void
     {
         for each (var listener:ListenerDescriptor in listeners)
         {
@@ -55,7 +55,6 @@ public class EventTask
             target.addEventListener(eventType, onTerminate, false, int.MIN_VALUE);
         }
         listened = true;
-        return this;
     }
 
     public function unlisten():EventTask
