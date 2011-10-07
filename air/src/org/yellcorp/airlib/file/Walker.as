@@ -1,6 +1,6 @@
 package org.yellcorp.airlib.file
 {
-import org.yellcorp.lib.events.AsyncTask;
+import org.yellcorp.lib.events.EventTask;
 
 import flash.events.Event;
 import flash.events.EventDispatcher;
@@ -57,10 +57,10 @@ public class Walker extends EventDispatcher
         }
         else if (folder)
         {
-            new AsyncTask(folder, [
-                FileListEvent.DIRECTORY_LISTING, onFileList,
-                IOErrorEvent.IO_ERROR, onError
-            ]);
+            new EventTask(folder).
+                handleOnce(FileListEvent.DIRECTORY_LISTING, onFileList).
+                handleOnce(IOErrorEvent.IO_ERROR, onError).
+                listen();
             folder.getDirectoryListingAsync();
         }
         else
