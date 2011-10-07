@@ -1,4 +1,4 @@
-<project name="YellLib AS3 Baseline" basedir="..">
+<project name="yellib-raw" basedir="..">
 
 	<property name="build" location="build" />
 	
