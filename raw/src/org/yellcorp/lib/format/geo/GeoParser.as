@@ -1,165 +1,134 @@
 package org.yellcorp.lib.format.geo
 {
-import org.yellcorp.lib.format.FormatStringError;
 import org.yellcorp.lib.format.geo.renderer.Literal;
 import org.yellcorp.lib.format.geo.renderer.NumberRenderer;
+import org.yellcorp.lib.format.geo.renderer.Renderer;
 import org.yellcorp.lib.format.geo.renderer.SignRenderer;
-import org.yellcorp.lib.relexer.Lexer;
-import org.yellcorp.lib.relexer.Token;
+import org.yellcorp.lib.string.retokenizer.Token;
+import org.yellcorp.lib.string.retokenizer.Tokenizer;
 
 
 internal class GeoParser
 {
-    private static var lexer:Lexer = new Lexer(buildTokenExpression());
+    private static var tokenRegex:RegExp;
+
     private var renderers:Array;
-    private var field:GeoFieldProperties;
+    private var tokenizer:Tokenizer;
 
     public function GeoParser()
     {
-        field = new GeoFieldProperties();
     }
 
     public function parse(formatString:String):Array
     {
-        var returnRenderers:Array;
-
-        lexer.start(formatString);
+        if (!tokenRegex)
+        {
+            tokenRegex = buildTokenRegex();
+        }
+        tokenizer = new Tokenizer(tokenRegex, formatString);
         renderers = [ ];
-        while (!lexer.atEnd)
+        while (!tokenizer.atEnd)
         {
             parseToken();
         }
-        returnRenderers = renderers.slice();
+
+        var returnRenderers:Array = renderers;
         renderers = null;
         return returnRenderers;
     }
 
     private function parseToken():void
     {
-        var token:Token = lexer.nextToken();
+        var token:Token = tokenizer.next();
 
-        if (token.text == "%")
+        if (!token)
         {
-            parseField();
+            return;
         }
-        else if (token.text)
+        else if (!token.matched)
         {
             renderers.push(new Literal(token.text));
         }
-    }
-
-    private function parseField():void
-    {
-        field.clear();
-        parseWidth();
-        parsePrecision();
-        parseConversion();
-    }
-
-    private function parseWidth():void
-    {
-        var token:Token = lexer.nextToken();
-        if (token.text)
+        else
         {
-            if (token.text.charAt(0) == '0')
+            renderers.push(createRendererFromToken(token));
+        }
+    }
+
+    private function createRendererFromToken(token:Token):Renderer
+    {
+        var width:String = token.getGroup(1);
+        var precision:String = token.getGroup(2);
+        var specifier:String = token.getGroup(3);
+
+        var field:GeoFieldProperties = new GeoFieldProperties();
+
+        if (width)
+        {
+            if (width.charAt(0) == '0')
             {
                 field.zeroPad = true;
             }
-            field.minWidth = parseInt(token.text, 10);
+            field.minWidth = parseInt(width, 10);
         }
+
+        if (precision)
+        {
+            field.precision = parseInt(precision.substr(1), 10);
+        }
+
+        return createRendererFromSpecifier(specifier, field);
     }
 
-    private function parsePrecision():void
+    private function createRendererFromSpecifier(specifier:String, field:GeoFieldProperties):Renderer
     {
-        var token:Token = lexer.nextToken();
-
-        if (token.text)
-        {
-            field.precision = parseInt(token.text.substr(1), 10);
-        }
-    }
-
-    private function parseConversion():void
-    {
-        var token:Token = lexer.nextToken();
-
-        if (!token.text)
-        {
-            throw new FormatStringError(
-                "Encountered field without conversion specifier",
-                lexer.text, lexer.currentChar);
-        }
-
-        switch (token.text)
+        switch (specifier)
         {
         case 'd' :
-            renderers.push(new NumberRenderer(field, 1, 0, true));
-            break;
-
+            return new NumberRenderer(field, 1, 0, true);
         case 'm' :
-            renderers.push(new NumberRenderer(field, 60, 60, true));
-            break;
-
+            return new NumberRenderer(field, 60, 60, true);
         case 's' :
-            renderers.push(new NumberRenderer(field, 3600, 60, false));
-            break;
-
+            return new NumberRenderer(field, 3600, 60, false);
         case '-' :
-            renderers.push(new SignRenderer("", "-"));
-            break;
-
+            return new SignRenderer("", "-");
         case '+' :
-            renderers.push(new SignRenderer("+", "-"));
-            break;
-
+            return new SignRenderer("+", "-");
         case 'o' :
-            renderers.push(new SignRenderer("e", "w"));
-            break;
-
+            return new SignRenderer("e", "w");
         case 'O' :
-            renderers.push(new SignRenderer("E", "W"));
-            break;
-
+            return new SignRenderer("E", "W");
         case 'a' :
-            renderers.push(new SignRenderer("n", "s"));
-            break;
-
+            return new SignRenderer("n", "s");
         case 'A' :
-            renderers.push(new SignRenderer("N", "S"));
-            break;
-
+            return new SignRenderer("N", "S");
         case '*' :
-            renderers.push(new Literal(String.fromCharCode(0x00B0)));
-            break;
-
+            return new Literal(String.fromCharCode(0x00B0));
         case "'" :
-            renderers.push(new Literal(String.fromCharCode(0x2032)));
-            break;
-
+            return new Literal(String.fromCharCode(0x2032));
         case "''" :
-            renderers.push(new Literal(String.fromCharCode(0x2033)));
-            break;
-
+            return new Literal(String.fromCharCode(0x2033));
         case '%' :
-            renderers.push(new Literal("%"));
-            break;
+            return new Literal("%");
+        default:
+            throw new Error("Internal error: RegExp match an unhandled conversion specifier");
         }
     }
 
-    private static function buildTokenExpression():RegExp
+    private static function buildTokenRegex():RegExp
     {
         var width:String = "(\\d+)?";
         var precision:String = "(\\.\\d+)?";
 
-        var singleConversions:String = "[dms\\-+oOaA*%]";
+        var singleCharSpecifiers:String = "[dms\\-+oOaA*%]";
         var primeSequence:String = "''?";
 
         var expr:String =
-            "(%)" +         // group 1
-            width +         // 2
-            precision +     // 3
-            "(" +           // 4
-                singleConversions +
+            "%" +
+            width +         // 1
+            precision +     // 2
+            "(" +           // 3
+                singleCharSpecifiers +
             "|" +
                 primeSequence +
             ")";
