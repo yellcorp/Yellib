@@ -1,0 +1,13 @@
+A general-purpose ActionScript 3 library that has accreted over the years.
+
+As such, it is a menagerie of ideas at various levels of refinement.  Some
+have thrived under the harshest of scrutiny and matured into lithe,
+indispensable whips of code.  Others have languished in shadowy oubliettes,
+conceived half-baked or worse, living short, mad lives, then banished by a
+creator only just lucid enough to recognise them as embarrassing.
+
+The project is separated into two broad groups - 'raw' having no dependencies
+other than Flash Player itself, and 'air', which depends on Adobe AIR.
+
+Licensed under the Expat MIT license.  See the file LICENSE for the full text.
+
