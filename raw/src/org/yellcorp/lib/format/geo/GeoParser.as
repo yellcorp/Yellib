@@ -8,15 +8,15 @@ import org.yellcorp.lib.relexer.Lexer;
 import org.yellcorp.lib.relexer.Token;
 
 
-internal class Parser
+internal class GeoParser
 {
     private static var lexer:Lexer = new Lexer(buildTokenExpression());
     private var renderers:Array;
-    private var field:FieldProperties;
+    private var field:GeoFieldProperties;
 
-    public function Parser()
+    public function GeoParser()
     {
-        field = new FieldProperties();
+        field = new GeoFieldProperties();
     }
 
     public function parse(formatString:String):Array

@@ -1,17 +1,17 @@
 package org.yellcorp.lib.format.printf
 {
-import org.yellcorp.lib.format.printf.parser.Parser;
+import org.yellcorp.lib.format.printf.parser.PrintfParser;
 
 
 public class Printf
 {
-    private static var parser:Parser;
+    private static var parser:PrintfParser;
 
     public static function sprintf(format:String, ... args):String
     {
         if (!parser)
         {
-            parser = new Parser();
+            parser = new PrintfParser();
         }
         return parser.format(format, args);
     }
@@ -20,7 +20,7 @@ public class Printf
     {
         if (!parser)
         {
-            parser = new Parser();
+            parser = new PrintfParser();
         }
         return parser.format(format, args);
     }

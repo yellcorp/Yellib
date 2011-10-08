@@ -19,7 +19,7 @@ import org.yellcorp.lib.format.geo.renderer.Renderer;
 public class GeoFormat
 {
     private static var cache:Object = { };
-    private static var parser:Parser = new Parser();
+    private static var parser:GeoParser = new GeoParser();
 
     public static function format(formatString:String, degrees:Number):String
     {

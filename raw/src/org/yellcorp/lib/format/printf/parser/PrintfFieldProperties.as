@@ -7,7 +7,7 @@ import org.yellcorp.lib.format.printf.options.Flags;
 /**
  * @private
  */
-public class FieldProperties implements Flags
+public class PrintfFieldProperties implements Flags
 {
     public var argValue:DynamicValue = new DynamicValue();
 
@@ -23,7 +23,7 @@ public class FieldProperties implements Flags
     private var _negativeParens:Boolean;
     private var _uppercase:Boolean;
 
-    public function FieldProperties()
+    public function PrintfFieldProperties()
     {
         clear();
     }

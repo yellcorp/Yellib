@@ -1,6 +1,6 @@
 package org.yellcorp.lib.format.geo.renderer
 {
-import org.yellcorp.lib.format.geo.FieldProperties;
+import org.yellcorp.lib.format.geo.GeoFieldProperties;
 import org.yellcorp.lib.format.printf.Format;
 import org.yellcorp.lib.format.printf.options.FloatFormatOptions;
 
@@ -12,7 +12,7 @@ public class NumberRenderer implements Renderer
     private var mod:Number;
     private var floor:Boolean;
 
-    public function NumberRenderer(properties:FieldProperties,
+    public function NumberRenderer(properties:GeoFieldProperties,
         multiplier:Number, mod:Number, floorIfZeroPrecision:Boolean)
     {
         formatOptions = new FloatFormatOptions();

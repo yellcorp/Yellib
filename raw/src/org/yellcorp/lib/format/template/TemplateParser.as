@@ -10,7 +10,7 @@ import org.yellcorp.lib.format.template.renderer.FieldChain;
 import org.yellcorp.lib.format.template.renderer.Literal;
 
 
-internal class Parser
+internal class TemplateParser
 {
     // parser characteristics
     private var _open:String;
@@ -28,7 +28,7 @@ internal class Parser
 
     private var rendererCache:Object;
 
-    public function Parser(open:String, close:String, escapeChar:String)
+    public function TemplateParser(open:String, close:String, escapeChar:String)
     {
         _open = open;
         _close = close;
@@ -77,8 +77,7 @@ internal class Parser
 
             lexer.start(formatString);
 
-            do
-            {
+            do {
                 currentToken = lexer.nextToken();
                 currentState(currentToken);
             }

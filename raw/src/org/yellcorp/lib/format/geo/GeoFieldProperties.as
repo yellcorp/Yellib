@@ -1,12 +1,12 @@
 package org.yellcorp.lib.format.geo
 {
-public class FieldProperties
+public class GeoFieldProperties
 {
     public var zeroPad:Boolean;
     public var minWidth:int;
     public var precision:int;
 
-    public function FieldProperties()
+    public function GeoFieldProperties()
     {
         clear();
     }

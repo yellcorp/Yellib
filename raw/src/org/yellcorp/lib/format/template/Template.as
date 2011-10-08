@@ -264,7 +264,7 @@ public class Template
      */
     public static function clearCache():void
     {
-        for each (var p:Parser in parserCache)
+        for each (var p:TemplateParser in parserCache)
         {
             p.clearCache();
         }
@@ -273,13 +273,13 @@ public class Template
 
     private function parse():void
     {
-        var parser:Parser;
+        var parser:TemplateParser;
 
-        parser = parserCache[Parser.getParserHash(_open, _close, _escapeChar)];
+        parser = parserCache[TemplateParser.getParserHash(_open, _close, _escapeChar)];
 
         if (!parser)
         {
-            parser = new Parser(_open, _close, _escapeChar);
+            parser = new TemplateParser(_open, _close, _escapeChar);
             parserCache[parser.hash] = parser;
         }
 

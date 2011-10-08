@@ -21,21 +21,21 @@ import org.yellcorp.lib.relexer.Token;
 /**
  * @private
  */
-public class Parser
+public class PrintfParser
 {
     private static var _tokenPattern:RegExp;
 
-    private var field:FieldProperties;
+    private var field:PrintfFieldProperties;
     private var output:StringBuilder;
     private var context:RenderContext;
     private var lexer:Lexer;
 
     private var _locale:Locale;
 
-    public function Parser()
+    public function PrintfParser()
     {
         lexer = new Lexer(getTokenPattern());
-        field = new FieldProperties();
+        field = new PrintfFieldProperties();
         output = new StringBuilder();
     }
 
@@ -487,33 +487,33 @@ public class Parser
 
         case 'R' :
             output.append(formatGeneral(
-                new Parser().format("%tH:%<tM", [ dateValue ], locale)));
+                new PrintfParser().format("%tH:%<tM", [ dateValue ], locale)));
             break;
 
         case 'T' :
             output.append(formatGeneral(
-                new Parser().format("%tH:%<tM:%<tS", [ dateValue ], locale)));
+                new PrintfParser().format("%tH:%<tM:%<tS", [ dateValue ], locale)));
             break;
 
         case 'r' :
             // "the location of %Tp may be locale-dependent"
             output.append(formatGeneral(
-                new Parser().format("%tI:%<tM:%<tS %<Tp", [ dateValue ], locale)));
+                new PrintfParser().format("%tI:%<tM:%<tS %<Tp", [ dateValue ], locale)));
             break;
 
         case 'D' :
             output.append(formatGeneral(
-                new Parser().format("%tm/%<td/%<ty", [ dateValue ], locale)));
+                new PrintfParser().format("%tm/%<td/%<ty", [ dateValue ], locale)));
             break;
 
         case 'F' :
             output.append(formatGeneral(
-                new Parser().format("%tY-%<tm-%<td", [ dateValue ], locale)));
+                new PrintfParser().format("%tY-%<tm-%<td", [ dateValue ], locale)));
             break;
 
         case 'c' :
             output.append(formatGeneral(
-                new Parser().format("%ta %<tb %<td %<tT %<tZ %<tY", [ dateValue ], locale)));
+                new PrintfParser().format("%ta %<tb %<td %<tT %<tZ %<tY", [ dateValue ], locale)));
             break;
         }
     }
