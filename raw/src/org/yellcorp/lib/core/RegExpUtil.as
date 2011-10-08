@@ -26,54 +26,65 @@ public class RegExpUtil
     {
         return literalString.replace(REGEX_METACHARS, "\\$1");
     }
-
+    
+    private static const RE_PROP_TO_FLAG:Object = {
+        global:     'g',  g: 'g',
+        ignorecase: 'i',  i: 'i',
+        multiline:  'm',  m: 'm',
+        dotall:     's',  s: 's',
+        extended:   'x',  x: 'x'
+    };
+    
     /**
-     * Returns a copy of the passed-in RegExp with modified flags.
-     * Flags are expressed as a string of characters in the style of
-     * the RegExp constructor, or suffix after the trailing slash, like
-     * PERL.  Flags are copied from the original RegExp unless they are
-     * specified in either flagsToSet or flagsToUnset.  Unrecognized flags
-     * are ignored.  If a flag is specified in both flagsToSet and
-     * flagsToUnset, it will be set.
-     *
-     * @param regExp The RegExp to return a modified copy of
-     * @param flagsToSet A string of flags to enable in the new copy
-     * @param flagsToUnset A string of flags to disable in the new copy
-     * @return A modified copy of the RegExp
+     * Returns a copy of a RegExp with its flags modified.
+     * 
+     * @param source         The RegExp from which to create a modified copy.
+     * @param newFlagValues  A dynamic object mapping RegExp flags to their
+     *                       new value of <code>true</code> or 
+     *                       <code>false</code>.  Flags can be expressed as 
+     *                       letters (g, i, s, m or x) or their respective
+     *                       RegExp property name (global, ignoreCase, 
+     *                       multiline, dotall, or extended).  Flag names are
+     *                       case-insensitive.  Flags that are not specified 
+     *                       will take their value from the 
+     *                       <code>source</source> RegExp.  If a flag is 
+     *                       specified more than once (for example, specifying 
+     *                       both i and ignoreCase), the value for that flag is 
+     *                       not defined.
+     * @return A copy of the original RegExp with the new flag values.
      */
-    public static function changeFlags(regExp:RegExp, flagsToSet:String, flagsToUnset:String = ""):RegExp
+    public static function changeFlags(source:RegExp, newFlagValues:Object):RegExp
     {
-        var copyFlags:Object = {g: true, i: true, s: true, m: true, x: true};
-        var newFlags:Array = [ ];
-        var i:int;
-        var char:String;
-
-        for (i = 0; i < flagsToSet.length; i++)
+        var property:String;
+        var flag:String;
+        
+        var newFlags:Object = {
+            g: source.global,
+            i: source.ignoreCase,
+            m: source.multiline,
+            s: source.dotall,
+            x: source.extended
+        };
+        
+        if (newFlagValues)
         {
-            char = flagsToSet.charAt(i);
-            if (copyFlags[char])
-            {
-                delete copyFlags[char];
-                newFlags.push(char);
-            }
+	        for (property in newFlagValues)
+	        {
+                flag = RE_PROP_TO_FLAG[property.toLowerCase()];
+                if (flag)
+                {
+	            	newFlags[flag] = newFlagValues[property];
+                }
+	        }
         }
-
-        for (i = 0; i < flagsToUnset.length; i++)
+        
+        var newFlagString:String = "";
+        for (flag in newFlags)
         {
-            char = flagsToSet.charAt(i);
-            if (copyFlags[char])
-            {
-                delete copyFlags[char];
-            }
+            if (newFlags[flag]) newFlagString += flag;
         }
-
-        if (regExp.global     && copyFlags["g"]) newFlags.push("g");
-        if (regExp.ignoreCase && copyFlags["i"]) newFlags.push("i");
-        if (regExp.dotall     && copyFlags["s"]) newFlags.push("s");
-        if (regExp.multiline  && copyFlags["m"]) newFlags.push("m");
-        if (regExp.extended   && copyFlags["x"]) newFlags.push("x");
-
-        return new RegExp(regExp.source, newFlags.join(""));
+        
+        return new RegExp(source.source, newFlagString);
     }
 }
 }
