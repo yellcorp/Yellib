@@ -1,35 +1,34 @@
 package org.yellcorp.lib.string.retokenizer
 {
-import org.yellcorp.lib.core.RegExpUtil;
 import org.yellcorp.lib.core.StringUtil;
+import org.yellcorp.lib.error.AssertError;
 
 
 public class Tokenizer
 {
-    private var _regex:RegExp;
+    private var names:Array;
+    private var patterns:Array;
+    private var compositePattern:RegExp;
 
     private var _text:String;
-    private var _returnUnmatched:Boolean;
-    private var _returnWhitespace:Boolean;
-
     private var cursor:int;
     private var nextMatch:Object;
 
-    public function Tokenizer(regex:RegExp, text:String,
-            returnUnmatched:Boolean = true,
-            returnWhitespace:Boolean = true)
+    private var _returnUnmatched:Boolean;
+    private var _returnWhitespace:Boolean;
+
+    public function Tokenizer(returnUnmatched:Boolean = true, returnWhitespace:Boolean = true)
     {
-        _regex = RegExpUtil.changeFlags(regex, { g : true });
-        _text = text;
+        patterns = [];
+        names = [ "" ];    // make names index 1-based
+
         _returnUnmatched = returnUnmatched;
         _returnWhitespace = returnWhitespace;
-
-        cursor = 0;
     }
 
-    public function get text():String
+    public function get returnUnmatched():Boolean
     {
-        return _text;
+        return _returnUnmatched;
     }
 
     public function get returnWhitespace():Boolean
@@ -42,60 +41,125 @@ public class Tokenizer
         return cursor >= _text.length;
     }
 
-    public function reset():void
+    public function addRule(name:String, pattern:RegExp):void
     {
+        patterns.push(pattern);
+        names.push(name);
+    }
+
+    public function start(text:String):void
+    {
+        _text = text;
         cursor = 0;
-        _regex.lastIndex = 0;
+        if (!compositePattern) compositePattern = buildRegex();
+        compositePattern.lastIndex = 0;
     }
 
     public function next():Token
     {
         var lastCursor:int = cursor;
-        var token:Token;
 
         if (cursor >= _text.length)
         {
-            return null;
+            return endToken();
         }
 
         if (!nextMatch)
         {
-            nextMatch = _regex.exec(_text);
+            nextMatch = compositePattern.exec(_text);
         }
 
         if (nextMatch)
         {
             if (cursor == nextMatch.index)
             {
-                cursor = _regex.lastIndex;
-                token = Token.newFromMatch(nextMatch);
-                nextMatch = null;
+                cursor = compositePattern.lastIndex;
+                return createTokenFromNextMatch();
             }
             else
             {
                 cursor = nextMatch.index;
-                token = checkUnmatchedSubstring(lastCursor, cursor);
+                return createTokenFromUnmatched(lastCursor, cursor);
             }
         }
         else
         {
             cursor = _text.length;
-            token = checkUnmatchedSubstring(lastCursor, cursor);
+            return createTokenFromUnmatched(lastCursor, cursor);
         }
+    }
+
+    private function endToken():Token
+    {
+        var token:Token = new Token();
+        token.index = _text.length;
+        token.text = "";
+        token.type = Token.END;
         return token;
     }
 
-    private function checkUnmatchedSubstring(start:int, end:int):Token
+    private function createTokenFromNextMatch():Token
     {
-        var substring:String = _text.substring(start, end);
-        if (_returnWhitespace || StringUtil.hasContent(substring))
+        var token:Token = new Token();
+        var match:Object = nextMatch;
+
+        token.text = match[0];
+        token.index = cursor;
+
+        for (var i:int = 1; i < names.length; i++)
         {
-            return Token.newFromString(substring, start);
+            if (match[i] !== undefined)
+            {
+                token.type = names[i];
+                break;
+            }
         }
-        else
+
+        AssertError.assert(token.type !== null, "All capturing groups were undefined");
+
+        nextMatch = null;
+        return token;
+    }
+
+    private function createTokenFromUnmatched(start:int, end:int):Token
+    {
+        if (!_returnUnmatched)
         {
             return next();
         }
+        else
+        {
+            var text:String = _text.substring(start, end);
+
+            if (_returnWhitespace || StringUtil.hasContent(token.text))
+            {
+                var token:Token = new Token();
+                token.text = text;
+                token.index = start;
+                token.type = Token.UNMATCHED;
+                return token;
+            }
+            else
+            {
+                return next();
+            }
+        }
+    }
+
+    private function buildRegex():RegExp
+    {
+        var groups:Array = patterns.map(patternToCaptureGroup);
+        var source:String = groups.join("|");
+        return new RegExp(source, "g");
+    }
+
+    private function patternToCaptureGroup(pattern:RegExp, i:*, a:*):String
+    {
+        var inlineFlags:String = "";
+        if (pattern.ignoreCase) inlineFlags += "i";
+        if (pattern.extended) inlineFlags += "x";
+        if (inlineFlags) inlineFlags = "(?" + inlineFlags + ")";
+        return "(" + inlineFlags + pattern.source + ")";
     }
 }
 }
