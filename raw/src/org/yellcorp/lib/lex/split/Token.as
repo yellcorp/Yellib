@@ -1,4 +1,4 @@
-package org.yellcorp.lib.relexer
+package org.yellcorp.lib.lex.split
 {
 public class Token
 {

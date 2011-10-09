@@ -5,13 +5,13 @@ import org.yellcorp.lib.format.geo.renderer.Literal;
 import org.yellcorp.lib.format.geo.renderer.NumberRenderer;
 import org.yellcorp.lib.format.geo.renderer.Renderer;
 import org.yellcorp.lib.format.geo.renderer.SignRenderer;
-import org.yellcorp.lib.relexer.Lexer;
-import org.yellcorp.lib.relexer.Token;
+import org.yellcorp.lib.lex.split.SplitLexer;
+import org.yellcorp.lib.lex.split.Token;
 
 
 internal class GeoParser
 {
-    private static var lexer:Lexer = new Lexer(buildTokenExpression());
+    private static var lexer:SplitLexer = new SplitLexer(buildTokenExpression());
 
     private var renderers:Array;
     private var field:GeoFieldProperties;

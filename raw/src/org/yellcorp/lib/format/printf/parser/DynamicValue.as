@@ -6,7 +6,7 @@ import org.yellcorp.lib.format.printf.context.ImplicitArg;
 import org.yellcorp.lib.format.printf.context.LastArg;
 import org.yellcorp.lib.format.printf.context.RenderContext;
 import org.yellcorp.lib.format.printf.context.Resolver;
-import org.yellcorp.lib.relexer.Token;
+import org.yellcorp.lib.lex.split.Token;
 
 
 /**

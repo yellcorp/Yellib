@@ -1,7 +1,7 @@
 package org.yellcorp.lib.keyboard
 {
-import org.yellcorp.lib.relexer.Lexer;
-import org.yellcorp.lib.relexer.Token;
+import org.yellcorp.lib.lex.split.SplitLexer;
+import org.yellcorp.lib.lex.split.Token;
 
 import flash.events.KeyboardEvent;
 import flash.ui.Keyboard;
@@ -9,7 +9,7 @@ import flash.ui.Keyboard;
 
 public class KeyChord
 {
-    private static const lexer:Lexer = new Lexer(/\s+|([\(\)])/);
+    private static const lexer:SplitLexer = new SplitLexer(/\s+|([\(\)])/);
 
     private var _description:String;
 

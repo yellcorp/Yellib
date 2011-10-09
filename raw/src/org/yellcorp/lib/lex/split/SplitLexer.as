@@ -1,6 +1,6 @@
-package org.yellcorp.lib.relexer
+package org.yellcorp.lib.lex.split
 {
-public class Lexer
+public class SplitLexer
 {
     private var _text:String;
     private var _tokenizer:RegExp;
@@ -8,7 +8,7 @@ public class Lexer
     private var currentToken:int;
     private var _currentChar:int;
 
-    public function Lexer(tokenizer:RegExp)
+    public function SplitLexer(tokenizer:RegExp)
     {
         _tokenizer = tokenizer;
     }

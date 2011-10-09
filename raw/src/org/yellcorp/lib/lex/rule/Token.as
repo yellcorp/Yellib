@@ -1,4 +1,4 @@
-package org.yellcorp.lib.string.retokenizer
+package org.yellcorp.lib.lex.rule
 {
 public class Token
 {

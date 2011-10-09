@@ -1,10 +1,10 @@
-package org.yellcorp.lib.string.retokenizer
+package org.yellcorp.lib.lex.rule
 {
 import org.yellcorp.lib.core.StringUtil;
 import org.yellcorp.lib.error.AssertError;
 
 
-public class Tokenizer
+public class RuleLexer
 {
     private var names:Array;
     private var patterns:Array;
@@ -17,7 +17,7 @@ public class Tokenizer
     private var _returnUnmatched:Boolean;
     private var _returnWhitespace:Boolean;
 
-    public function Tokenizer(returnUnmatched:Boolean = true, returnWhitespace:Boolean = true)
+    public function RuleLexer(returnUnmatched:Boolean = true, returnWhitespace:Boolean = true)
     {
         patterns = [];
         names = [ "" ];    // make names index 1-based

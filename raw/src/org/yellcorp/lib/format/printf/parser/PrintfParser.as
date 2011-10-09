@@ -12,10 +12,10 @@ import org.yellcorp.lib.format.printf.options.FloatFormatOptions;
 import org.yellcorp.lib.format.printf.options.GeneralFormatOptions;
 import org.yellcorp.lib.format.printf.options.HexFloatFormatOptions;
 import org.yellcorp.lib.format.printf.options.IntegerFormatOptions;
+import org.yellcorp.lib.lex.split.SplitLexer;
+import org.yellcorp.lib.lex.split.Token;
 import org.yellcorp.lib.locale.Locale;
 import org.yellcorp.lib.locale.Locale_en;
-import org.yellcorp.lib.relexer.Lexer;
-import org.yellcorp.lib.relexer.Token;
 
 
 /**
@@ -28,13 +28,13 @@ public class PrintfParser
     private var field:PrintfFieldProperties;
     private var output:StringBuilder;
     private var context:RenderContext;
-    private var lexer:Lexer;
+    private var lexer:SplitLexer;
 
     private var _locale:Locale;
 
     public function PrintfParser()
     {
-        lexer = new Lexer(getTokenPattern());
+        lexer = new SplitLexer(getTokenPattern());
         field = new PrintfFieldProperties();
         output = new StringBuilder();
     }

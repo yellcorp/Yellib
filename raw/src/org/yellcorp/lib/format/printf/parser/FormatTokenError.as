@@ -1,6 +1,6 @@
 package org.yellcorp.lib.format.printf.parser
 {
-import org.yellcorp.lib.relexer.Token;
+import org.yellcorp.lib.lex.split.Token;
 
 
 /**
