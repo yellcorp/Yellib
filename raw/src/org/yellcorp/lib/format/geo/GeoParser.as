@@ -1,220 +1,178 @@
 package org.yellcorp.lib.format.geo
 {
-import org.yellcorp.lib.error.AssertError;
+import org.yellcorp.lib.format.FormatStringError;
 import org.yellcorp.lib.format.geo.renderer.Literal;
 import org.yellcorp.lib.format.geo.renderer.NumberRenderer;
 import org.yellcorp.lib.format.geo.renderer.Renderer;
 import org.yellcorp.lib.format.geo.renderer.SignRenderer;
-import org.yellcorp.lib.string.retokenizer.Token;
-import org.yellcorp.lib.string.retokenizer.Tokenizer;
+import org.yellcorp.lib.relexer.Lexer;
+import org.yellcorp.lib.relexer.Token;
 
 
 internal class GeoParser
 {
-    private static var tokenizer:Tokenizer;
-
-    // token names
-    private static const PERCENT:String = "per";
-    private static const WIDTH:String = "w";
-    private static const PRECISION:String = "pre";
-    private static const PRIME_SPEC:String = "p";
-    private static const NUMERIC_SPEC:String = "n";
-    private static const NON_NUMERIC_SPEC:String = "nn";
+    private static var lexer:Lexer = new Lexer(buildTokenExpression());
 
     private var renderers:Array;
+    private var field:GeoFieldProperties;
     private var state:Function;
-
-    private var fieldProperties:GeoFieldProperties;
 
     public function GeoParser()
     {
+        field = new GeoFieldProperties();
     }
 
     public function parse(formatString:String):Array
     {
-        if (!tokenizer)
-        {
-            tokenizer = buildTokenizer();
-        }
-        tokenizer.start(formatString);
-        state = startState;
+        var returnRenderers:Array;
+
+        lexer.start(formatString);
         renderers = [ ];
-        while (!tokenizer.atEnd)
+        state = startState;
+        while (!lexer.atEnd)
         {
-            state(tokenizer.next());
+            state(lexer.nextToken());
         }
-        var returnRenderers:Array = renderers;
+        returnRenderers = renderers.slice();
         renderers = null;
         return returnRenderers;
     }
 
     private function startState(token:Token):void
     {
-        switch (token.type)
+        if (token.text == "%")
         {
-        case Token.END:
-            break;
-        case PERCENT:
-            fieldProperties = new GeoFieldProperties();
-            state = fieldStart;
-            break;
-        default:
+            field.clear();
+            state = beginFieldState;
+        }
+        else if (token.text)
+        {
             renderers.push(new Literal(token.text));
-            break;
         }
     }
 
-    private function fieldStart(token:Token):void
+    private function beginFieldState(token:Token):void
     {
-        switch (token.type)
+        var initial:String = token.text.charAt(0);
+        if (initial == '0')
         {
-        case WIDTH:
-            setFieldWidth(token);
-            state = precisionOrNumSpec;
-            break;
-        case PRECISION:
-            setFieldPrecision(token);
-            state = numSpec;
-            break;
-        case PERCENT:
-        case PRIME_SPEC:
-        case NUMERIC_SPEC:
-        case NON_NUMERIC_SPEC:
+            field.zeroPad = true;
+            setWidth(token);
+            state = afterWidth;
+        }
+        else if (initial >= '1' && initial <= '9')
+        {
+            setWidth(token);
+            state = afterWidth;
+        }
+        else if (initial == ".")
+        {
+            setPrecision(token);
+            state = afterPrecision;
+        }
+        else
+        {
             createRenderer(token);
             state = startState;
-            break;
-        case Token.END:
-            incompleteError(token);
-        default:
-            tokenError("Invalid character following %: $c", token);
         }
     }
 
-    private function precisionOrNumSpec(token:Token):void
+    private function afterWidth(token:Token):void
     {
-        switch (token.type)
+        var initial:String = token.text.charAt(0);
+        if (initial == ".")
         {
-        case PRECISION:
-            setFieldPrecision(token);
-            state = numSpec;
-            break;
-        case NUMERIC_SPEC:
+            setPrecision(token);
+            state = afterPrecision;
+        }
+        else
+        {
             createRenderer(token);
             state = startState;
-            break;
-        case Token.END:
-            incompleteError(token);
-        case PERCENT:
-        case PRIME_SPEC:
-        case NON_NUMERIC_SPEC:
-            tokenError("Specifier $c doesn't support width", token);
-        default:
-            tokenError("Invalid character following width: $c", token);
         }
     }
 
-    private function numSpec(token:Token):void
+    private function afterPrecision(token:Token):void
     {
-        switch (token.type)
-        {
-        case NUMERIC_SPEC:
-            createRenderer(token);
-            state = startState;
-            break;
-        case Token.END:
-            incompleteError(token);
-        case PERCENT:
-        case PRIME_SPEC:
-        case NON_NUMERIC_SPEC:
-            tokenError("Specifier $c doesn't support precision", token);
-        default:
-            tokenError("Invalid character following precision: $c", token);
-        }
+        createRenderer(token);
+        state = startState;
     }
 
-    private function incompleteError(token:Token):void
+    private function setWidth(token:Token):void
     {
-        throw new GeoFormatError("Incomplete field", token.index);
+        field.minWidth = parseInt(token.text, 10);
     }
 
-    private function tokenError(message:String, token:Token):void
+    private function setPrecision(token:Token):void
     {
-        message = message.replace("$c", token.text.charAt(0));
-        throw new GeoFormatError(message, token.index);
-    }
-
-    private function setFieldWidth(token:Token):void
-    {
-        fieldProperties.zeroPad = token.text.charAt() == '0';
-        fieldProperties.minWidth = parseInt(token.text, 10);
-    }
-
-    private function setFieldPrecision(token:Token):void
-    {
-        fieldProperties.precision = parseInt(token.text.substr(1), 10);
+        field.precision = parseInt(token.text.substr(1), 10);
     }
 
     private function createRenderer(token:Token):void
     {
-        var renderer:Renderer;
-
-        switch (token.text)
+        if (!token.text)
         {
-        case 'd' :
-            renderer = new NumberRenderer(fieldProperties, 1, 0, true);
-            break;
-        case 'm' :
-            renderer = new NumberRenderer(fieldProperties, 60, 60, true);
-            break;
-        case 's' :
-            renderer = new NumberRenderer(fieldProperties, 3600, 60, false);
-            break;
-        case '-' :
-            renderer = new SignRenderer("", "-");
-            break;
-        case '+' :
-            renderer = new SignRenderer("+", "-");
-            break;
-        case 'o' :
-            renderer = new SignRenderer("e", "w");
-            break;
-        case 'O' :
-            renderer = new SignRenderer("E", "W");
-            break;
-        case 'a' :
-            renderer = new SignRenderer("n", "s");
-            break;
-        case 'A' :
-            renderer = new SignRenderer("N", "S");
-            break;
-        case '*' :
-            renderer = new Literal(String.fromCharCode(0x00B0));
-            break;
-        case "'" :
-            renderer = new Literal(String.fromCharCode(0x2032));
-            break;
-        case "''" :
-            renderer = new Literal(String.fromCharCode(0x2033));
-            break;
-        case '%' :
-            renderer = new Literal("%");
-            break;
-        default:
-            AssertError.assert(false, "RegExp match an unhandled conversion specifier");
+            throw new FormatStringError(
+                "Encountered field without conversion specifier",
+                lexer.text, lexer.currentChar);
         }
-        renderers.push(renderer);
+        renderers.push(createRendererFromSpecifier(token.text));
     }
 
-    private static function buildTokenizer():Tokenizer
+    private function createRendererFromSpecifier(text:String):Renderer
     {
-        var toker:Tokenizer = new Tokenizer(true, true);
-        toker.addRule(PERCENT, /%/);
-        toker.addRule(PRECISION, /\.\d+/);
-        toker.addRule(WIDTH, /\d+/);
-        toker.addRule(PRIME_SPEC, /''?/);
-        toker.addRule(NUMERIC_SPEC, /[dms]/);
-        toker.addRule(NON_NUMERIC_SPEC, /[+oOaA*-]/);
-        return toker;
+        switch (text)
+        {
+        case 'd' :
+            return new NumberRenderer(field, 1, 0, true);
+        case 'm' :
+            return new NumberRenderer(field, 60, 60, true);
+        case 's' :
+            return new NumberRenderer(field, 3600, 60, false);
+        case '-' :
+            return new SignRenderer("", "-");
+        case '+' :
+            return new SignRenderer("+", "-");
+        case 'o' :
+            return new SignRenderer("e", "w");
+        case 'O' :
+            return new SignRenderer("E", "W");
+        case 'a' :
+            return new SignRenderer("n", "s");
+        case 'A' :
+            return new SignRenderer("N", "S");
+        case '*' :
+            return new Literal("\u00B0");
+        case "'" :
+            return new Literal("\u2032");
+        case "''" :
+            return new Literal("\u2033");
+        case '%' :
+            return new Literal("%");
+        default :
+            return null;
+        }
+    }
+
+    private static function buildTokenExpression():RegExp
+    {
+        var width:String = "(\\d+)?";
+        var precision:String = "(\\.\\d+)?";
+
+        var singleConversions:String = "[dms\\-+oOaA*%]";
+        var primeSequence:String = "''?";
+
+        var expr:String =
+            "(%)" +         // group 1
+            width +         // 2
+            precision +     // 3
+            "(" +           // 4
+                singleConversions +
+            "|" +
+                primeSequence +
+            ")";
+
+        return new RegExp(expr);
     }
 }
 }

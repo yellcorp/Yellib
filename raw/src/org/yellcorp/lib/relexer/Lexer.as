@@ -17,22 +17,28 @@ public class Lexer
     {
         reset();
         _text = text;
-        textTokens = text.split(_tokenizer);
+        textTokens = text.split(_tokenizer).filter(removeNull);
+    }
+
+    private function removeNull(s:String, i:*, a:*):Boolean
+    {
+        return s && s.length > 0;
     }
 
     public function nextToken():Token
     {
         var token:Token;
-        var tokenText:String;
 
-        do {
-            tokenText = textTokens[currentToken] || "";
+        if (currentToken < textTokens.length)
+        {
+            token = new Token(textTokens[currentToken], _currentChar);
+            _currentChar += token.text.length;
             currentToken++;
         }
-        while (currentToken < textTokens.length && tokenText == "");
-
-        token = makeToken(tokenText);
-        _currentChar += token.text.length;
+        else
+        {
+            token = new Token("", _text.length);
+        }
 
         return token;
     }
@@ -58,11 +64,6 @@ public class Lexer
         textTokens = null;
         currentToken = 0;
         _currentChar = 0;
-    }
-
-    private function makeToken(text:String):Token
-    {
-        return new Token(text || "", _currentChar);
     }
 }
 }
