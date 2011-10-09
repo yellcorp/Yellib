@@ -34,7 +34,7 @@ public class PrintfParser
 
     public function PrintfParser()
     {
-        lexer = new SplitLexer(getTokenPattern());
+        lexer = new SplitLexer(getTokenPattern(), true);
         field = new PrintfFieldProperties();
         output = new StringBuilder();
     }

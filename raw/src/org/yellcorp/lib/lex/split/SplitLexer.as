@@ -7,22 +7,37 @@ public class SplitLexer
     private var textTokens:Array;
     private var currentToken:int;
     private var _currentChar:int;
+    private var keepNulls:Boolean;
 
-    public function SplitLexer(tokenizer:RegExp)
+    public function SplitLexer(tokenizer:RegExp, keepNulls:Boolean = false)
     {
         _tokenizer = tokenizer;
+        this.keepNulls = keepNulls;
     }
 
     public function start(text:String):void
     {
         reset();
         _text = text;
-        textTokens = text.split(_tokenizer).filter(removeNull);
+
+        if (keepNulls)
+        {
+            textTokens = text.split(_tokenizer).map(normalizeNulls);
+        }
+        else
+        {
+            textTokens = text.split(_tokenizer).filter(removeNulls);
+        }
     }
 
-    private function removeNull(s:String, i:*, a:*):Boolean
+    private function removeNulls(s:String, i:*, a:*):Boolean
     {
         return s && s.length > 0;
+    }
+
+    private function normalizeNulls(s:String, i:*, a:*):String
+    {
+        return s || "";
     }
 
     public function nextToken():Token
