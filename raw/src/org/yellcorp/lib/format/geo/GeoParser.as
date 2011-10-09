@@ -3,6 +3,7 @@ package org.yellcorp.lib.format.geo
 import org.yellcorp.lib.format.FormatStringError;
 import org.yellcorp.lib.format.geo.renderer.Literal;
 import org.yellcorp.lib.format.geo.renderer.NumberRenderer;
+import org.yellcorp.lib.format.geo.renderer.Renderer;
 import org.yellcorp.lib.format.geo.renderer.SignRenderer;
 import org.yellcorp.lib.relexer.Lexer;
 import org.yellcorp.lib.relexer.Token;
@@ -11,8 +12,10 @@ import org.yellcorp.lib.relexer.Token;
 internal class GeoParser
 {
     private static var lexer:Lexer = new Lexer(buildTokenExpression());
+
     private var renderers:Array;
     private var field:GeoFieldProperties;
+    private var state:Function;
 
     public function GeoParser()
     {
@@ -25,22 +28,22 @@ internal class GeoParser
 
         lexer.start(formatString);
         renderers = [ ];
+        state = startState;
         while (!lexer.atEnd)
         {
-            parseToken();
+            state(lexer.nextToken());
         }
         returnRenderers = renderers.slice();
         renderers = null;
         return returnRenderers;
     }
 
-    private function parseToken():void
+    private function startState(token:Token):void
     {
-        var token:Token = lexer.nextToken();
-
         if (token.text == "%")
         {
-            parseField();
+            field.clear();
+            state = beginFieldState;
         }
         else if (token.text)
         {
@@ -48,101 +51,106 @@ internal class GeoParser
         }
     }
 
-    private function parseField():void
+    private function beginFieldState(token:Token):void
     {
-        field.clear();
-        parseWidth();
-        parsePrecision();
-        parseConversion();
-    }
-
-    private function parseWidth():void
-    {
-        var token:Token = lexer.nextToken();
-        if (token.text)
+        var initial:String = token.text.charAt(0);
+        if (initial == '0')
         {
-            if (token.text.charAt(0) == '0')
-            {
-                field.zeroPad = true;
-            }
-            field.minWidth = parseInt(token.text, 10);
+            field.zeroPad = true;
+            setWidth(token);
+            state = afterWidth;
+        }
+        else if (initial >= '1' && initial <= '9')
+        {
+            setWidth(token);
+            state = afterWidth;
+        }
+        else if (initial == ".")
+        {
+            setPrecision(token);
+            state = afterPrecision;
+        }
+        else
+        {
+            createRenderer(token);
+            state = startState;
         }
     }
 
-    private function parsePrecision():void
+    private function afterWidth(token:Token):void
     {
-        var token:Token = lexer.nextToken();
-
-        if (token.text)
+        var initial:String = token.text.charAt(0);
+        if (initial == ".")
         {
-            field.precision = parseInt(token.text.substr(1), 10);
+            setPrecision(token);
+            state = afterPrecision;
+        }
+        else
+        {
+            createRenderer(token);
+            state = startState;
         }
     }
 
-    private function parseConversion():void
+    private function afterPrecision(token:Token):void
     {
-        var token:Token = lexer.nextToken();
+        createRenderer(token);
+        state = startState;
+    }
 
+    private function setWidth(token:Token):void
+    {
+        field.minWidth = parseInt(token.text, 10);
+    }
+
+    private function setPrecision(token:Token):void
+    {
+        field.precision = parseInt(token.text.substr(1), 10);
+    }
+
+    private function createRenderer(token:Token):void
+    {
         if (!token.text)
         {
             throw new FormatStringError(
                 "Encountered field without conversion specifier",
                 lexer.text, lexer.currentChar);
         }
+        renderers.push(createRendererFromSpecifier(token.text));
+    }
 
-        switch (token.text)
+    private function createRendererFromSpecifier(text:String):Renderer
+    {
+        switch (text)
         {
         case 'd' :
-            renderers.push(new NumberRenderer(field, 1, 0, true));
-            break;
-
+            return new NumberRenderer(field, 1, 0, true);
         case 'm' :
-            renderers.push(new NumberRenderer(field, 60, 60, true));
-            break;
-
+            return new NumberRenderer(field, 60, 60, true);
         case 's' :
-            renderers.push(new NumberRenderer(field, 3600, 60, false));
-            break;
-
+            return new NumberRenderer(field, 3600, 60, false);
         case '-' :
-            renderers.push(new SignRenderer("", "-"));
-            break;
-
+            return new SignRenderer("", "-");
         case '+' :
-            renderers.push(new SignRenderer("+", "-"));
-            break;
-
+            return new SignRenderer("+", "-");
         case 'o' :
-            renderers.push(new SignRenderer("e", "w"));
-            break;
-
+            return new SignRenderer("e", "w");
         case 'O' :
-            renderers.push(new SignRenderer("E", "W"));
-            break;
-
+            return new SignRenderer("E", "W");
         case 'a' :
-            renderers.push(new SignRenderer("n", "s"));
-            break;
-
+            return new SignRenderer("n", "s");
         case 'A' :
-            renderers.push(new SignRenderer("N", "S"));
-            break;
-
+            return new SignRenderer("N", "S");
         case '*' :
-            renderers.push(new Literal(String.fromCharCode(0x00B0)));
-            break;
-
+            return new Literal("\u00B0");
         case "'" :
-            renderers.push(new Literal(String.fromCharCode(0x2032)));
-            break;
-
+            return new Literal("\u2032");
         case "''" :
-            renderers.push(new Literal(String.fromCharCode(0x2033)));
-            break;
-
+            return new Literal("\u2033");
         case '%' :
-            renderers.push(new Literal("%"));
-            break;
+            return new Literal("%");
+        default :
+            return null;
         }
     }
 
