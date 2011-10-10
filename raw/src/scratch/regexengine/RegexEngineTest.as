@@ -2,7 +2,7 @@ package scratch.regexengine
 {
 import org.yellcorp.lib.core.MapUtil;
 import org.yellcorp.lib.core.StringUtil;
-import org.yellcorp.lib.debug.DebugUtil;
+import org.yellcorp.lib.debug.DumpUtil;
 
 import scratch.regexengine.charrender.ASCIIEscaper;
 import scratch.regexengine.charrender.CharRenderer;
@@ -60,7 +60,7 @@ public class RegexEngineTest extends Sprite
 
         trace("test complete");
 
-        trace(DebugUtil.dumpObject(rangeResults));
+        trace(DumpUtil.dumpObject(rangeResults));
         // printRangeResults();
         printCharResults();
         trace("dump complete");

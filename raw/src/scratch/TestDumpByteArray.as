@@ -1,6 +1,6 @@
 package scratch
 {
-import org.yellcorp.lib.debug.DebugUtil;
+import org.yellcorp.lib.debug.DumpUtil;
 import org.yellcorp.lib.env.ConsoleApp;
 
 import flash.utils.ByteArray;
@@ -24,9 +24,9 @@ public class TestDumpByteArray extends ConsoleApp
         var bytes:ByteArray = new ByteArray();
         bytes.writeObject(testObject);
 
-        writeln(DebugUtil.dumpByteArray(bytes, 32));
+        writeln(DumpUtil.dumpByteArray(bytes, 32));
 
-        writeln(DebugUtil.dumpDisplayTree(this));
+        writeln(DumpUtil.dumpDisplayTree(this));
     }
 }
 }

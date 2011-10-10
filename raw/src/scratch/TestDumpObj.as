@@ -1,6 +1,6 @@
 package scratch
 {
-import org.yellcorp.lib.debug.DebugUtil;
+import org.yellcorp.lib.debug.DumpUtil;
 import org.yellcorp.lib.env.ConsoleApp;
 
 
@@ -21,7 +21,7 @@ public class TestDumpObj extends ConsoleApp
 
     private function run():void
     {
-        trace(DebugUtil.dumpObject(this, 2));
+        trace(DumpUtil.dumpObject(this, 2));
     }
 }
 }
