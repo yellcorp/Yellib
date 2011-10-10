@@ -29,36 +29,36 @@ public class TestScale9Bmp extends ResizableStage
         super();
         testBmp = Bitmap(new testBmpSource()).bitmapData.clone();
         testScaleBmp = new Scale9Bitmap(testBmp, PixelSnapping.AUTO, true, new Rectangle(80, 40, 204, 120));
-//            testScaleBmp = new Scale9Bitmap(testBmp, PixelSnapping.AUTO, true, new Rectangle(70, 30, 224, 140));
+        // testScaleBmp = new Scale9Bitmap(testBmp, PixelSnapping.AUTO, true, new Rectangle(70, 30, 224, 140));
 
-            addChild(testScaleBmp);
-            addChild(debugShape = new Shape());
-        }
+        addChild(testScaleBmp);
+        addChild(debugShape = new Shape());
+    }
 
-        protected override function onStageAvailable():void
+    protected override function onStageAvailable():void
+    {
+        stage.addEventListener(MouseEvent.CLICK, onClick);
+        stage.addEventListener(MouseEvent.MOUSE_MOVE, onMove);
+    }
+
+    private function onClick(event:MouseEvent):void
+    {
+        mousing = !mousing;
+        offset = new Point(testScaleBmp.width - event.stageX, testScaleBmp.height - event.stageY);
+    }
+
+    private function onMove(event:MouseEvent):void
+    {
+        if (mousing)
         {
-            stage.addEventListener(MouseEvent.CLICK, onClick);
-            stage.addEventListener(MouseEvent.MOUSE_MOVE, onMove);
-        }
+            testScaleBmp.width = event.stageX + offset.x;
+            testScaleBmp.height = event.stageY + offset.y;
 
-        private function onClick(event:MouseEvent):void
-        {
-            mousing = !mousing;
-            offset = new Point(testScaleBmp.width - event.stageX, testScaleBmp.height - event.stageY);
-        }
-
-        private function onMove(event:MouseEvent):void
-        {
-            if (mousing)
-            {
-                testScaleBmp.width = event.stageX + offset.x;
-                testScaleBmp.height = event.stageY + offset.y;
-
-                debugShape.graphics.clear();
-                debugShape.graphics.beginFill(0, .2);
-                debugShape.graphics.drawRect(0, 0, testScaleBmp.width, testScaleBmp.height);
-                debugShape.graphics.endFill();
-            }
+            debugShape.graphics.clear();
+            debugShape.graphics.beginFill(0, .2);
+            debugShape.graphics.drawRect(0, 0, testScaleBmp.width, testScaleBmp.height);
+            debugShape.graphics.endFill();
         }
     }
+}
 }

@@ -71,19 +71,19 @@ public class TestColorMatrix extends ResizableStage
     private function onFrame(e:Event):void
     {
         ColorMatrixUtil.lerp(cm1, cm2, t, cmOut);
-//            ColorMatrixFactory.makeHueSaturation(t * 2 * Math.PI, 1, cmOut);
+        // ColorMatrixFactory.makeHueSaturation(t * 2 * Math.PI, 1, cmOut);
 
-            cmFilter.matrix = cmOut;
+        cmFilter.matrix = cmOut;
 
-            debugField.text = ColorMatrixUtil.toString(cmOut);// + "\n" + cmOut.rgbDet();
+        debugField.text = ColorMatrixUtil.toString(cmOut); // + "\n" + cmOut.rgbDet();
 
-            loader.filters = [ cmFilter ];
+        loader.filters = [ cmFilter ];
 
-            t += delta;
-            if ((delta > 0 && t > 1) || (delta < 0 && t < 0))
-            {
-                 delta *= -1;
-            }
+        t += delta;
+        if ((delta > 0 && t > 1) || (delta < 0 && t < 0))
+        {
+            delta *= -1;
         }
     }
+}
 }

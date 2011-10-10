@@ -140,8 +140,6 @@ public class SoundGroup implements Disposable
 import flash.media.Sound;
 
 
-// Helper class -- works but uncertain if officially supported by AS3
-
 class SoundInfo
 {
     public var sound:Sound;
