@@ -42,10 +42,17 @@ public class SoundSequencer
         sequenceSampleLength = 0;
     }
 
-    public function cue(sound:Sound, sample:int):void
+    public function cue(sound:Sound, sample:int, repeatCount:int = 0):void
     {
-        var newCue:Cue = new Cue(sound, sample);
-        cues.push(newCue);
+        var newCue:Cue;
+
+        do {
+            newCue = new Cue(sound, sample);
+            cues.push(newCue);
+            sample += newCue.length;
+            repeatCount--;
+        } while (repeatCount >= 0);
+
         if (newCue.endSample > sequenceSampleLength)
         {
             sequenceSampleLength = newCue.endSample;
