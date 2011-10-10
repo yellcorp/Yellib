@@ -12,4 +12,5 @@ com.powerflasher.fdt.core.PlayerVersion=10
 com.powerflasher.fdt.core.ProjectTypeHint=AS 3 AIR
 com.powerflasher.fdt.core.Runtime=AIR
 com.powerflasher.fdt.core.SdkName=Flex 3.6
+com.powerflasher.fdt.core.useProjectFormatterSettings=true
 eclipse.preferences.version=1
