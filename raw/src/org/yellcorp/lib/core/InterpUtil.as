@@ -5,34 +5,34 @@ public class InterpUtil
     /**
      * Calculates linear interpolation between a minimum and maximum value, based on
      * an interpolant <code>t</code> between 0 and 1.  When
-     * <code>t</code> is 0, <code>inMin</code> is returned.  When
-     * <code>t</code> is 1, <code>inMax</code> is returned.  <code>t</code>
+     * <code>t</code> is 0, <code>v0</code> is returned.  When
+     * <code>t</code> is 1, <code>v1</code> is returned.  <code>t</code>
      * is not clamped to a [0, 1] range.
      *
-     * @param inMin The value at t = 0.
-     * @param inMax The value at t = 1.
-     * @param t     Interpolant.
+     * @param v0  The value at t = 0.
+     * @param v1  The value at t = 1.
+     * @param t   Interpolant.
      *
      * @return   The interpolated value.
      */
-    public static function lerp(inMin:Number, inMax:Number, t:Number):Number
+    public static function lerp(v0:Number, v1:Number, t:Number):Number
     {
-        return inMin + t * (inMax - inMin);
+        return v0 + t * (v1 - v0);
     }
 
     /**
      * Inverse linear interpolation.  Returns the linear interpolant between
-     * inMin and inMax required to return a given value.
+     * v0 and v1 required to return a given value.
      *
-     * @param inMin The value at t = 0.
-     * @param inMax The value at t = 1.
+     * @param v0    The value at t = 0.
+     * @param v1    The value at t = 1.
      * @param value The value for which to find the interpolant.
      *
      * @return   The interpolant.
      */
-    public static function invLerp(inMin:Number, inMax:Number, value:Number):Number
+    public static function invLerp(v0:Number, v1:Number, value:Number):Number
     {
-        return (value - inMin) / (inMax - inMin);
+        return (value - v0) / (v1 - v0);
     }
 
     /**
