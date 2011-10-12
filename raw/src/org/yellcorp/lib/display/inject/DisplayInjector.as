@@ -71,6 +71,11 @@ import flash.utils.getDefinitionByName;
  *     an error is thrown.</p>
  *   </dd>
  *
+ *   <dt><code>optional</code></dt>
+ *   <dd><p>If the search fails, set the target property to <code>null</code>
+ *     instead of throwing an error.</p>
+ *   </dd>
+ *
  *   <dt><code>adapter</code></dt>
  *   <dd><p>Instead of trying to cast the child DisplayObject to the property's
  *     class, use the class as a constructor, with the child DisplayObject
@@ -138,7 +143,7 @@ public class DisplayInjector
     private static function injectProperty(property:XML, metadata:XML,
             source:DisplayObjectContainer, target:*):void
     {
-        var args:Object = { name: null, adapter: null };
+        var args:Object = { name: null, adapter: null, optional: null };
 
         try {
             collectArgs(metadata, args);
@@ -160,18 +165,24 @@ public class DisplayInjector
         catch (die:DisplayInjectorError)
         {
             die.property = property.@name;
-            throw die;
+            if (!args.optional)
+            {
+                throw die;
+            }
         }
         catch (te:TypeError)
         {
-            throw new DisplayPathError(te.message, displayPath, property.@name);
+            if (!args.optional)
+            {
+                throw new DisplayPathError(te.message, displayPath, property.@name);
+            }
         }
     }
 
 
     private static function getChildByPath(
             display:DisplayObjectContainer, path:String):*
-    //        throws DisplayPathError
+    //      throws DisplayPathError
     {
         var names:Array = path.split(".");
         var resolvedNames:Array = [ ];
@@ -217,7 +228,7 @@ public class DisplayInjector
 
 
     private static function collectArgs(metadata:XML, argDict:*):void
-    //        throws DisplayMetadataError
+    //      throws DisplayMetadataError
     {
         for each (var arg:XML in metadata.arg)
         {
