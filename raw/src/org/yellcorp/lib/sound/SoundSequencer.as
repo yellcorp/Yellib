@@ -1,15 +1,21 @@
 package org.yellcorp.lib.sound
 {
+import flash.events.EventDispatcher;
+import flash.events.IEventDispatcher;
 import flash.events.SampleDataEvent;
 import flash.media.Sound;
 import flash.utils.ByteArray;
+import flash.utils.setTimeout;
 
 
-public class SoundSequencer
+[Event(name="samplePlayed", type="org.yellcorp.lib.sound.SoundSequencerCueEvent")]
+public class SoundSequencer extends EventDispatcher
 {
     private var _outputBufferSize:uint;
 
     private var cues:Array;
+    private var cueEvents:Array;
+
     private var sequenceSampleLength:Number;
 
     // the data from individual sounds are extracted into this ByteArray
@@ -28,12 +34,15 @@ public class SoundSequencer
 
     public function SoundSequencer(outputBufferSize:uint = 8192)
     {
+        super();
+
         if (outputBufferSize < 2048 || outputBufferSize > 8192)
         {
             throw new ArgumentError("outputBufferSize must be in the range 2048 to 8192");
         }
         _outputBufferSize = outputBufferSize;
         cues = [ ];
+        cueEvents = [ ];
 
         extractBuffer = new ByteArray();
         mixingBufferA = new ByteArray();
@@ -42,7 +51,7 @@ public class SoundSequencer
         sequenceSampleLength = 0;
     }
 
-    public function cue(sound:Sound, sample:int, repeatCount:int = 0):void
+    public function cueSound(sound:Sound, sample:int, repeatCount:int = 0):void
     {
         var newCue:Cue;
 
@@ -59,6 +68,11 @@ public class SoundSequencer
         }
     }
 
+    public function cueEvent(sampleNumber:Number, payload:* = null):void
+    {
+        cueEvents.push(new CueEventRecord(sampleNumber, payload));
+    }
+
     public function getSound():Sound
     {
         var userSound:Sound = new Sound();
@@ -68,7 +82,12 @@ public class SoundSequencer
 
     private function onSampleData(event:SampleDataEvent):void
     {
-        var packetStart:Number = event.position;
+        writePacket(event.position, event.data);
+        scheduleEvents(event.position);
+    }
+
+    private function writePacket(packetStart:Number, data:ByteArray):void
+    {
         var packetEnd:Number = packetStart + _outputBufferSize;
 
         var cueLength:Number;
@@ -169,7 +188,40 @@ public class SoundSequencer
                 destBuffer = mixingBufferA;
             }
         }
-        event.data.writeBytes(srcBuffer);
+        data.writeBytes(srcBuffer);
+    }
+
+    private function scheduleEvents(sampleNumber:Number):void
+    {
+        var scheduledEvents:Array;
+        var dispatcher:IEventDispatcher = this;
+
+        for each (var cueEventRecord:CueEventRecord in cueEvents)
+        {
+            if (cueEventRecord.sampleNumber >= sampleNumber &&
+                cueEventRecord.sampleNumber < sampleNumber + _outputBufferSize)
+            {
+                if (scheduledEvents == null)
+                {
+                    scheduledEvents = [ ];
+                }
+                scheduledEvents.push(cueEventRecord);
+            }
+        }
+
+        if (scheduleEvents != null)
+        {
+            setTimeout(function ():void {
+                var dispatchCueEvent:CueEventRecord;
+                for each (dispatchCueEvent in scheduledEvents)
+                {
+                    dispatcher.dispatchEvent(new SoundSequencerCueEvent(
+                        SoundSequencerCueEvent.SAMPLE_PLAYED,
+                        dispatchCueEvent.sampleNumber,
+                        dispatchCueEvent.payload));
+                }
+            }, 1);
+        }
     }
 
     private static function createZeroBuffer(sampleCount:uint):ByteArray
@@ -202,5 +254,18 @@ class Cue
         this.startSample = startSample;
         this.length = Math.ceil(sound.length * 44.1);
         this.endSample = startSample + this.length;
+    }
+}
+
+
+class CueEventRecord
+{
+    public var sampleNumber:Number;
+    public var payload:*;
+
+    public function CueEventRecord(sampleNumber:Number, payload:* = null)
+    {
+        this.sampleNumber = sampleNumber;
+        this.payload = payload;
     }
 }
