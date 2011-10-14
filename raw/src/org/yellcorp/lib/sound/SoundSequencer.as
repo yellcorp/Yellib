@@ -11,6 +11,10 @@ import flash.utils.setTimeout;
 [Event(name="samplePlayed", type="org.yellcorp.lib.sound.SoundSequencerCueEvent")]
 public class SoundSequencer extends EventDispatcher
 {
+    // One sample = two float values, one left, one right.
+    // floats are 4 bytes each
+    private static const BYTES_PER_SAMPLE_PAIR:uint = 8;
+
     private var _outputBufferSize:uint;
 
     private var cues:Array;
@@ -152,8 +156,8 @@ public class SoundSequencer extends EventDispatcher
             {
                 // cued sound starts in the middle of the packet - just
                 // copy the accumulation buffer data up to that point
-                destBuffer.writeBytes(srcBuffer, 0, packetOffset * 8);
-                srcBuffer.position = packetOffset * 8;
+                destBuffer.writeBytes(srcBuffer, 0, packetOffset * BYTES_PER_SAMPLE_PAIR);
+                srcBuffer.position = packetOffset * BYTES_PER_SAMPLE_PAIR;
             }
 
             while (srcBuffer.bytesAvailable > 0 && extractBuffer.bytesAvailable > 0)
