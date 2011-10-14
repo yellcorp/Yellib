@@ -83,7 +83,7 @@ public class SoundSequencer extends EventDispatcher
     private function onSampleData(event:SampleDataEvent):void
     {
         writePacket(event.position, event.data);
-        scheduleEvents(event.position);
+        scheduleEvents(event.position, Sound(event.target));
     }
 
     private function writePacket(packetStart:Number, data:ByteArray):void
@@ -191,7 +191,7 @@ public class SoundSequencer extends EventDispatcher
         data.writeBytes(srcBuffer);
     }
 
-    private function scheduleEvents(sampleNumber:Number):void
+    private function scheduleEvents(sampleNumber:Number, instance:Sound):void
     {
         var scheduledEvents:Array;
         var dispatcher:IEventDispatcher = this;
@@ -211,14 +211,17 @@ public class SoundSequencer extends EventDispatcher
 
         if (scheduleEvents != null)
         {
-            setTimeout(function ():void {
+            setTimeout(function():void
+            {
                 var dispatchCueEvent:CueEventRecord;
                 for each (dispatchCueEvent in scheduledEvents)
                 {
-                    dispatcher.dispatchEvent(new SoundSequencerCueEvent(
-                        SoundSequencerCueEvent.SAMPLE_PLAYED,
-                        dispatchCueEvent.sampleNumber,
-                        dispatchCueEvent.payload));
+                    dispatcher.dispatchEvent(
+                        new SoundSequencerCueEvent(
+                            SoundSequencerCueEvent.SAMPLE_PLAYED,
+                            instance,
+                            dispatchCueEvent.sampleNumber,
+                            dispatchCueEvent.payload));
                 }
             }, 1);
         }
