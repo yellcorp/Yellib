@@ -2,8 +2,8 @@ package org.yellcorp.lib.display.inject
 {
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
+import flash.system.ApplicationDomain;
 import flash.utils.describeType;
-import flash.utils.getDefinitionByName;
 
 
 /**
@@ -114,6 +114,9 @@ public class DisplayInjector
      * @param container  The DisplayObjectContainer containing named
      *                   children to assign to <code>target</code>.
      * @param target  The instance to populate.
+     * @param domain  The ApplicationDomain to use when resolving adapter
+     *                classes. Defaults to the domain where this class is first
+     *                defined.
      *
      * @throws org.yellcorp.lib.display.inject.DisplayPathError
      *         If a child with the default or overridden name could not be
@@ -125,8 +128,13 @@ public class DisplayInjector
      * @throws org.yellcorp.lib.display.inject.DisplayMetadataError
      *         If a metadata parameter is invalid.
      */
-    public static function inject(container:DisplayObjectContainer, target:*):void
+    public static function inject(container:DisplayObjectContainer, target:*, domain:ApplicationDomain = null):void
     {
+        if (!domain)
+        {
+            domain = ApplicationDomain.currentDomain;
+        }
+
         var type:XML = describeType(target);
 
         var displayMetadata:XMLList = type.*.(
@@ -135,13 +143,13 @@ public class DisplayInjector
 
         for each (var metadata:XML in displayMetadata)
         {
-            injectProperty(metadata.parent(), metadata, container, target);
+            injectProperty(metadata.parent(), metadata, container, target, domain);
         }
     }
 
 
     private static function injectProperty(property:XML, metadata:XML,
-            source:DisplayObjectContainer, target:*):void
+            source:DisplayObjectContainer, target:*, domain:ApplicationDomain):void
     {
         var args:Object = { name: null, adapter: null, optional: null };
 
@@ -157,7 +165,7 @@ public class DisplayInjector
 
             if (args.adapter !== null)
             {
-                child = construct(args.adapter, child);
+                child = construct(args.adapter, child, domain);
             }
 
             target[property.@name] = child;
@@ -263,9 +271,9 @@ public class DisplayInjector
     }
 
 
-    private static function construct(adapter:String, displayObject:*):*
+    private static function construct(adapter:String, displayObject:*, domain:ApplicationDomain):*
     {
-        var clazz:Object = getDefinitionByName(adapter);
+        var clazz:Object = domain.getDefinition(adapter);
         return new clazz(displayObject);
     }
 }
