@@ -190,6 +190,64 @@ public class DisplayUtil
     }
 
     /**
+     * Makes the specified DisplayObjects a child of a new Sprite.  If they have
+     * parent DisplayObjectContainers, the newly created Sprite is inserted at
+     * the lowest index among the DisplayObjects.  For this to occur, all the
+     * DisplayObjects must have the same parent.
+     *
+     * @param displayObjects  A for each...in iterable collection of
+     *                        DisplayObjects
+     *
+     * @return                The new Sprite that becomes the parent of the
+     *                        DisplayObjects
+     *
+     * @throws ArgumentError if the DisplayObjects do not share a common parent,
+     * or if the DisplayObjects do not all have null parents.
+     */
+    public static function group(displayObjects:*):DisplayObjectContainer
+    {
+        var oldParent:DisplayObjectContainer;
+        var newParent:DisplayObjectContainer = new Sprite();
+        var taggedDisplayObjects:Array;
+
+        for each (var currentDisplay:DisplayObject in displayObjects)
+        {
+            if (!taggedDisplayObjects)
+            {
+                taggedDisplayObjects = [ ];
+                oldParent = currentDisplay.parent;
+            }
+            else
+            {
+                if (currentDisplay.parent != oldParent)
+                {
+                    throw new ArgumentError("All DisplayObjects must have " +
+                        "the same value for their parent property");
+                }
+            }
+
+            taggedDisplayObjects.push({
+                d: currentDisplay,
+                i: oldParent ? oldParent.getChildIndex(currentDisplay) : 0
+            });
+        }
+
+        if (oldParent)
+        {
+            taggedDisplayObjects.sortOn("i", Array.NUMERIC);
+        }
+        for each (var tag:Object in taggedDisplayObjects)
+        {
+            newParent.addChild(tag.d);
+        }
+        if (oldParent)
+        {
+            oldParent.addChildAt(newParent, taggedDisplayObjects[0].i);
+        }
+        return newParent;
+    }
+
+    /**
      * Sets whether a DisplayObject is a child of a DisplayObjectContainer
      * based on a Boolean argument.
      */
