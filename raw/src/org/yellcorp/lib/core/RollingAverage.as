@@ -2,40 +2,56 @@ package org.yellcorp.lib.core
 {
 public class RollingAverage
 {
-    private var size:int;
-    private var pointer:int;
-    private var length:int;
+    private var _average:Number;
+
+    private var _size:uint;
+
     private var samples:Array;
+    private var pointer:uint;
+    private var full:Boolean;
 
-    public function RollingAverage(windowSize:int)
+    public function RollingAverage(size:uint)
     {
-        size = windowSize;
-        clear();
-    }
-
-    public function clear():void
-    {
-        samples = new Array(size);
+        if (size == 0) throw new ArgumentError("size must be greater than zero");
+        _size = size;
+        samples = new Array(_size);
         pointer = 0;
-        length = 0;
+        full = false;
     }
 
     public function sample(value:Number):void
     {
-        samples[pointer] = value;
-        if (length < size) length++;
-        pointer = (pointer + 1) % size;
+        if (full)
+        {
+            value /= _size;
+            _average = _average - samples[pointer] + value;
+            samples[pointer] = value;
+        }
+        else if (pointer == 0)
+        {
+            samples[pointer] = value / _size;
+            _average = value;
+        }
+        else
+        {
+            samples[pointer] = value / _size;
+            _average = _average * (pointer / (pointer + 1)) + value / (pointer + 1);
+        }
+        if (++pointer == _size)
+        {
+            full = true;
+            pointer = 0;
+        }
     }
 
     public function get average():Number
     {
-        var i:int;
-        var result:Number = 0;
-        for (i = 0; i < length; i++)
-        {
-            result += samples[i];
-        }
-        return result / length;
+        return _average;
+    }
+
+    public function get size():uint
+    {
+        return _size;
     }
 }
 }
