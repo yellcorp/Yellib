@@ -204,10 +204,10 @@ public class DisplayUtil
      * @throws ArgumentError if the DisplayObjects do not share a common parent,
      * or if the DisplayObjects do not all have null parents.
      */
-    public static function group(displayObjects:*):DisplayObjectContainer
+    public static function group(displayObjects:*):Sprite
     {
         var oldParent:DisplayObjectContainer;
-        var newParent:DisplayObjectContainer = new Sprite();
+        var newParent:Sprite = new Sprite();
         var taggedDisplayObjects:Array;
 
         for each (var currentDisplay:DisplayObject in displayObjects)
