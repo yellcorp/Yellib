@@ -66,23 +66,23 @@ public class InterpUtil
     /**
      * Linearly interpolates a value in two dimensions.
      *
-     * @param v00 The value at (0, 0).
-     * @param v01 The value at (0, 1).
-     * @param v10 The value at (1, 0).
-     * @param v11 The value at (1, 1).
+     * @param v00 The value at x=0, y=0.
+     * @param v10 The value at x=1, y=0.
+     * @param v01 The value at x=0, y=1.
+     * @param v11 The value at x=1, y=1.
      * @param x   X interpolant.
      * @param y   Y interpolant.
      *
      * @return   The interpolated value.
      */
-    public static function lerp2d(v00:Number, v01:Number,
-                                  v10:Number, v11:Number,
+    public static function lerp2d(v00:Number, v10:Number,
+                                  v01:Number, v11:Number,
                                   x:Number, y:Number):Number
     {
-        var v0x:Number = v00 + x * (v01 - v00);
-        var v1x:Number = v10 + x * (v11 - v10);
+        var vx0:Number = v00 + x * (v10 - v00);
+        var vx1:Number = v01 + x * (v11 - v01);
 
-        return v0x + y * (v1x - v0x);
+        return vx0 + y * (vx1 - vx0);
     }
 
     /**
