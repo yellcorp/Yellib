@@ -52,8 +52,8 @@ public class InterpUtil
      * @param    inVal    The input value to be scaled
      * @param    inMin    The input lower range
      * @param    inMax    The input higher range
-     * @param    outMin    The output lower range
-     * @param    outMax    The output higher range
+     * @param    outMin   The output lower range
+     * @param    outMax   The output higher range
      * @return            The input value scaled to the output range.
      */
     public static function lerpRange(inVal:Number, inMin:Number, inMax:Number, outMin:Number, outMax:Number):Number
