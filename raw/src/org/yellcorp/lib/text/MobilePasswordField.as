@@ -16,8 +16,22 @@ import flash.utils.setTimeout;
 [Event(name="change", type="flash.events.Event")]
 public class MobilePasswordField extends EventDispatcher
 {
+    /**
+     * The length of time, in milliseconds, to show the most recently entered 
+     * character. If there is no other input after this time, the character will
+     * be replaced with <code>maskCharacter</code>. If there is further input,
+     * the currently displayed character will be hidden early. If multiple 
+     * characters are inserted in a single change event, only the last of those
+     * characters will be shown.
+     */
     public var hideCharacterDelay:Number = 1000;
-    public var maskCharacter:String = String.fromCharCode(0x2022); // U+2022 BULLET
+    
+    /**
+     * The character with which to replace entered characters. The default is
+     * Unicode U+2022 BULLET. If the TextField uses an embedded font, be sure
+     * to include this character, or use a device font instead.
+     */
+    public var maskCharacter:String = String.fromCharCode(0x2022);
     private var _text:String;
     
     private var textField:TextField;
@@ -35,12 +49,39 @@ public class MobilePasswordField extends EventDispatcher
     private static const DELETE_BEFORE:uint = 2;
     private static const DELETE_AFTER:uint = 3;
 
+    /**
+     * Create an instance of a new MobilePasswordField.
+     * 
+     * @param  textField  The TextField to listen to and control. This instance
+     *                    must have exclusive control over this object.
+     */
     public function MobilePasswordField(textField:TextField)
     {
         super();
         this.textField = textField;
         endInternalEdit();
         textField.text = _text = ""; 
+    }
+
+    /**
+     * The text stored in the target TextField. Reading the text property
+     * from the TextField directly will return the current visible content of
+     * the TextField - i.e. mask characters with a possible single input
+     * character. 
+     */
+    public function get text():String
+    {
+        return _text;
+    }
+
+    public function set text(new_text:String):void
+    {
+        if (new_text != _text)
+        {
+            _text = new_text;
+            hideAllCharacters();
+            dispatchEvent(new Event(Event.CHANGE));
+        }
     }
 
     private function onFieldKeyUp(event:KeyboardEvent):void
@@ -83,16 +124,17 @@ public class MobilePasswordField extends EventDispatcher
 
     private function onFieldChange(event:Event):void
     {
-        beginInternalEdit();
-        
         if (action == INSERT)
         {
             _text = StringUtil.splice(_text, selectionStart, selectionEnd, insertedText);
         }
         else if (textField.length < _text.length)
         {
+            // deletion has happened
             if (selectionStart == selectionEnd)
             {
+                // there was no selection, so we need to look at the value we
+                // stored in response to the keyCode to see what to do
                 if (action == DELETE_AFTER)
                 {
                     _text = StringUtil.splice(_text, selectionStart, selectionStart + 1, "");
@@ -113,6 +155,8 @@ public class MobilePasswordField extends EventDispatcher
             }
             else
             {
+                // there was a selection, so in all cases, remove the selected
+                // characters from the string
                 _text = StringUtil.splice(_text, selectionStart, selectionEnd, "");
             }
         }
@@ -129,8 +173,6 @@ public class MobilePasswordField extends EventDispatcher
         
         action = UNKNOWN;
         insertedText = null;
-        endInternalEdit();
-        trace(_text);
     }
 
     private function revealCharacter(charIndex:int):void
@@ -175,21 +217,6 @@ public class MobilePasswordField extends EventDispatcher
     {
         selectionStart = textField.selectionBeginIndex;
         selectionEnd = textField.selectionEndIndex;
-    }
-
-    public function get text():String
-    {
-        return _text;
-    }
-
-    public function set text(new_text:String):void
-    {
-        if (new_text != _text)
-        {
-            _text = new_text;
-            hideAllCharacters();
-            dispatchEvent(new Event(Event.CHANGE));
-        }
     }
 
     private function endInternalEdit():void
