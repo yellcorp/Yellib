@@ -171,6 +171,19 @@ public class StringUtil
             return str;
         }
     }
+    
+    
+    /**
+     * Replaces a range of characters in a string with another string. The range
+     * can be zero-length to insert a string, or the replacement string call be 
+     * <code>null</code> or empty to delete characters.
+     */
+    public static function splice(string:String, rangeStart:int, rangeEnd:int, 
+            stringToInsert:String):String
+    {
+        return string.slice(0, rangeStart) + (stringToInsert || "") +
+               string.slice(rangeEnd);
+    }
 
 
     public static function delimiterJoin(first:String, second:String, delimeter:String, caseSensitive:Boolean = true):String
