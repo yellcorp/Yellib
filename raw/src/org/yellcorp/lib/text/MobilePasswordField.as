@@ -35,7 +35,7 @@ public class MobilePasswordField extends EventDispatcher
     private var _text:String;
     
     private var textField:TextField;
-    private var textFieldSemaphore:int = 1;
+    private var textFieldSemaphore:int = 0;
     
     private var selectionStart:int;
     private var selectionEnd:int;
@@ -59,8 +59,15 @@ public class MobilePasswordField extends EventDispatcher
     {
         super();
         this.textField = textField;
-        endInternalEdit();
+        addListeners();
         textField.text = _text = ""; 
+    }
+    
+    public function dispose():void
+    {
+        removeListeners();
+        hideAllCharacters();
+        textField = null;
     }
 
     /**
@@ -224,27 +231,7 @@ public class MobilePasswordField extends EventDispatcher
         textFieldSemaphore--;
         if (textFieldSemaphore == 0)
         {
-            // listen for these events and update changes to selection range.
-            // this must be done because not all text changes result in an
-            // event that allows us to read the state of the selection before
-            // it is changed. most commonly, deletes and backspaces with and
-            // without selected text, and cutting/pasting using the context menu
-            
-            // changes can be made without any keyboard events at all; i.e.
-            // mousedown -> highlight text -> mouseup -> context menu -> delete
-            textField.addEventListener(MouseEvent.MOUSE_DOWN, onFieldMouseDown);
-            textField.addEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
-            
-            // these are listed in the order they occur
-            textField.addEventListener(KeyboardEvent.KEY_DOWN, onFieldKeyDown);
-            
-            // dispatched only by operations that add text, before the change is
-            // made. we can read the pre-change selection state here
-            textField.addEventListener(TextEvent.TEXT_INPUT, onFieldTextInput);
-            
-            // after the change is made
-            textField.addEventListener(Event.CHANGE, onFieldChange);
-            textField.addEventListener(KeyboardEvent.KEY_UP, onFieldKeyUp);
+            addListeners();
         }
     }
 
@@ -252,14 +239,44 @@ public class MobilePasswordField extends EventDispatcher
     {
         if (textFieldSemaphore == 0)
         {
-            textField.removeEventListener(MouseEvent.MOUSE_DOWN, onFieldMouseDown);
-            textField.removeEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
-            textField.removeEventListener(KeyboardEvent.KEY_DOWN, onFieldKeyDown);
-            textField.removeEventListener(KeyboardEvent.KEY_UP, onFieldKeyUp);
-            textField.removeEventListener(TextEvent.TEXT_INPUT, onFieldTextInput);
-            textField.removeEventListener(Event.CHANGE, onFieldChange);
+            removeListeners();
         }
         textFieldSemaphore++;
+    }
+
+    private function addListeners():void
+    {
+        // listen for these events and update changes to selection range.
+        // this must be done because not all text changes result in an
+        // event that allows us to read the state of the selection before
+        // it is changed. most commonly, deletes and backspaces with and
+        // without selected text, and cutting/pasting using the context menu
+        
+        // changes can be made without any keyboard events at all; i.e.
+        // mousedown -> highlight text -> mouseup -> context menu -> delete
+        textField.addEventListener(MouseEvent.MOUSE_DOWN, onFieldMouseDown);
+        textField.addEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
+        
+        // these are listed in the order they occur
+        textField.addEventListener(KeyboardEvent.KEY_DOWN, onFieldKeyDown);
+        
+        // dispatched only by operations that add text, before the change is
+        // made. we can read the pre-change selection state here
+        textField.addEventListener(TextEvent.TEXT_INPUT, onFieldTextInput);
+        
+        // after the change is made
+        textField.addEventListener(Event.CHANGE, onFieldChange);
+        textField.addEventListener(KeyboardEvent.KEY_UP, onFieldKeyUp);
+    }
+
+    private function removeListeners():void
+    {
+        textField.removeEventListener(MouseEvent.MOUSE_DOWN, onFieldMouseDown);
+        textField.removeEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
+        textField.removeEventListener(KeyboardEvent.KEY_DOWN, onFieldKeyDown);
+        textField.removeEventListener(KeyboardEvent.KEY_UP, onFieldKeyUp);
+        textField.removeEventListener(TextEvent.TEXT_INPUT, onFieldTextInput);
+        textField.removeEventListener(Event.CHANGE, onFieldChange);
     }
 }
 }
