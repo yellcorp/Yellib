@@ -1,6 +1,7 @@
 package org.yellcorp.lib.text
 {
 import org.yellcorp.lib.core.StringUtil;
+import org.yellcorp.lib.string.CharacterRestriction;
 
 import flash.events.Event;
 import flash.events.EventDispatcher;
@@ -33,6 +34,8 @@ public class MobilePasswordField extends EventDispatcher
      */
     public var maskCharacter:String = String.fromCharCode(0x2022);
     private var _text:String;
+    private var _maxChars:uint = 0;
+    private var _restrict:CharacterRestriction = new CharacterRestriction();
     
     private var textField:TextField;
     private var textFieldSemaphore:int = 0;
@@ -59,6 +62,10 @@ public class MobilePasswordField extends EventDispatcher
     {
         super();
         this.textField = textField;
+        _maxChars = textField.maxChars;
+        textField.maxChars = 0;
+        _restrict.restrict = textField.restrict;
+        textField.restrict = null;
         addListeners();
         textField.text = _text = ""; 
     }
@@ -85,10 +92,33 @@ public class MobilePasswordField extends EventDispatcher
     {
         if (new_text != _text)
         {
+            // note that with flash.text.TextField, maxChars and restrict 
+            // limits are only applied to user-entered text.  so don't
+            // apply them here
             _text = new_text;
             hideAllCharacters();
             dispatchEvent(new Event(Event.CHANGE));
         }
+    }
+    
+    public function get maxChars():uint
+    {
+        return _maxChars;
+    }
+
+    public function set maxChars(new_maxChars:uint):void
+    {
+        _maxChars = new_maxChars;
+    }
+
+    public function get restrict():String
+    {
+        return _restrict.restrict;
+    }
+
+    public function set restrict(new_restrict:String):void
+    {
+        _restrict.restrict = new_restrict;
     }
 
     private function onFieldKeyUp(event:KeyboardEvent):void
@@ -133,6 +163,15 @@ public class MobilePasswordField extends EventDispatcher
     {
         if (action == INSERT)
         {
+            if (_restrict.restrict)
+            {
+                insertedText = _restrict.filter(insertedText);
+            }
+            if (_maxChars > 0)
+            {
+                var charsLeft:int = _maxChars - _text.length + (selectionEnd - selectionStart);
+                insertedText = charsLeft > 0  ?  insertedText.substr(0, charsLeft)  :  "";
+            }
             _text = StringUtil.splice(_text, selectionStart, selectionEnd, insertedText);
         }
         else if (textField.length < _text.length)
