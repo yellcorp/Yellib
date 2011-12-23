@@ -36,31 +36,27 @@ public class InterpUtil
     }
 
     /**
-     * Given a number on input range, returns that number scaled to the
-     * same relative quantity on an output range.  Numbers are not clamped
-     * to ranges.
+     * Maps a number from one interval to another.
      *
-     * @example The following code takes 100 on an input range from 0 to
-     * 200, and outputs the equivalent value on a scale from -1 to 1.  The
+     * @example The following code takes 100 on the interval [0, 200], and 
+     * outputs the equivalent value on the interval [-1, 1].  The
      * result is 0 because 100 is halfway between 0 and 200, and 0 is
      * halfway between -1 and 1.
      * <listing version="3.0">
-     * InterpUtil.lerpRange(100, 0, 200, -1, 1);
+     * InterpUtil.map(100, 0, 200, -1, 1);
      * // returned value is 0
      * </listing>
      *
-     * @param    inVal    The input value to be scaled
-     * @param    inMin    The input lower range
-     * @param    inMax    The input higher range
-     * @param    outMin   The output lower range
-     * @param    outMax   The output higher range
-     * @return            The input value scaled to the output range.
+     * @param    value The value on the input interval
+     * @param    a0    The start of the input interval
+     * @param    a1    The end of the input interval
+     * @param    b0    The start of the output interval
+     * @param    b1    The end of the output interval
+     * @return         The input value mapped to the output interval.
      */
-    public static function lerpRange(inVal:Number, inMin:Number, inMax:Number, outMin:Number, outMax:Number):Number
+    public static function map(value:Number, a0:Number, a1:Number, b0:Number, b1:Number):Number
     {
-        var outVal:Number;
-        outVal = outMin + (outMax - outMin) * (inVal - inMin) / (inMax - inMin);
-        return outVal;
+        return b0 + (b1 - b0) * (value - a0) / (a1 - a0);
     }
 
     /**
