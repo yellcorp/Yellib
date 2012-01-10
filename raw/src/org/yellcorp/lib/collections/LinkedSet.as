@@ -7,13 +7,13 @@ import flash.utils.Dictionary;
 
 /**
  * An ordered set implemented as a doubly-linked list. All members are unique;
- * if a member that already exists in the DequeSet is inserted, it is moved
+ * if a member that already exists in the LinkedSet is inserted, it is moved
  * from its old position to its new position.  Addition, removal, and
  * retrieval from either end of the list are constant time.  Membership testing
  * by value, removal by value and insertion relative to value are also constant
  * time.  Operations by numeric index are linear time.
  */
-public class DequeSet
+public class LinkedSet
 {
     private var nodeLookup:Dictionary;
 
@@ -22,7 +22,7 @@ public class DequeSet
 
     private var _length:int;
 
-    public function DequeSet()
+    public function LinkedSet()
     {
         clear();
     }
@@ -213,7 +213,7 @@ public class DequeSet
     {
         if (newMember == null)
         {
-            throw new ArgumentError("DequeSet cannot contain null members");
+            throw new ArgumentError("LinkedSet cannot contain null members");
         }
     }
 
@@ -222,7 +222,7 @@ public class DequeSet
         checkMember(newMember);
         if (nodeLookup[referenceMember] == null)
         {
-            throw new ArgumentError("Reference member does not exist in this DequeSet");
+            throw new ArgumentError("Reference member does not exist in this LinkedSet");
         }
         if (newMember === referenceMember)
         {

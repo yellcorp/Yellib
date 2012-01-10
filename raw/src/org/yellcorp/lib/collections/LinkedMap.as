@@ -8,7 +8,7 @@ import flash.utils.flash_proxy;
 public class LinkedMap extends Proxy implements UntypedMap
 {
     private var map:Dictionary;
-    private var keySet:DequeSet;
+    private var keySet:LinkedSet;
 
     private var iterKeys:Array;
     private var iterValues:Array;
@@ -16,7 +16,7 @@ public class LinkedMap extends Proxy implements UntypedMap
     public function LinkedMap()
     {
         map = new Dictionary();
-        keySet = new DequeSet();
+        keySet = new LinkedSet();
     }
 
     public function get newestKey():*

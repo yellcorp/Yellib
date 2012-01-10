@@ -2,19 +2,19 @@ package test.yellcorp.lib.collections
 {
 import asunit.framework.TestCase;
 
-import org.yellcorp.lib.collections.DequeSet;
+import org.yellcorp.lib.collections.LinkedSet;
 
 
-public class DequeSetTest extends TestCase
+public class LinkedSetTest extends TestCase
 {
-    public function DequeSetTest(testMethod:String = null)
+    public function LinkedSetTest(testMethod:String = null)
     {
         super(testMethod);
     }
 
-    public function testDequeSet():void
+    public function testLinkedSet():void
     {
-        var dset:DequeSet = new DequeSet();
+        var dset:LinkedSet = new LinkedSet();
 
         assertEquals(0, dset.length);
         assertNull(dset.front);
