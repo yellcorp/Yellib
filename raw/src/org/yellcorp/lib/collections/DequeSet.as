@@ -5,6 +5,14 @@ import org.yellcorp.lib.iterators.readonly.Iterator;
 import flash.utils.Dictionary;
 
 
+/**
+ * An ordered set implemented as a doubly-linked list. All members are unique;
+ * if a member that already exists in the DequeSet is inserted, it is moved
+ * from its old position to its new position.  Addition, removal, and
+ * retrieval from either end of the list are constant time.  Membership testing
+ * by value, removal by value and insertion relative to value are also constant
+ * time.  Operations by numeric index are linear time.
+ */
 public class DequeSet
 {
     private var nodeLookup:Dictionary;
@@ -45,23 +53,17 @@ public class DequeSet
         return _back.prev.value;
     }
 
-    public function pushFront(element:*):void
+    public function pushFront(member:*):void
     {
-        if (element == null)
-        {
-            throw new ArgumentError("DequeSet cannot contain null members");
-        }
-        var node:Node = takeNode(element);
+        checkMember(member);
+        var node:Node = takeNode(member);
         Node.insertAfter(_front, node);
     }
 
-    public function pushBack(element:*):void
+    public function pushBack(member:*):void
     {
-        if (element == null)
-        {
-            throw new ArgumentError("DequeSet cannot contain null members");
-        }
-        var node:Node = takeNode(element);
+        checkMember(member);
+        var node:Node = takeNode(member);
         Node.insertBefore(_back, node);
     }
 
@@ -84,19 +86,81 @@ public class DequeSet
         return nodeLookup[query] != null;
     }
 
-    public function remove(element:*):Boolean
+    public function remove(member:*):Boolean
     {
-        var node:Node = nodeLookup[element];
+        var node:Node = nodeLookup[member];
         if (node)
         {
             Node.unlink(node);
-            delete nodeLookup[element];
+            delete nodeLookup[member];
             _length--;
             return true;
         }
         else
         {
             return false;
+        }
+    }
+
+    public function insertAfter(newMember:*, referenceMember:*):void
+    {
+        checkRelativeArguments(newMember, referenceMember);
+        var reference:Node = nodeLookup[referenceMember];
+        var node:Node = takeNode(newMember);
+        Node.insertAfter(reference, node);
+    }
+
+    public function insertBefore(newMember:*, referenceMember:*):void
+    {
+        checkRelativeArguments(newMember, referenceMember);
+        var reference:Node = nodeLookup[referenceMember];
+        var node:Node = takeNode(newMember);
+        Node.insertBefore(reference, node);
+    }
+
+    // O(n) manipulations
+    public function get(index:int):*
+    {
+        return getNodeAtIndex(index).value;
+    }
+
+    public function indexOf(query:*):int
+    {
+        var rover:Node = nodeLookup[query];
+        var index:int = -1;
+        if (rover)
+        {
+            while (rover !== _front)
+            {
+                rover = rover.prev;
+                index++;
+            }
+        }
+        return index;
+    }
+
+    public function removeAt(index:int):*
+    {
+        var memberToRemove:* = get(index);
+        remove(memberToRemove);
+        return memberToRemove;
+    }
+
+    public function insertAt(newMember:*, index:int):void
+    {
+        checkMember(newMember);
+        if (index === 0)
+        {
+            pushFront(newMember);
+        }
+        else if (index >= _length)
+        {
+            pushBack(newMember);
+        }
+        else
+        {
+            var node:Node = takeNode(newMember);
+            Node.insertBefore(getNodeAtIndex(index), node);
         }
     }
 
@@ -115,20 +179,55 @@ public class DequeSet
         return new NodeIterator(_front, _back);
     }
 
-    private function takeNode(element:*):Node
+    private function takeNode(member:*):Node
     {
-        var node:Node = nodeLookup[element];
+        var node:Node = nodeLookup[member];
         if (node)
         {
             Node.unlink(node);
         }
         else
         {
-            node = new Node(element);
-            nodeLookup[element] = node;
+            node = new Node(member);
+            nodeLookup[member] = node;
             _length++;
         }
         return node;
+    }
+
+    private function getNodeAtIndex(index:int):Node
+    {
+        var rover:Node = null;
+        if (index >= 0 && index < _length)
+        {
+            rover = _front.next;
+            for (var i:int = 0; i < index; i++)
+            {
+                rover = rover.next;
+            }
+        }
+        return rover;
+    }
+
+    private function checkMember(newMember:*):void
+    {
+        if (newMember == null)
+        {
+            throw new ArgumentError("DequeSet cannot contain null members");
+        }
+    }
+
+    private function checkRelativeArguments(newMember:*, referenceMember:*):void
+    {
+        checkMember(newMember);
+        if (nodeLookup[referenceMember] == null)
+        {
+            throw new ArgumentError("Reference member does not exist in this DequeSet");
+        }
+        if (newMember === referenceMember)
+        {
+            throw new ArgumentError("Member cannot be specifed relative to itself");
+        }
     }
 }
 }
