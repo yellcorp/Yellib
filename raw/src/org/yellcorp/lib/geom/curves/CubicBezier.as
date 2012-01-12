@@ -130,13 +130,13 @@ public class CubicBezier
 
     public function tangent(t:Number, out:Point):Point
     {
-        out.x = 3 * (-p0.x + p1.x +
-                     t * (2 * p0.x - 4 * p1.x + 2 * p2.x +
-                          t * (-p0.x + 3 * p1.x -3 * p2.x + p3.x)));
+        out.x = 3 * (p1.x - p0.x +
+                     t * (2 * (p0.x - 2 * p1.x + p2.x) +
+                          t * (p3.x - p0.x + 3 * (p1.x - p2.x))));
 
-        out.y = 3 * (-p0.y + p1.y +
-                     t * (2 * p0.y - 4 * p1.y + 2 * p2.y +
-                          t * (-p0.y + 3 * p1.y -3 * p2.y + p3.y)));
+        out.y = 3 * (p1.y - p0.y +
+                     t * (2 * (p0.y - 2 * p1.y + p2.y) +
+                          t * (p3.y - p0.y + 3 * (p1.y - p2.y))));
 
         return out;
     }
