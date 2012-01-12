@@ -121,6 +121,13 @@ public class QuadBezier
         return out;
     }
 
+    public function deriv2(out:Point):Point
+    {
+        out.x = 2 * p0.x - 4 * p1.x + 2 * p2.x;
+        out.y = 2 * p0.x - 4 * p1.y + 2 * p2.y;
+        return out;
+    }
+
     public function split(t:Number, outLow:QuadBezier, outHigh:QuadBezier):void
     {
         var q0x:Number = p0.x + (p1.x - p0.x) * t;
