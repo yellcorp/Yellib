@@ -149,10 +149,10 @@ public class QuadBezier
 
     public function boundingBox(out:Rectangle):Rectangle
     {
-        var minX:Number = Math.min(p0.x, p2.x);
-        var maxX:Number = Math.max(p0.x, p2.x);
-        var minY:Number = Math.min(p0.y, p2.y);
-        var maxY:Number = Math.max(p0.y, p2.y);
+        var minX:Number = p0.x < p2.x ? p0.x : p2.x;
+        var maxX:Number = p0.x > p2.x ? p0.x : p2.x;
+        var minY:Number = p0.y < p2.y ? p0.y : p2.y;
+        var maxY:Number = p0.y > p2.y ? p0.y : p2.y;
 
         var xtExtrema:Number = (p0.x - p1.x) / (p0.x - 2 * p1.x + p2.x);
         var ytExtrema:Number = (p0.y - p1.y) / (p0.y - 2 * p1.y + p2.y);
@@ -163,15 +163,15 @@ public class QuadBezier
         if (xtExtrema > 0 && xtExtrema < 1)
         {
             xExtrema = sampleX(xtExtrema);
-            minX = Math.min(minX, xExtrema);
-            maxX = Math.max(maxX, xExtrema);
+            if (xExtrema < minX)  minX = xExtrema;
+            if (xExtrema > maxX)  maxX = xExtrema;
         }
 
         if (ytExtrema > 0 && ytExtrema < 1)
         {
             yExtrema = sampleY(ytExtrema);
-            minY = Math.min(minY, yExtrema);
-            maxY = Math.max(maxY, yExtrema);
+            if (yExtrema < minY)  minY = yExtrema;
+            if (yExtrema > maxY)  maxY = yExtrema;
         }
 
         out.x = minX;
