@@ -123,28 +123,23 @@ public class QuadBezier
 
     public function split(t:Number, outLow:QuadBezier, outHigh:QuadBezier):void
     {
-        splitLow(t, outLow);
-        splitHigh(t, outHigh);
-    }
+        var q0x:Number = p0.x + (p1.x - p0.x) * t;
+        var q1x:Number = p1.x + (p2.x - p1.x) * t;
+        var rx:Number = q0x + (q1x - q0x) * t;
 
-    public function splitLow(t:Number, out:QuadBezier):QuadBezier
-    {
-        out.p0.x = p0.x;
-        out.p0.y = p0.y;
-        out.p1.x = p0.x + (p1.x - p0.x) * t;
-        out.p1.y = p0.y + (p1.y - p0.y) * t;
-        sample(t, out.p2);
-        return out;
-    }
+        var q0y:Number = p0.y + (p1.y - p0.y) * t;
+        var q1y:Number = p1.y + (p2.y - p1.y) * t;
+        var ry:Number = q0y + (q1y - q0y) * t;
 
-    public function splitHigh(t:Number, out:QuadBezier):QuadBezier
-    {
-        sample(t, out.p0);
-        out.p1.x = p1.x + (p2.x - p1.x) * t;
-        out.p1.y = p1.y + (p2.y - p1.y) * t;
-        out.p2.x = p2.x;
-        out.p2.y = p2.y;
-        return out;
+        if (outLow)
+        {
+            outLow.setCoords(p0.x, p0.y, q0x, q0y, rx, ry);
+        }
+
+        if (outHigh)
+        {
+            outLow.setCoords(rx, ry, q1x, q1y, p2.x, p2.y);
+        }
     }
 
     public function boundingBox(out:Rectangle):Rectangle
