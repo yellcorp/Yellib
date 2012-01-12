@@ -180,7 +180,7 @@ public class CubicBezier
             radicand = a * (d - c) + b * (b - c - d) + c * c;
             if (radicand >= 0)
             {
-                root = (Math.sqrt(radicand) - a + 2 * b - c) / (-a + 3 * (b - c) + d);
+                root = (Math.sqrt(radicand) - a + 2 * b - c) / divisor;
                 out.push(root);
                 if (root != 0) out.push(-root);
             }
