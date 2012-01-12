@@ -180,32 +180,6 @@ public class CubicBezier
         }
     }
 
-    private static function appendFirstDerivRoots(a:Number, b:Number, c:Number, d:Number, out:Array):void
-    {
-        var divisor:Number = -a + 3 * b - 3 * c + d;
-        var radicand:Number;
-        var root:Number;
-
-        if (divisor != 0)
-        {
-            radicand = a * (d - c) + b * (b - c - d) + c * c;
-            if (radicand >= 0)
-            {
-                root = (Math.sqrt(radicand) - a + 2 * b - c) / divisor;
-                out.push(root);
-                if (root != 0) out.push(-root);
-            }
-        }
-        else
-        {
-            divisor = a - 2 * b + c;
-            if (divisor != 0)
-            {
-                out.push((a - b) / (2 * divisor));
-            }
-        }
-    }
-
     public function boundingBox(out:Rectangle):Rectangle
     {
         var xs:Array = [ p0.x, p3.x ];
@@ -240,6 +214,36 @@ public class CubicBezier
         out.height = maxY - minY;
 
         return out;
+    }
+
+    private static function appendFirstDerivRoots(a:Number, b:Number, c:Number, d:Number, out:Array):void
+    {
+        var divisor:Number = a - 3 * (b * c) - d;
+        var a_2b_c:Number = a - 2 * b + c;
+        var radicand:Number;
+
+        if (divisor != 0)
+        {
+            radicand = a * (d - c) + b * (b - c - d) + c * c;
+
+            if (radicand == 0)
+            {
+                out.push(a_2b_c / divisor);
+            }
+            else
+            {
+                var sqrt:Number = Math.sqrt(radicand);
+                out.push( (a_2b_c + sqrt) / divisor,
+                          (a_2b_c - sqrt) / divisor );
+            }
+        }
+        else
+        {
+            if (a_2b_c != 0)
+            {
+                out.push((a - b) / (2 * a_2b_c));
+            }
+        }
     }
 
 /*
