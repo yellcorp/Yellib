@@ -141,33 +141,44 @@ public class CubicBezier
         return out;
     }
 
-/*
     public function split(t:Number, outLow:CubicBezier, outHigh:CubicBezier):void
     {
-        splitLow(t, outLow);
-        splitHigh(t, outHigh);
-    }
+        var q0x:Number = p0.x + (p1.x - p0.x) * t;
+        var q1x:Number = p1.x + (p2.x - p1.x) * t;
+        var q2x:Number = p2.x + (p3.x - p2.x) * t;
 
-    public function splitLow(t:Number, out:CubicBezier):CubicBezier
-    {
-        out.p0.x = p0.x;
-        out.p0.y = p0.y;
-        out.p1.x = p0.x + (p1.x - p0.x) * t;
-        out.p1.y = p0.y + (p1.y - p0.y) * t;
-        sample(t, out.p2);
-        return out;
-    }
+        var r0x:Number = q0x + (q1x - q0x) * t;
+        var r1x:Number = q1x + (q2x - q1x) * t;
 
-    public function splitHigh(t:Number, out:CubicBezier):CubicBezier
-    {
-        sample(t, out.p0);
-        out.p1.x = p1.x + (p2.x - p1.x) * t;
-        out.p1.y = p1.y + (p2.y - p1.y) * t;
-        out.p2.x = p2.x;
-        out.p2.y = p2.y;
-        return out;
+        var sx:Number = r0x + (r1x - r0x) * t;
+
+        var q0y:Number = p0.y + (p1.y - p0.y) * t;
+        var q1y:Number = p1.y + (p2.y - p1.y) * t;
+        var q2y:Number = p2.y + (p3.y - p2.y) * t;
+
+        var r0y:Number = q0y + (q1y - q0y) * t;
+        var r1y:Number = q1y + (q2y - q1y) * t;
+
+        var sy:Number = r0y + (r1y - r0y) * t;
+
+        if (outLow)
+        {
+            outLow.setCoords(
+                p0.x, p0.y,
+                q0x,  q0y,
+                r0x,  r0y,
+                sx,   sy);
+        }
+
+        if (outHigh)
+        {
+            outHigh.setCoords(
+                sx,   sy,
+                r1x,  r1y,
+                q2x,  q2y,
+                p3.x, p3.y);
+        }
     }
-     */
 
     private static function appendFirstDerivRoots(a:Number, b:Number, c:Number, d:Number, out:Array):void
     {
