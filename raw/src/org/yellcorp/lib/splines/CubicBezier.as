@@ -101,31 +101,19 @@ public class CubicBezier
 
     public function sample(t:Number, out:Point):Point
     {
-        var u:Number = 1 - t;
-        var uu:Number = u * u;
-        var tt:Number = t * t;
-
-        out.x = uu * (u * p0.x + 3 * t * p1.x) +
-                tt * (3 * u * p2.x + t * p3.x);
-
-        out.y = uu * (u * p0.y + 3 * t * p1.y) +
-                tt * (3 * u * p2.y + t * p3.y);
-
+        out.x = sampleX(t);
+        out.y = sampleY(t);
         return out;
     }
 
     public function sampleX(t:Number):Number
     {
-        var u:Number = 1 - t;
-        return u * u * (u * p0.x + 3 * t * p1.x) +
-               t * t * (3 * u * p2.x + t * p3.x);
+        return evaluate(p0.x, p1.x, p2.x, p3.x, t);
     }
 
     public function sampleY(t:Number):Number
     {
-        var u:Number = 1 - t;
-        return u * u * (u * p0.y + 3 * t * p1.y) +
-               t * t * (3 * u * p2.y + t * p3.y);
+        return evaluate(p0.y, p1.y, p2.y, p3.y, t);
     }
 
     public function tangent(t:Number, out:Point):Point
@@ -274,5 +262,13 @@ public class CubicBezier
         target.lineTo(p2.x, p2.y);
     }
      */
+
+    public static function evaluate(a:Number, b:Number, c:Number, d:Number, t:Number):Number
+    {
+        var i:Number = 3 * (b - a);
+        var j:Number = 3 * (c - b) - i;
+        var k:Number = d - a - i - j;
+        return a + t * (i + t * (j + t * k));
+    }
 }
 }

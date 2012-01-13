@@ -93,24 +93,19 @@ public class QuadBezier
 
     public function sample(t:Number, out:Point):Point
     {
-        var u:Number = 1 - t;
-
-        out.x = u * (p0.x * u + p1.x * t * 2) + p2.x * t * t;
-        out.y = u * (p0.y * u + p1.y * t * 2) + p2.y * t * t;
-
+        out.x = sampleX(t);
+        out.y = sampleY(t);
         return out;
     }
 
     public function sampleX(t:Number):Number
     {
-        var u:Number = 1 - t;
-        return u * (p0.x * u + p1.x * t * 2) + p2.x * t * t;
+        return evaluate(p0.x, p1.x, p2.x, t);
     }
 
     public function sampleY(t:Number):Number
     {
-        var u:Number = 1 - t;
-        return u * (p0.y * u + p1.y * t * 2) + p2.y * t * t;
+        return evaluate(p0.y, p1.y, p2.y, t);
     }
 
     public function tangent(t:Number, out:Point):Point
@@ -200,6 +195,13 @@ public class QuadBezier
         target.moveTo(p0.x, p0.y);
         target.lineTo(p1.x, p1.y);
         target.lineTo(p2.x, p2.y);
+    }
+
+    public static function evaluate(a:Number, b:Number, c:Number, t:Number):Number
+    {
+        var i:Number = 2 * (b - a);
+        var j:Number = c - i - a;
+        return a + t * (i + t * j);
     }
 }
 }
