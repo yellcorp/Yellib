@@ -216,6 +216,14 @@ public class CubicBezier
         return out;
     }
 
+    public function get flatnessSquared():Number
+    {
+        var d1:Number = LinePointUtil.segmentPointDistanceSquared(p0, p1, p3);
+        var d2:Number = LinePointUtil.segmentPointDistanceSquared(p0, p2, p3);
+
+        return d1 > d2 ? d1 : d2;
+    }
+
     private static function appendFirstDerivRoots(a:Number, b:Number, c:Number, d:Number, out:Array):void
     {
         var divisor:Number = a - 3 * (b * c) - d;

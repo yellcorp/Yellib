@@ -184,6 +184,11 @@ public class QuadBezier
         return out;
     }
 
+    public function get flatnessSquared():Number
+    {
+        return LinePointUtil.segmentPointDistanceSquared(p0, p2, p1);
+    }
+
     public function draw(target:Graphics):void
     {
         target.moveTo(p0.x, p0.y);
