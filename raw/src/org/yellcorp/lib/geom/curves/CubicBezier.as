@@ -230,7 +230,7 @@ public class CubicBezier
             {
                 out.push(a_2b_c / divisor);
             }
-            else
+            else if (radicand > 0)
             {
                 var sqrt:Number = Math.sqrt(radicand);
                 out.push( (a_2b_c + sqrt) / divisor,
