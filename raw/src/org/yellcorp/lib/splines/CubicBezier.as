@@ -270,5 +270,26 @@ public class CubicBezier
         var k:Number = d - a - i - j;
         return a + t * (i + t * (j + t * k));
     }
+
+    public static function evaluate_dt(a:Number, b:Number, c:Number, d:Number, t:Number):Number
+    {
+        var i:Number = 3 * (b - a);
+        var j:Number = 3 * (c - b) - i;
+        var k:Number = 3 * (d - a - i - j);
+        return i + t * (2 * j + t * k);
+    }
+
+    public static function evaluate_d2t(a:Number, b:Number, c:Number, d:Number, t:Number):Number
+    {
+        var i:Number = 3 * (b - a);
+        var j:Number = 3 * (c - b) - i;
+        var k:Number = 3 * (d - a - i - j);
+        return 2 * (j + t * k);
+    }
+
+    public static function evaluate_d3t(a:Number, b:Number, c:Number, d:Number):Number
+    {
+        return 6 * (d - a + 3 * (b - c));
+    }
 }
 }

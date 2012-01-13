@@ -93,8 +93,8 @@ public class QuadBezier
 
     public function sample(t:Number, out:Point):Point
     {
-        out.x = sampleX(t);
-        out.y = sampleY(t);
+        out.x = evaluate(p0.x, p1.x, p2.x, t);
+        out.y = evaluate(p0.y, p1.y, p2.y, t);
         return out;
     }
 
@@ -108,18 +108,17 @@ public class QuadBezier
         return evaluate(p0.y, p1.y, p2.y, t);
     }
 
-    public function tangent(t:Number, out:Point):Point
+    public function derivative(t:Number, out:Point):Point
     {
-        var u:Number = 1 - t;
-        out.x = 2 * ((p1.x - p0.x) * u + (p2.x - p1.x) * t);
-        out.y = 2 * ((p1.y - p0.y) * u + (p2.y - p1.y) * t);
+        out.x = evaluate_dt(p0.x, p1.x, p2.x, t);
+        out.y = evaluate_dt(p0.y, p1.y, p2.y, t);
         return out;
     }
 
-    public function deriv2(out:Point):Point
+    public function derivative2(out:Point):Point
     {
-        out.x = 2 * p0.x - 4 * p1.x + 2 * p2.x;
-        out.y = 2 * p0.x - 4 * p1.y + 2 * p2.y;
+        out.x = evaluate_d2t(p0.x, p1.x, p2.x);
+        out.y = evaluate_d2t(p0.y, p1.y, p2.y);
         return out;
     }
 
@@ -202,6 +201,17 @@ public class QuadBezier
         var i:Number = 2 * (b - a);
         var j:Number = c - i - a;
         return a + t * (i + t * j);
+    }
+
+    public static function evaluate_dt(a:Number, b:Number, c:Number, t:Number):Number
+    {
+        var i:Number = 2 * (b - a);
+        return i + t * (2 * (c - b) - i);
+    }
+
+    public static function evaluate_d2t(a:Number, b:Number, c:Number):Number
+    {
+        return 2 * (a - 2 * b + c);
     }
 }
 }
