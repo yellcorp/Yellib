@@ -291,5 +291,10 @@ public class CubicBezier
             }
         }
     }
+
+    public static function solve_d2t(a:Number, b:Number, c:Number, d:Number):Number
+    {
+        return (a - 2 * b + c) / (a + 3 * (c - b) - d);
+    }
 }
 }
