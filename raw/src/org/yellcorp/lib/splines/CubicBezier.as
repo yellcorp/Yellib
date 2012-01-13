@@ -214,7 +214,7 @@ public class CubicBezier
 
     private static function appendFirstDerivRoots(a:Number, b:Number, c:Number, d:Number, out:Array):void
     {
-        var divisor:Number = a - 3 * (b * c) - d;
+        var divisor:Number = a + 3 * (c - b) - d;
         var a_2b_c:Number = a - 2 * b + c;
         var radicand:Number;
 
@@ -239,7 +239,7 @@ public class CubicBezier
         }
         else
         {
-            // if the divisor == 0, then d == a - 3 * (b * c), in which
+            // if the divisor == 0, then d == a + 3 * (c - b), in which
             // case the solution simplifies to the following:
             if (a_2b_c != 0)
             {
