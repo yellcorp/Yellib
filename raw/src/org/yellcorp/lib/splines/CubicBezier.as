@@ -265,26 +265,26 @@ public class CubicBezier
 
     public static function evaluate(a:Number, b:Number, c:Number, d:Number, t:Number):Number
     {
-        var i:Number = 3 * (b - a);
-        var j:Number = 3 * (c - b) - i;
-        var k:Number = d - a - i - j;
-        return a + t * (i + t * (j + t * k));
+        var p:Number = 3 * (b - a);
+        var q:Number = 3 * (c - b) - p;
+        var r:Number = d - a - p - q;
+        return a + t * (p + t * (q + t * r));
     }
 
     public static function evaluate_dt(a:Number, b:Number, c:Number, d:Number, t:Number):Number
     {
-        var i:Number = 3 * (b - a);
-        var j:Number = 3 * (c - b) - i;
-        var k:Number = 3 * (d - a - i - j);
-        return i + t * (2 * j + t * k);
+        var p:Number = 3 * (b - a);
+        var q:Number = 3 * (c - b) - p;
+        var r:Number = 3 * (d - a - p - q);
+        return p + t * (2 * q + t * r);
     }
 
     public static function evaluate_d2t(a:Number, b:Number, c:Number, d:Number, t:Number):Number
     {
-        var i:Number = 3 * (b - a);
-        var j:Number = 3 * (c - b) - i;
-        var k:Number = 3 * (d - a - i - j);
-        return 2 * (j + t * k);
+        var p:Number = 3 * (b - a);
+        var q:Number = 3 * (c - b) - p;
+        var r:Number = 3 * (d - a - p - q);
+        return 2 * (q + t * r);
     }
 
     public static function evaluate_d3t(a:Number, b:Number, c:Number, d:Number):Number

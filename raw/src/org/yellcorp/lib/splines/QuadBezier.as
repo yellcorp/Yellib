@@ -198,15 +198,15 @@ public class QuadBezier
 
     public static function evaluate(a:Number, b:Number, c:Number, t:Number):Number
     {
-        var i:Number = 2 * (b - a);
-        var j:Number = c - i - a;
-        return a + t * (i + t * j);
+        var p:Number = 2 * (b - a);
+        var q:Number = c - p - a;
+        return a + t * (p + t * q);
     }
 
     public static function evaluate_dt(a:Number, b:Number, c:Number, t:Number):Number
     {
-        var i:Number = 2 * (b - a);
-        return i + t * (2 * (c - b) - i);
+        var p:Number = 2 * (b - a);
+        return p + t * (2 * (c - b) - p);
     }
 
     public static function evaluate_d2t(a:Number, b:Number, c:Number):Number
