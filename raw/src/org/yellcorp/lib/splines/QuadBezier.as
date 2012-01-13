@@ -150,8 +150,8 @@ public class QuadBezier
         var minY:Number = p0.y < p2.y ? p0.y : p2.y;
         var maxY:Number = p0.y > p2.y ? p0.y : p2.y;
 
-        var xtExtrema:Number = (p0.x - p1.x) / (p0.x - 2 * p1.x + p2.x);
-        var ytExtrema:Number = (p0.y - p1.y) / (p0.y - 2 * p1.y + p2.y);
+        var xtExtrema:Number = solve_dt(p0.x, p1.x, p2.x);
+        var ytExtrema:Number = solve_dt(p0.y, p1.y, p2.y);
 
         var xExtrema:Number;
         var yExtrema:Number;
@@ -212,6 +212,11 @@ public class QuadBezier
     public static function evaluate_d2t(a:Number, b:Number, c:Number):Number
     {
         return 2 * (a - 2 * b + c);
+    }
+
+    public static function solve_dt(a:Number, b:Number, c:Number):Number
+    {
+        return (a - b) / (a - 2 * b + c);
     }
 }
 }

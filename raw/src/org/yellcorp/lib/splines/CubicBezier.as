@@ -178,8 +178,8 @@ public class CubicBezier
 
         var t:Number;
 
-        appendFirstDerivRoots(p0.x, p1.x, p2.x, p3.x, xtExtrema);
-        appendFirstDerivRoots(p0.y, p1.y, p2.y, p3.y, ytExtrema);
+        solve_dt(p0.x, p1.x, p2.x, p3.x, xtExtrema);
+        solve_dt(p0.y, p1.y, p2.y, p3.y, ytExtrema);
 
         for each (t in xtExtrema)
         {
@@ -210,42 +210,6 @@ public class CubicBezier
         var d2:Number = LinePointUtil.segmentPointDistanceSquared(p0, p2, p3);
 
         return d1 > d2 ? d1 : d2;
-    }
-
-    private static function appendFirstDerivRoots(a:Number, b:Number, c:Number, d:Number, out:Array):void
-    {
-        var divisor:Number = a + 3 * (c - b) - d;
-        var a_2b_c:Number = a - 2 * b + c;
-        var radicand:Number;
-
-        if (divisor != 0)
-        {
-            // the part under the square root sign. need to check
-            // this isn't negative
-            radicand = a * (d - c) + b * (b - c - d) + c * c;
-
-            // if it's 0, then the +/- doesn't change the sum, push one root
-            if (radicand == 0)
-            {
-                out.push(a_2b_c / divisor);
-            }
-            // otherwise push the + and - solution
-            else if (radicand > 0)
-            {
-                var sqrt:Number = Math.sqrt(radicand);
-                out.push( (a_2b_c + sqrt) / divisor,
-                          (a_2b_c - sqrt) / divisor );
-            }
-        }
-        else
-        {
-            // if the divisor == 0, then d == a + 3 * (c - b), in which
-            // case the solution simplifies to the following:
-            if (a_2b_c != 0)
-            {
-                out.push((a - b) / (2 * a_2b_c));
-            }
-        }
     }
 
 /*
@@ -290,6 +254,42 @@ public class CubicBezier
     public static function evaluate_d3t(a:Number, b:Number, c:Number, d:Number):Number
     {
         return 6 * (d - a + 3 * (b - c));
+    }
+
+    public static function solve_dt(a:Number, b:Number, c:Number, d:Number, out:Array):void
+    {
+        var divisor:Number = a + 3 * (c - b) - d;
+        var a_2b_c:Number = a - 2 * b + c;
+        var radicand:Number;
+
+        if (divisor != 0)
+        {
+            // the part under the square root sign. need to check
+            // this isn't negative
+            radicand = a * (d - c) + b * (b - c - d) + c * c;
+
+            // if it's 0, then the +/- doesn't change the sum, push one root
+            if (radicand == 0)
+            {
+                out.push(a_2b_c / divisor);
+            }
+            // otherwise push the + and - solution
+            else if (radicand > 0)
+            {
+                var sqrt:Number = Math.sqrt(radicand);
+                out.push( (a_2b_c + sqrt) / divisor,
+                          (a_2b_c - sqrt) / divisor );
+            }
+        }
+        else
+        {
+            // if the divisor == 0, then d == a + 3 * (c - b), in which
+            // case the solution simplifies to the following:
+            if (a_2b_c != 0)
+            {
+                out.push((a - b) / (2 * a_2b_c));
+            }
+        }
     }
 }
 }
