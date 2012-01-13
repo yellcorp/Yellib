@@ -258,11 +258,11 @@ public class CubicBezier
 
     public static function solve_dt(a:Number, b:Number, c:Number, d:Number, out:Array):void
     {
-        var divisor:Number = a + 3 * (c - b) - d;
-        var a_2b_c:Number = a - 2 * b + c;
+        var cubicFactor:Number = a + 3 * (c - b) - d;
+        var quadFactor:Number = a - 2 * b + c;
         var radicand:Number;
 
-        if (divisor != 0)
+        if (cubicFactor != 0)
         {
             // the part under the square root sign. need to check
             // this isn't negative
@@ -271,25 +271,26 @@ public class CubicBezier
             // if it's 0, then the +/- doesn't change the sum, push one root
             if (radicand == 0)
             {
-                out.push(a_2b_c / divisor);
+                out.push(quadFactor / cubicFactor);
             }
             // otherwise push the + and - solution
             else if (radicand > 0)
             {
                 var sqrt:Number = Math.sqrt(radicand);
-                out.push( (a_2b_c + sqrt) / divisor,
-                          (a_2b_c - sqrt) / divisor );
+                out.push( (quadFactor + sqrt) / cubicFactor,
+                          (quadFactor - sqrt) / cubicFactor );
             }
         }
-        else
+        else if (quadFactor != 0)
         {
-            // if the divisor == 0, then d == a + 3 * (c - b), in which
+            // if the cubicFactor == 0, then d == a + 3 * (c - b), in which
             // case the solution simplifies to the following:
-            if (a_2b_c != 0)
-            {
-                out.push((a - b) / (2 * a_2b_c));
-            }
+
+            // note when cubicFactor == 0 this curve can be represented
+            // by a quadratic bezier
+            out.push((a - b) / (2 * quadFactor));
         }
+        // else this curve represents a uniform line segment
     }
 
     public static function solve_d2t(a:Number, b:Number, c:Number, d:Number):Number
