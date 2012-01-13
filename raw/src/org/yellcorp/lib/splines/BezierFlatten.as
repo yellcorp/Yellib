@@ -1,5 +1,6 @@
-package org.yellcorp.lib.geom.curves
+package org.yellcorp.lib.splines
 {
+import org.yellcorp.lib.splines.streams.CurveStream;
 
 
 public class BezierFlatten

@@ -1,4 +1,4 @@
-package org.yellcorp.lib.geom.curves
+package org.yellcorp.lib.splines
 {
 import flash.display.Graphics;
 import flash.geom.Point;
