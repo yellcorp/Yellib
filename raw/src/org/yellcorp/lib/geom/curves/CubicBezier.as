@@ -224,12 +224,16 @@ public class CubicBezier
 
         if (divisor != 0)
         {
+            // the part under the square root sign. need to check
+            // this isn't negative
             radicand = a * (d - c) + b * (b - c - d) + c * c;
 
+            // if it's 0, then the +/- doesn't change the sum, push one root
             if (radicand == 0)
             {
                 out.push(a_2b_c / divisor);
             }
+            // otherwise push the + and - solution
             else if (radicand > 0)
             {
                 var sqrt:Number = Math.sqrt(radicand);
@@ -239,6 +243,8 @@ public class CubicBezier
         }
         else
         {
+            // if the divisor == 0, then d == a - 3 * (b * c), in which
+            // case the solution simplifies to the following:
             if (a_2b_c != 0)
             {
                 out.push((a - b) / (2 * a_2b_c));
