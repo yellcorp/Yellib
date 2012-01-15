@@ -1,11 +1,11 @@
 package org.yellcorp.lib.splines
 {
-import org.yellcorp.lib.splines.streams.CurveStream;
+import org.yellcorp.lib.splines.streams.SplineStream;
 
 
 public class BezierFlatten
 {
-    public static function flattenQuad(spline:QuadBezier, threshold:Number, out:CurveStream):void
+    public static function flattenQuad(spline:QuadBezier, threshold:Number, out:SplineStream):void
     {
         var root:TreeNode = new TreeNode();
         root.content = spline;
@@ -13,7 +13,7 @@ public class BezierFlatten
         flattenQuadRecurse(root, threshold * threshold, out);
     }
 
-    private static function flattenQuadRecurse(node:TreeNode, sqThreshold:Number, out:CurveStream):void
+    private static function flattenQuadRecurse(node:TreeNode, sqThreshold:Number, out:SplineStream):void
     {
         var spline:QuadBezier = node.content;
         if (spline.flatnessSquared > sqThreshold)
@@ -32,7 +32,7 @@ public class BezierFlatten
         }
     }
 
-    public static function cubicToPolyQuad(spline:CubicBezier, threshold:Number, out:CurveStream):void
+    public static function cubicToPolyQuad(spline:CubicBezier, threshold:Number, out:SplineStream):void
     {
         var root:TreeNode = new TreeNode();
         root.content = spline;
@@ -40,7 +40,7 @@ public class BezierFlatten
         cubicToPolyQuadRecurse(root, threshold * threshold, out);
     }
 
-    private static function cubicToPolyQuadRecurse(node:TreeNode, sqThreshold:Number, out:CurveStream):void
+    private static function cubicToPolyQuadRecurse(node:TreeNode, sqThreshold:Number, out:SplineStream):void
     {
         var spline:CubicBezier = node.content;
         var qx:Number, qy:Number;

@@ -3,7 +3,7 @@ package org.yellcorp.lib.splines.streams
 import flash.display.Graphics;
 
 
-public class GraphicsStream implements CurveStream
+public class GraphicsStream implements SplineStream
 {
     public var target:Graphics;
 

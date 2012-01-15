@@ -4,7 +4,7 @@ import org.yellcorp.lib.splines.BezierElevation;
 import org.yellcorp.lib.splines.QuadBezier;
 
 
-public class QuadBezierStream implements CurveStream
+public class QuadBezierStream implements SplineStream
 {
     public var splines:Vector.<QuadBezier> = new Vector.<QuadBezier>();
 
