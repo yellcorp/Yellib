@@ -1,5 +1,7 @@
 package org.yellcorp.lib.splines
 {
+import org.yellcorp.lib.splines.streams.GraphicsStream;
+
 import flash.display.Graphics;
 import flash.geom.Point;
 import flash.geom.Rectangle;
@@ -212,11 +214,9 @@ public class CubicBezier
         return d1 > d2 ? d1 : d2;
     }
 
-/*
-    public function draw(target:Graphics):void
+    public function draw(target:Graphics, threshold:Number = 0.5):void
     {
-        target.moveTo(p0.x, p0.y);
-        target.curveTo(p1.x, p1.y, p2.x, p2.y);
+        BezierFlatten.cubicToPolyQuad(this, threshold, new GraphicsStream(target));
     }
 
     public function drawHull(target:Graphics):void
@@ -224,8 +224,8 @@ public class CubicBezier
         target.moveTo(p0.x, p0.y);
         target.lineTo(p1.x, p1.y);
         target.lineTo(p2.x, p2.y);
+        target.lineTo(p3.x, p3.y);
     }
-     */
 
     public static function evaluate(a:Number, b:Number, c:Number, d:Number, t:Number):Number
     {
