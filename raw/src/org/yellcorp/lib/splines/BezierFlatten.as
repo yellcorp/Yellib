@@ -13,18 +13,18 @@ public class BezierFlatten
         flattenQuadRecurse(root, threshold * threshold, out);
     }
 
-    private static function flattenQuadRecurse(node:TreeNode, threshold:Number, out:CurveStream):void
+    private static function flattenQuadRecurse(node:TreeNode, sqThreshold:Number, out:CurveStream):void
     {
         var spline:QuadBezier = node.content;
-        if (spline.flatnessSquared > threshold)
+        if (spline.flatnessSquared > sqThreshold)
         {
             node.left = new TreeNode();
             node.left.content = QuadBezier.create();
             node.right = new TreeNode();
             node.right.content = QuadBezier.create();
             spline.split(0.5, node.left.content, node.right.content);
-            flattenQuadRecurse(node.left, threshold, out);
-            flattenQuadRecurse(node.right, threshold, out);
+            flattenQuadRecurse(node.left, sqThreshold, out);
+            flattenQuadRecurse(node.right, sqThreshold, out);
         }
         else
         {
