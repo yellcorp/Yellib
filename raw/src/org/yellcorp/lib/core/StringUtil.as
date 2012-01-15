@@ -5,7 +5,7 @@ public class StringUtil
     public static const WHITESPACE:RegExp = /[\s\0]+/g;
     public static const LEADING_WHITESPACE:RegExp = /^[\s\0]+/;
     public static const TRAILING_WHITESPACE:RegExp = /[\s\0]+$/;
-    public static const ENTIRELY_WHITESPACE:RegExp = /^[\s\0]+$/;
+    public static const ENTIRELY_WHITESPACE:RegExp = /^[\s\0]*$/;
 
 
     /**
