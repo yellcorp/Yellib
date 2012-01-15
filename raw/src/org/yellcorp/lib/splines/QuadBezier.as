@@ -1,4 +1,4 @@
-package org.yellcorp.lib.geom.curves
+package org.yellcorp.lib.splines
 {
 import flash.display.Graphics;
 import flash.geom.Point;
@@ -93,69 +93,65 @@ public class QuadBezier
 
     public function sample(t:Number, out:Point):Point
     {
-        var u:Number = 1 - t;
-
-        out.x = u * (p0.x * u + p1.x * t * 2) + p2.x * t * t;
-        out.y = u * (p0.y * u + p1.y * t * 2) + p2.y * t * t;
-
+        out.x = evaluate(p0.x, p1.x, p2.x, t);
+        out.y = evaluate(p0.y, p1.y, p2.y, t);
         return out;
     }
 
     public function sampleX(t:Number):Number
     {
-        var u:Number = 1 - t;
-        return u * (p0.x * u + p1.x * t * 2) + p2.x * t * t;
+        return evaluate(p0.x, p1.x, p2.x, t);
     }
 
     public function sampleY(t:Number):Number
     {
-        var u:Number = 1 - t;
-        return u * (p0.y * u + p1.y * t * 2) + p2.y * t * t;
+        return evaluate(p0.y, p1.y, p2.y, t);
     }
 
-    public function tangent(t:Number, out:Point):Point
+    public function derivative(t:Number, out:Point):Point
     {
-        var u:Number = 1 - t;
-        out.x = 2 * ((p1.x - p0.x) * u + (p2.x - p1.x) * t);
-        out.y = 2 * ((p1.y - p0.y) * u + (p2.y - p1.y) * t);
+        out.x = evaluate_dt(p0.x, p1.x, p2.x, t);
+        out.y = evaluate_dt(p0.y, p1.y, p2.y, t);
+        return out;
+    }
+
+    public function derivative2(out:Point):Point
+    {
+        out.x = evaluate_d2t(p0.x, p1.x, p2.x);
+        out.y = evaluate_d2t(p0.y, p1.y, p2.y);
         return out;
     }
 
     public function split(t:Number, outLow:QuadBezier, outHigh:QuadBezier):void
     {
-        splitLow(t, outLow);
-        splitHigh(t, outHigh);
-    }
+        var q0x:Number = p0.x + (p1.x - p0.x) * t;
+        var q1x:Number = p1.x + (p2.x - p1.x) * t;
+        var rx:Number = q0x + (q1x - q0x) * t;
 
-    public function splitLow(t:Number, out:QuadBezier):QuadBezier
-    {
-        out.p0.x = p0.x;
-        out.p0.y = p0.y;
-        out.p1.x = p0.x + (p1.x - p0.x) * t;
-        out.p1.y = p0.y + (p1.y - p0.y) * t;
-        sample(t, out.p2);
-        return out;
-    }
+        var q0y:Number = p0.y + (p1.y - p0.y) * t;
+        var q1y:Number = p1.y + (p2.y - p1.y) * t;
+        var ry:Number = q0y + (q1y - q0y) * t;
 
-    public function splitHigh(t:Number, out:QuadBezier):QuadBezier
-    {
-        sample(t, out.p0);
-        out.p1.x = p1.x + (p2.x - p1.x) * t;
-        out.p1.y = p1.y + (p2.y - p1.y) * t;
-        out.p2.x = p2.x;
-        out.p2.y = p2.y;
-        return out;
+        if (outLow)
+        {
+            outLow.setCoords(p0.x, p0.y, q0x, q0y, rx, ry);
+        }
+
+        if (outHigh)
+        {
+            outLow.setCoords(rx, ry, q1x, q1y, p2.x, p2.y);
+        }
     }
 
     public function boundingBox(out:Rectangle):Rectangle
     {
-        var minX:Number = Math.min(p0.x, p2.x);
-        var maxX:Number = Math.max(p0.x, p2.x);
-        var minY:Number = Math.min(p0.y, p2.y);
-        var maxY:Number = Math.max(p0.y, p2.y);
+        var minX:Number = p0.x < p2.x ? p0.x : p2.x;
+        var maxX:Number = p0.x > p2.x ? p0.x : p2.x;
+        var minY:Number = p0.y < p2.y ? p0.y : p2.y;
+        var maxY:Number = p0.y > p2.y ? p0.y : p2.y;
 
-        var xtExtrema:Number = (p0.x - p1.x) / (p0.x - 2 * p1.x + p2.x);
-        var ytExtrema:Number = (p0.y - p1.y) / (p0.y - 2 * p1.y + p2.y);
+        var xtExtrema:Number = solve_dt(p0.x, p1.x, p2.x);
+        var ytExtrema:Number = solve_dt(p0.y, p1.y, p2.y);
 
         var xExtrema:Number;
         var yExtrema:Number;
@@ -163,15 +159,15 @@ public class QuadBezier
         if (xtExtrema > 0 && xtExtrema < 1)
         {
             xExtrema = sampleX(xtExtrema);
-            minX = Math.min(minX, xExtrema);
-            maxX = Math.max(maxX, xExtrema);
+            if (xExtrema < minX)  minX = xExtrema;
+            if (xExtrema > maxX)  maxX = xExtrema;
         }
 
         if (ytExtrema > 0 && ytExtrema < 1)
         {
             yExtrema = sampleY(ytExtrema);
-            minY = Math.min(minY, yExtrema);
-            maxY = Math.max(maxY, yExtrema);
+            if (yExtrema < minY)  minY = yExtrema;
+            if (yExtrema > maxY)  maxY = yExtrema;
         }
 
         out.x = minX;
@@ -180,6 +176,11 @@ public class QuadBezier
         out.height = maxY - minY;
 
         return out;
+    }
+
+    public function get flatnessSquared():Number
+    {
+        return LinePointUtil.segmentPointDistanceSquared(p0, p2, p1);
     }
 
     public function draw(target:Graphics):void
@@ -193,6 +194,29 @@ public class QuadBezier
         target.moveTo(p0.x, p0.y);
         target.lineTo(p1.x, p1.y);
         target.lineTo(p2.x, p2.y);
+    }
+
+    public static function evaluate(a:Number, b:Number, c:Number, t:Number):Number
+    {
+        var p:Number = 2 * (b - a);
+        var q:Number = c - p - a;
+        return a + t * (p + t * q);
+    }
+
+    public static function evaluate_dt(a:Number, b:Number, c:Number, t:Number):Number
+    {
+        var p:Number = 2 * (b - a);
+        return p + t * (2 * (c - b) - p);
+    }
+
+    public static function evaluate_d2t(a:Number, b:Number, c:Number):Number
+    {
+        return 2 * (a - 2 * b + c);
+    }
+
+    public static function solve_dt(a:Number, b:Number, c:Number):Number
+    {
+        return (a - b) / (a - 2 * b + c);
     }
 }
 }
