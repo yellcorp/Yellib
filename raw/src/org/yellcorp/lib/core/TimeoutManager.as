@@ -1,6 +1,6 @@
 package org.yellcorp.lib.core
 {
-import org.yellcorp.lib.error.AssertError;
+import org.yellcorp.lib.error.assert;
 
 import flash.utils.clearTimeout;
 import flash.utils.setTimeout;
@@ -243,7 +243,7 @@ public class TimeoutManager
         var args:Array = record.arguments || [ ];
         var func:Function = record.func;
 
-        AssertError.assert(Boolean(record), "No record with id " + id);
+        assert(Boolean(record), "No record with id " + id);
 
         delete timeouts[id];
         func.apply(null, args);

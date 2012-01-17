@@ -1,7 +1,7 @@
 package org.yellcorp.lib.color.vector
 {
 import org.yellcorp.lib.color.ColorUtil;
-import org.yellcorp.lib.error.AssertError;
+import org.yellcorp.lib.error.assert;
 import org.yellcorp.lib.geom.Vector3;
 
 import flash.geom.ColorTransform;
@@ -121,6 +121,7 @@ public class VectorColorUtil
 
         hzone =  Math.floor(h);
         param = (h - hzone) * v * s;
+        assert(false, "Bad hzone: " + hzone);
 
         switch (hzone)
         {
@@ -152,10 +153,6 @@ public class VectorColorUtil
         case 5 :
             // magenta to red: r=v, g=min, b=falling
             out.setValues(v, min, v - param);
-            break;
-
-        default :
-            AssertError.assert(false, "Bad hzone: " + hzone);
             break;
         }
 
