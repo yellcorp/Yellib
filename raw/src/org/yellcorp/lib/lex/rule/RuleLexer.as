@@ -1,7 +1,7 @@
 package org.yellcorp.lib.lex.rule
 {
 import org.yellcorp.lib.core.StringUtil;
-import org.yellcorp.lib.error.AssertError;
+import org.yellcorp.lib.error.assert;
 
 
 public class RuleLexer
@@ -115,7 +115,7 @@ public class RuleLexer
             }
         }
 
-        AssertError.assert(token.type !== null, "All capturing groups were undefined");
+        assert(token.type !== null, "All capturing groups were undefined");
 
         nextMatch = null;
         return token;

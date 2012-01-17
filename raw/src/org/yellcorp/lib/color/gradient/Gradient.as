@@ -1,6 +1,6 @@
 package org.yellcorp.lib.color.gradient
 {
-import org.yellcorp.lib.error.AssertError;
+import org.yellcorp.lib.error.assert;
 
 
 public class Gradient implements GraphicsGradient
@@ -139,7 +139,7 @@ public class Gradient implements GraphicsGradient
                     lowIndex = pivotIndex;
                 }
             }
-            AssertError.assert(false, "Too many iterations in binary search");
+            assert(false, "Too many iterations in binary search");
             return -1;
         }
     }

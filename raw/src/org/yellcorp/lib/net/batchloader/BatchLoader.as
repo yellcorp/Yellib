@@ -2,7 +2,7 @@ package org.yellcorp.lib.net.batchloader
 {
 import org.yellcorp.lib.core.MapUtil;
 import org.yellcorp.lib.core.Set;
-import org.yellcorp.lib.error.AssertError;
+import org.yellcorp.lib.error.assert;
 import org.yellcorp.lib.net.batchloader.adapters.BatchLoaderAdapter;
 import org.yellcorp.lib.net.batchloader.events.BatchItemErrorEvent;
 import org.yellcorp.lib.net.batchloader.events.BatchItemEvent;
@@ -461,7 +461,7 @@ public class BatchLoader extends EventDispatcher
     private function getMetadata(loader:BatchLoaderAdapter):LoaderMetadata
     {
         var meta:LoaderMetadata = loaderToMetadataLookup[loader];
-        AssertError.assert(meta != null, "No metadata for loader " + loader);
+        assert(meta != null, "No metadata for loader " + loader);
         return meta;
     }
 
