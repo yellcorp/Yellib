@@ -17,14 +17,14 @@ public class FitUtil
      * calculate a result that is always smaller or equal to the target
      * area. One of the axes of the result may not fully span the target.
      */
-    public static const INSIDE:String = "fit";
+    public static const INSIDE:String = "inside";
 
     /**
      * Constant value that directs the <code>fitRect</code> function to
      * calculate a result that is always larget or equal to the target
      * area. One of the axes of the result may exceed the target area.
      */
-    public static const OUTSIDE:String = "fill";
+    public static const OUTSIDE:String = "outside";
 
     /**
      * Scales one rectangle to fit or fill another rectangle.
