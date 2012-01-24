@@ -173,7 +173,7 @@ public class DisplayInjector
         catch (die:DisplayInjectorError)
         {
             die.property = property.@name;
-            if (!args.optional)
+            if (args.optional === null)
             {
                 throw die;
             }
