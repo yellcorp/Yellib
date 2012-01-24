@@ -17,29 +17,19 @@ import flash.geom.Rectangle;
 public class DisplayUtil
 {
     /**
-     * Convenience method for getting a DisplayObject's location as a Point.
-     *
-     * @param dobj The DisplayObject to query.
-     * @param out An optional Point variable to store the result in. This
-     *            can be used to avoid calling the Point constructor.
+     * Copies the values of one object's x, y, width and height to another.
      */
-    public static function getDisplayObjectLocation(
-            dobj:DisplayObject, out:Point = null):Point
+    public static function copyArea(a:*, b:*):*
     {
-        if (!out)
-        {
-            out = new Point(dobj.x, dobj.y);
-        }
-        else
-        {
-            out.x = dobj.x;
-            out.y = dobj.y;
-        }
-        return out;
+    	b.x = a.x;
+    	b.y = a.y;
+    	b.width = a.width;
+    	b.height = a.height;
+    	return b;
     }
 
     /**
-     * Convert a point in one DisplayObject's local coordinaet space to the
+     * Convert a point in one DisplayObject's local coordinate space to the
      * local space of another.
      *
      * @param pointInFromSpace
