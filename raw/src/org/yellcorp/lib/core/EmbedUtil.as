@@ -7,7 +7,7 @@ public class EmbedUtil
 {
     public static function bytesToString(embedClass:Class):String
     {
-        var bytes:ByteArray = ByteArray(new embedClass());
+        var bytes:ByteArray = new embedClass();
         return bytes.readUTFBytes(bytes.bytesAvailable);
     }
 }
