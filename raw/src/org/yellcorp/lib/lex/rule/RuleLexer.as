@@ -131,7 +131,7 @@ public class RuleLexer
         {
             var text:String = _text.substring(start, end);
 
-            if (_returnWhitespace || StringUtil.hasContent(token.text))
+            if (_returnWhitespace || StringUtil.hasContent(text))
             {
                 var token:Token = new Token();
                 token.text = text;
