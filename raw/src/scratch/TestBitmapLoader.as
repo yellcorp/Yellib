@@ -1,7 +1,6 @@
 package scratch
 {
-import org.yellcorp.lib.bitmap.loader.BitmapLoader;
-import org.yellcorp.lib.bitmap.loader.BitmapLoaderFitMethod;
+import org.yellcorp.lib.bitmap.BitmapLoader;
 import org.yellcorp.lib.env.ResizableStage;
 
 import flash.display.Bitmap;
@@ -17,14 +16,16 @@ public class TestBitmapLoader extends ResizableStage
     public function TestBitmapLoader()
     {
         super();
-        bml = new BitmapLoader(true, 0, BitmapLoaderFitMethod.SCALE);
+        bml = new BitmapLoader();
         bml.addEventListener(Event.COMPLETE, onComplete);
-        bml.load(new URLRequest("presenter/miles.jpg"));
+        bml.load(new URLRequest("fp10-exact-area.png"));
     }
 
     private function onComplete(event:Event):void
     {
-        addChild(new Bitmap(bml.getBitmapData()));
+        addChild(new Bitmap(bml.copyBitmapData()));
+        trace(bml.width);
+        trace(bml.height);
     }
 }
 }

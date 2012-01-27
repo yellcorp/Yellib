@@ -1,6 +1,6 @@
 package org.yellcorp.lib.net.multiloader.items
 {
-import org.yellcorp.lib.bitmap.loader.BitmapLoader;
+import org.yellcorp.lib.bitmap.BitmapLoader;
 import org.yellcorp.lib.net.multiloader.core.MultiLoaderItem;
 
 import flash.display.BitmapData;
@@ -8,8 +8,8 @@ import flash.events.Event;
 import flash.events.HTTPStatusEvent;
 import flash.events.IOErrorEvent;
 import flash.events.ProgressEvent;
+import flash.events.SecurityErrorEvent;
 import flash.net.URLRequest;
-import flash.system.LoaderContext;
 
 
 /**
@@ -20,39 +20,16 @@ import flash.system.LoaderContext;
 public class BitmapLoaderItem extends MultiLoaderItem
 {
     private var _loader:BitmapLoader;
-    public var context:LoaderContext;
-    public var transparent:Boolean;
-    public var fillColor:uint;
-    public var fitMethod:String;
 
     /**
      * Creates a BinaryLoaderItem which will make the specified request
      * when it starts loading.
      *
      * @param request      The request to issue and download from.
-     * @param context      The LoaderContext for the load operation.
-     * @param transparent  Whether to compose the loaded image over a
-     *                     transparent background.
-     * @param fillColor    The background color to compose the loaded image
-     *                     over
-     * @param fitMethod    Resize strategy in case the loaded Bitmap exceeds
-     *                     the allowed dimensions of BitmapData objects
-     *
-     * @see flash.display.BitmapData
-     * @see flash.display.Loader#load
      */
-    public function BitmapLoaderItem(
-        request:URLRequest,
-        context:LoaderContext = null,
-        transparent:Boolean = true,
-        fillColor:uint = 0xFFFFFFFF,
-        fitMethod:String = "crop")
+    public function BitmapLoaderItem(request:URLRequest)
     {
         super(request);
-        this.context = context;
-        this.transparent = transparent;
-        this.fillColor = fillColor;
-        this.fitMethod = fitMethod;
     }
 
     public override function dispose():void
@@ -63,6 +40,7 @@ public class BitmapLoaderItem extends MultiLoaderItem
         _loader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, onStatus);
         _loader.removeEventListener(ProgressEvent.PROGRESS, onProgress);
         _loader.removeEventListener(IOErrorEvent.IO_ERROR, onAsyncError);
+        _loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onAsyncError);
         _loader.dispose();
         _loader = null;
     }
@@ -84,13 +62,14 @@ public class BitmapLoaderItem extends MultiLoaderItem
 
     protected override function startLoad():void
     {
-        _loader = new BitmapLoader(transparent, fillColor, fitMethod);
+        _loader = new BitmapLoader();
         _loader.addEventListener(Event.OPEN, onOpen);
         _loader.addEventListener(Event.COMPLETE, onComplete);
         _loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, onStatus);
         _loader.addEventListener(ProgressEvent.PROGRESS, onProgress);
         _loader.addEventListener(IOErrorEvent.IO_ERROR, onAsyncError);
-        _loader.load(request, context);
+        _loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onAsyncError);
+        _loader.load(request);
     }
 
     /**
@@ -109,9 +88,9 @@ public class BitmapLoaderItem extends MultiLoaderItem
      *
      * @see flash.display.BitmapData#dispose
      */
-    public function getBitmapData():BitmapData
+    public function copyBitmapData():BitmapData
     {
-        return _loader.getBitmapData();
+        return _loader.copyBitmapData();
     }
 }
 }
