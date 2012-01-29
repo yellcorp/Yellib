@@ -1,8 +1,5 @@
 package wip.yellcorp.lib.simplelog
 {
-import org.yellcorp.lib.layout.LayoutProperty;
-import org.yellcorp.lib.ui.BaseDisplay;
-
 import flash.display.DisplayObject;
 import flash.display.Graphics;
 import flash.display.Shape;
@@ -14,6 +11,9 @@ import flash.text.TextFieldType;
 import flash.text.TextFormat;
 import flash.text.TextLineMetrics;
 import flash.ui.Keyboard;
+import org.yellcorp.lib.layout_old.LayoutProperty;
+import org.yellcorp.lib.ui.BaseDisplay;
+
 
 
 public class SimpleLogDisplay extends BaseDisplay

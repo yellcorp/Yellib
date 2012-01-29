@@ -1,27 +1,24 @@
 package org.yellcorp.lib.layout
 {
-import org.yellcorp.lib.iterators.readonly.ArrayIterator;
-import org.yellcorp.lib.layout.adapters.BaseAdapter;
-import org.yellcorp.lib.layout.ast.emitters.BaseEmitter;
-import org.yellcorp.lib.layout.ast.emitters.MaxPriorityEmitter;
-import org.yellcorp.lib.layout.ast.emitters.MidPriorityEmitter;
-import org.yellcorp.lib.layout.ast.emitters.MinPriorityEmitter;
-import org.yellcorp.lib.layout.ast.emitters.SizePriorityEmitter;
-import org.yellcorp.lib.layout.ast.factories.AdapterFactory;
-import org.yellcorp.lib.layout.ast.factories.NodeFactory;
-import org.yellcorp.lib.layout.ast.nodes.ASTNode;
-
-import flash.utils.Dictionary;
+import org.yellcorp.lib.layout.ast.LayoutNode;
+import org.yellcorp.lib.layout.axprops.*;
+import org.yellcorp.lib.layout.helpers.ConstraintInfo;
+import org.yellcorp.lib.layout.helpers.Registers;
+import org.yellcorp.lib.layout.nodefac.NodeFactory;
+import org.yellcorp.lib.layout.nodefac.OffsetNodeFactory;
+import org.yellcorp.lib.layout.nodefac.ProportionalNodeFactory;
+import org.yellcorp.lib.layout.properties.*;
 
 
 public class Layout
 {
-    private var emitters:Object;
-    private var maxedTargets:Object;
-    private var layoutForest:Array;
-    private var nodeIterator:ArrayIterator;
-    private var _captured:Boolean;
-
+    private static var _propToAxis:Object;
+    private static var _propToAxProp:Object;
+    private static var _nodeFactories:Object;
+    
+    private var info:ConstraintInfo;
+    private var regs:Registers;
+    
     public function Layout()
     {
         clear();
@@ -29,161 +26,108 @@ public class Layout
 
     public function clear():void
     {
-        emitters = { };
-        emitters[LayoutAxis.X] = new Dictionary();
-        emitters[LayoutAxis.Y] = new Dictionary();
+        info = new ConstraintInfo();
+        regs = new Registers();
+    }
+    
+    public function constrain(
+            target:Object, targetProperty:String,
+            relative:Object, relativeProperty:String,
+            constraintType:String):void
+    {
+        var axis:String = getAxis(targetProperty);
+        var relativeAxis:String = getAxis(relativeProperty);
+        
+        if (!info.isPropertyConstrained(target, targetProperty))
+        {
+            throw new ArgumentError("Target's " + targetProperty + " property is already constrained");
+        }
+        else if (axis !== relativeAxis)
+        {
+            throw new ArgumentError("Can't constrain properties on different axes");
+        }
 
-        maxedTargets = { };
-        maxedTargets[LayoutAxis.X] = new Dictionary();
-        maxedTargets[LayoutAxis.Y] = new Dictionary();
+        var targetAxialProp:String = getAxialProperty(targetProperty);
+        var relativeAxialProp:String = getAxialProperty(relativeProperty);
+        
+        if (!info.canConstrainAxis(target, axis))
+        {
+            throw new ArgumentError("Target cannot accept any more constraints in the " + axis + " axis");            
+        }
+        
+        // constrain_(axis, target, targetAxialProp, relative, relativeAxialProp, constraintType);
+        var nodeFactory:NodeFactory = getNodeFactory(constraintType);
 
-        layoutForest = [ ];
-        nodeIterator = new ArrayIterator(layoutForest);
-
-        _captured = false;
+        var reg:uint = regs.nextFreeIndex();
+        var measureNode:LayoutNode = nodeFactory.measure(target, targetProperty, relative, relativeProperty);
+        var calculateNode:LayoutNode = nodeFactory.apply(reg, relative, relativeProperty);
+        
+        info.setPropertyConstrained(target, targetProperty);
+        info.addAxisConstraint(target, axis);
+    }
+    
+    public function isPropertyConstrained(target:Object, targetProperty:String):Boolean
+    {
+        return info.isPropertyConstrained(target, targetProperty);
     }
 
-    public function addConstraint(axis:String,
-                                  targetObject:Object, targetProp:String,
-                                  sourceObject:Object, sourceProp:String,
-                                  type:String):void
+    private static function getAxis(property:String):String
     {
-        var adapter:AdapterFactory = new AdapterFactory();
-        var f:NodeFactory = new NodeFactory(axis);
-
-        var captureNode:ASTNode;
-        var evalNode:ASTNode;
-
-        var axisMaxedTargets:Dictionary = maxedTargets[axis];
-        var axisEmitters:Dictionary = emitters[axis];
-
-        var target:BaseAdapter;
-        var source:BaseAdapter;
-
-        var emitter:BaseEmitter;
-
-        if (axisMaxedTargets[targetObject])
+        if (!_propToAxis)
         {
-            throw new ArgumentError("Target cannot support any more constraints in the " + axis + "axis");
+            var p:Object = _propToAxis = { };
+            p[X] =
+            p[LEFT] =
+            p[HCENTER] =
+            p[RIGHT] =
+            p[WIDTH] = X;
+            
+            p[Y] =
+            p[TOP] =
+            p[VCENTER] =
+            p[BOTTOM] =
+            p[HEIGHT] = Y;
         }
 
-        target = adapter.wrap(targetObject);
-        source = adapter.wrap(sourceObject);
-
-        switch (type)
-        {
-        case ConstraintType.OFFSET :
-        {
-            captureNode =
-            f.capture(
-                f.subtract(
-                    f.getter(target, targetProp),
-                    f.getter(source, sourceProp)
-                )
-            );
-
-            evalNode =
-            f.add(
-                f.getter(source, sourceProp),
-                captureNode
-            );
-            break;
-        }
-        default :
-        {
-            captureNode =
-            f.capture(
-                f.divide(
-                    f.getter(target, targetProp),
-                    f.getter(source, sourceProp)
-                )
-            );
-
-            evalNode =
-            f.multiply(
-                f.getter(source, sourceProp),
-                captureNode
-            );
-            break;
-        }
-        }
-
-        emitter = axisEmitters[targetObject];
-        if (emitter)
-        {
-            emitter.emit(f, targetProp, evalNode, layoutForest);
-            axisMaxedTargets[targetObject] = true;
-            delete axisEmitters[targetObject];
-        }
-        else
-        {
-            switch (targetProp)
-            {
-            case LayoutProperty.MIN :
-                emitter = new MinPriorityEmitter(target, evalNode);
-                break;
-            case LayoutProperty.MID :
-                emitter = new MidPriorityEmitter(target, evalNode);
-                break;
-            case LayoutProperty.MAX :
-                emitter = new MaxPriorityEmitter(target, evalNode);
-                break;
-            case LayoutProperty.SIZE :
-                emitter = new SizePriorityEmitter(target, evalNode);
-                break;
-            }
-            axisEmitters[targetObject] = emitter;
-        }
+        var axis:String = _propToAxis[property];
+        if (!axis) throw new ArgumentError("Not a valid property: " + property);
+        
+        return axis;
     }
 
-    public function evaluate():void
+    private static function getAxialProperty(property:String):String
     {
-        if (!_captured) capture();
-        for (nodeIterator.reset(); nodeIterator.valid; nodeIterator.next())
+        if (!_propToAxProp)
         {
-            ASTNode(nodeIterator.current).evaluate();
+            var p:Object = _propToAxProp = { };
+            p[X] =
+            p[LEFT] =
+            p[Y] =
+            p[TOP] = MIN;
+            
+            p[HCENTER] =
+            p[VCENTER] = MID;
+            
+            p[RIGHT] =
+            p[BOTTOM] = MAX;
+            
+            p[WIDTH] =
+            p[HEIGHT] = SPAN;
         }
+        return _propToAxProp[property];
     }
 
-    public function capture():void
+    private static function getNodeFactory(constraintType:String):NodeFactory
     {
-        flush();
-        for (nodeIterator.reset(); nodeIterator.valid; nodeIterator.next())
+        if (!_nodeFactories)
         {
-            ASTNode(nodeIterator.current).capture();
+            var nf:Object = _nodeFactories = { };
+            nf[ConstraintType.OFFSET] = new OffsetNodeFactory();
+            nf[ConstraintType.PROPORTIONAL] = new ProportionalNodeFactory();
         }
-        _captured = true;
-    }
-
-    public function optimize():void
-    {
-        flush();
-        for (nodeIterator.reset(); nodeIterator.valid; nodeIterator.next())
-        {
-            ASTNode(nodeIterator.current).optimize();
-        }
-        _captured = true;
-    }
-
-    public function get captured():Boolean
-    {
-        return _captured;
-    }
-
-    private function flush():void
-    {
-        var axis:String;
-        var emitter:BaseEmitter;
-        var f:NodeFactory;
-
-        for (axis in emitters)
-        {
-            f = new NodeFactory(axis);
-            for each (emitter in emitters[axis])
-            {
-                emitter.emitSingle(f, layoutForest);
-            }
-        }
+        var f:NodeFactory = _nodeFactories[constraintType];
+        if (!f) throw new ArgumentError("Invalid constraint type: " + constraintType);
+        return f;
     }
 }
 }

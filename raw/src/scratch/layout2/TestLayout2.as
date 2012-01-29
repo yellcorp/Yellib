@@ -1,13 +1,13 @@
 package scratch.layout2
 {
-import org.yellcorp.lib.layout.ConstraintType;
-import org.yellcorp.lib.layout.Layout;
-import org.yellcorp.lib.layout.LayoutAxis;
-import org.yellcorp.lib.layout.LayoutProperty;
-
 import flash.display.Graphics;
 import flash.display.Sprite;
 import flash.events.Event;
+import org.yellcorp.lib.layout_old.ConstraintType;
+import org.yellcorp.lib.layout_old.Layout;
+import org.yellcorp.lib.layout_old.LayoutAxis;
+import org.yellcorp.lib.layout_old.LayoutProperty;
+
 
 
 [SWF(backgroundColor="#FFFFFF", frameRate="60", width="640", height="480")]
