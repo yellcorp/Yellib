@@ -15,33 +15,33 @@ public class RectangleAdapter extends BaseAdapter
     {
         return subject.x;
     }
-    public override function setX(value:Number):void
+    public override function setX(v:Number):void
     {
-        subject.x = value;
+        subject.x = v;
     }
     public override function getY():Number
     {
         return subject.y;
     }
-    public override function setY(value:Number):void
+    public override function setY(v:Number):void
     {
-        subject.y = value;
+        subject.y = v;
     }
     public override function getWidth():Number
     {
         return subject.width;
     }
-    public override function setWidth(value:Number):void
+    public override function setWidth(v:Number):void
     {
-        subject.width = value;
+        subject.width = v;
     }
     public override function getHeight():Number
     {
         return subject.height;
     }
-    public override function setHeight(value:Number):void
+    public override function setHeight(v:Number):void
     {
-        subject.height = value;
+        subject.height = v;
     }
 }
 }

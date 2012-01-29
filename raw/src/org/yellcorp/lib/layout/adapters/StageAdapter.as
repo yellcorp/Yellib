@@ -5,43 +5,43 @@ import flash.display.Stage;
 
 public class StageAdapter extends BaseAdapter
 {
-    private var stage:Stage;
+    private var subject:Stage;
 
-    public function StageAdapter(stage:Stage)
+    public function StageAdapter(subject:Stage)
     {
-        this.stage = stage;
+        this.subject = subject;
     }
     public override function getX():Number
     {
-        return stage.x;
+        return subject.x;
     }
-    public override function setX(value:Number):void
+    public override function setX(v:Number):void
     {
-        stage.x = value;
+        subject.x = v;
     }
     public override function getY():Number
     {
-        return stage.y;
+        return subject.y;
     }
-    public override function setY(value:Number):void
+    public override function setY(v:Number):void
     {
-        stage.y = value;
+        subject.y = v;
     }
     public override function getWidth():Number
     {
-        return stage.stageWidth;
+        return subject.stageWidth;
     }
-    public override function setWidth(value:Number):void
+    public override function setWidth(v:Number):void
     {
-        stage.stageWidth = value;
+        subject.stageWidth = v;
     }
     public override function getHeight():Number
     {
-        return stage.stageHeight;
+        return subject.stageHeight;
     }
-    public override function setHeight(value:Number):void
+    public override function setHeight(v:Number):void
     {
-        stage.stageHeight = value;
+        subject.stageHeight = v;
     }
 }
 }

@@ -7,41 +7,41 @@ public class DisplayAdapter extends BaseAdapter
 {
     private var subject:DisplayObject;
 
-    public function DisplayAdapter(newSubject:DisplayObject)
+    public function DisplayAdapter(subject:DisplayObject)
     {
-        subject = newSubject;
+        this.subject = subject;
     }
     public override function getX():Number
     {
         return subject.x;
     }
+    public override function setX(v:Number):void
+    {
+        subject.x = v;
+    }
     public override function getY():Number
     {
         return subject.y;
+    }
+    public override function setY(v:Number):void
+    {
+        subject.y = v;
     }
     public override function getWidth():Number
     {
         return subject.width;
     }
+    public override function setWidth(v:Number):void
+    {
+        subject.width = v;
+    }
     public override function getHeight():Number
     {
         return subject.height;
     }
-    public override function setX(n:Number):void
+    public override function setHeight(v:Number):void
     {
-        subject.x = n;
-    }
-    public override function setY(n:Number):void
-    {
-        subject.y = n;
-    }
-    public override function setWidth(n:Number):void
-    {
-        subject.width = n;
-    }
-    public override function setHeight(n:Number):void
-    {
-        subject.height = n;
+        subject.height = v;
     }
 }
 }
