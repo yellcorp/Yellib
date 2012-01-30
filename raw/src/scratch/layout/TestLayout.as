@@ -9,7 +9,6 @@ import flash.display.Sprite;
 import flash.events.Event;
 
 
-
 [SWF(backgroundColor="#FFFFFF", frameRate="60", width="640", height="480")]
 public class TestLayout extends Sprite
 {
@@ -42,10 +41,10 @@ public class TestLayout extends Sprite
 
     private function onStage(event:Event):void
     {
-        layout = new Layout();
+        layout = new Layout(true);
         layout.constrain(a, RIGHT, b, LEFT, ConstraintType.OFFSET);
         layout.constrain(a, HEIGHT, b, TOP, ConstraintType.OFFSET);
-        layout.constrain(a, LEFT, this, LEFT, ConstraintType.OFFSET);
+        layout.constrain(a, LEFT, b, LEFT, ConstraintType.PROPORTIONAL);
         layout.measure();
 //        layout.optimize();
         addEventListener(Event.ENTER_FRAME, onFrame);

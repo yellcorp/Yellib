@@ -14,17 +14,19 @@ public class Layout
 
     private var xAxis:SingleAxisLayout;
     private var yAxis:SingleAxisLayout;
+    private var rounding:Boolean;
 
-    public function Layout()
+    public function Layout(rounding:Boolean = false)
     {
+        this.rounding = rounding;
         clear();
     }
 
     public function clear():void
     {
         propertyConstraints = new Dictionary(true);
-        xAxis = new SingleAxisLayout(X);
-        yAxis = new SingleAxisLayout(Y);
+        xAxis = new SingleAxisLayout(X, rounding);
+        yAxis = new SingleAxisLayout(Y, rounding);
     }
 
     public function constrain(
@@ -180,6 +182,7 @@ class SingleAxisLayout
     private var _axis:String;
     private var span:String;
     private var virtualGetResolver:VirtualGetResolver;
+    private var rounding:Boolean;
 
     private var constrainCount:Dictionary;
 
@@ -196,11 +199,13 @@ class SingleAxisLayout
 
     private var _nodeFactories:Object;
 
-    public function SingleAxisLayout(axis:String)
+    public function SingleAxisLayout(axis:String, rounding:Boolean)
     {
         _axis = axis;
         span = axisToSpan[_axis];
         virtualGetResolver = new VirtualGetResolver(_axis);
+
+        this.rounding = rounding;
 
         constrainCount = new Dictionary(true);
         regs = new Registers();
@@ -234,7 +239,7 @@ class SingleAxisLayout
         var regIndex:uint = regs.nextFreeIndex();
         var measureNode:ASTNode = nodeFactory.measure(target, targetVirtualProp, relative, relativeVirtualProp);
         var storeNode:ASTNode = new SetVector(regs.regv, regIndex, measureNode);
-        var calculateNode:ASTNode = nodeFactory.apply(regIndex, relative, relativeVirtualProp);
+        var calculateNode:ASTNode = nodeFactory.calculate(regIndex, relative, relativeVirtualProp);
 
         virtualMeasureProgram.push(storeNode);
         measureProgram = null;
@@ -297,6 +302,10 @@ class SingleAxisLayout
     {
         resolveVirtualSetters();
         filterProgramInPlace(updateProgram, virtualGetResolver);
+        if (rounding)
+        {
+            filterProgramInPlace(updateProgram, new RoundSetters());
+        }
     }
 
     private function resolveVirtualSetters():void
@@ -551,7 +560,7 @@ class Registers
 interface NodeFactory
 {
     function measure(targetObject:Object, targetProperty:uint, relativeObject:Object, relativeProperty:uint):ASTNode;
-    function apply(registerIndex:uint, relativeObject:Object, relativeProperty:uint):ASTNode;
+    function calculate(registerIndex:uint, relativeObject:Object, relativeProperty:uint):ASTNode;
 }
 
 
@@ -572,7 +581,7 @@ class OffsetNodeFactory implements NodeFactory
         );
     }
 
-    public function apply(registerIndex:uint, relativeObject:Object, relativeProperty:uint):ASTNode
+    public function calculate(registerIndex:uint, relativeObject:Object, relativeProperty:uint):ASTNode
     {
         return new Add(
             new GetVirtualProp(relativeObject, relativeProperty),
@@ -599,7 +608,7 @@ class ProportionalNodeFactory implements NodeFactory
         );
     }
 
-    public function apply(registerIndex:uint, relativeObject:Object, relativeProperty:uint):ASTNode
+    public function calculate(registerIndex:uint, relativeObject:Object, relativeProperty:uint):ASTNode
     {
         return new Multiply(
             new GetVirtualProp(relativeObject, relativeProperty),
@@ -687,6 +696,7 @@ class Multiply extends BinOp
     }
 }
 
+
 class Divide extends BinOp
 {
     public function Divide(a:ASTNode, b:ASTNode) { super(a, b); }
@@ -697,6 +707,32 @@ class Divide extends BinOp
     public override function acceptFilter(filter:ASTFilter):ASTNode
     {
         return filter.filterDivideNode(this);
+    }
+}
+
+
+class Round implements ASTNode
+{
+    public var child:ASTNode;
+
+    public function Round(child:ASTNode)
+    {
+        this.child = child;
+    }
+
+    public function eval():*
+    {
+        return int(child.eval() + .5);
+    }
+
+    public function acceptFilter(filter:ASTFilter):ASTNode
+    {
+        return filter.filterRoundNode(this);
+    }
+
+    public function filterChildren(filter:ASTFilter):void
+    {
+        child = filter.filter(child);
     }
 }
 
@@ -746,17 +782,17 @@ class GetVirtualProp implements ASTNode
 class SetRuntimeProp implements ASTNode
 {
     public var object:Object;
-    public var property:String;
+    public var prop:String;
     public var child:ASTNode;
     public function SetRuntimeProp(object:Object, prop:String, child:ASTNode)
     {
         this.object = object;
-        this.property = prop;
+        this.prop = prop;
         this.child = child;
     }
     public function eval():*
     {
-        return object[property] = child.eval();
+        return object[prop] = child.eval();
     }
     public function acceptFilter(filter:ASTFilter):ASTNode
     {
@@ -907,6 +943,7 @@ class ASTFilter
     public function filterSubtractNode(n:Subtract):ASTNode { return n; }
     public function filterMultiplyNode(n:Multiply):ASTNode { return n; }
     public function filterDivideNode(n:Divide):ASTNode { return n; }
+    public function filterRoundNode(n:Round):ASTNode { return n; }
     public function filterGetRuntimePropNode(n:GetRuntimeProp):ASTNode { return n; }
     public function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode { return n; }
     public function filterGetVirtualPropNode(n:GetVirtualProp):ASTNode { return n; }
@@ -957,6 +994,15 @@ class VirtualGetResolver extends ASTFilter
 }
 
 
+class RoundSetters extends ASTFilter
+{
+    public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
+    {
+        return new SetRuntimeProp(n.object, n.prop, new Round(n.child));
+    }
+}
+
+
 class ReadOnlyEvaluator extends ASTFilter
 {
     public override function filterReadOnlyNode(n:ReadOnly):ASTNode
@@ -1000,6 +1046,18 @@ class ArithmeticConstFolder extends ASTFilter
         var bv:Value = n.b as Value;
 
         if (av && bv)
+        {
+            _replacements++;
+            return new Value(n.eval());
+        }
+        else
+        {
+            return n;
+        }
+    }
+    public override function filterRoundNode(n:Round):ASTNode
+    {
+        if (n.child is Value)
         {
             _replacements++;
             return new Value(n.eval());
