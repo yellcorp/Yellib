@@ -14,19 +14,22 @@ public class Layout
 
     private var xAxis:SingleAxisLayout;
     private var yAxis:SingleAxisLayout;
-    private var rounding:Boolean;
 
-    public function Layout(rounding:Boolean = false)
+    private var rounding:Boolean;
+    private var propertyAdapter:PropertyAdapter;
+
+    public function Layout(rounding:Boolean = false, propertyAdapter:PropertyAdapter = null)
     {
         this.rounding = rounding;
+        this.propertyAdapter = propertyAdapter || new DefaultPropertyAdapter();
         clear();
     }
 
     public function clear():void
     {
         propertyConstraints = new Dictionary(true);
-        xAxis = new SingleAxisLayout(X, rounding);
-        yAxis = new SingleAxisLayout(Y, rounding);
+        xAxis = new SingleAxisLayout(X, rounding, propertyAdapter);
+        yAxis = new SingleAxisLayout(Y, rounding, propertyAdapter);
     }
 
     public function constrain(
@@ -152,6 +155,7 @@ public class Layout
 import org.yellcorp.lib.error.AbstractCallError;
 import org.yellcorp.lib.error.assert;
 import org.yellcorp.lib.layout.ConstraintType;
+import org.yellcorp.lib.layout.PropertyAdapter;
 
 import flash.utils.Dictionary;
 
@@ -181,8 +185,12 @@ class SingleAxisLayout
 {
     private var _axis:String;
     private var span:String;
-    private var virtualGetResolver:VirtualGetResolver;
+
     private var rounding:Boolean;
+    private var propertyAdapter:PropertyAdapter;
+
+    private var virtualGetResolver:VirtualGetResolver;
+    private var propertyTransformer:PropertyTransformer;
 
     private var constrainCount:Dictionary;
 
@@ -199,13 +207,16 @@ class SingleAxisLayout
 
     private var _nodeFactories:Object;
 
-    public function SingleAxisLayout(axis:String, rounding:Boolean)
+    public function SingleAxisLayout(axis:String, rounding:Boolean, propertyAdapter:PropertyAdapter)
     {
         _axis = axis;
         span = axisToSpan[_axis];
-        virtualGetResolver = new VirtualGetResolver(_axis);
 
         this.rounding = rounding;
+        this.propertyAdapter = propertyAdapter;
+
+        virtualGetResolver = new VirtualGetResolver(_axis);
+        propertyTransformer = new PropertyTransformer(propertyAdapter);
 
         constrainCount = new Dictionary(true);
         regs = new Registers();
@@ -307,6 +318,7 @@ class SingleAxisLayout
         {
             filterProgramInPlace(updateProgram, new RoundSetters());
         }
+        filterProgramInPlace(updateProgram, propertyTransformer);
     }
 
     private function resolveVirtualSetters():void
@@ -1023,9 +1035,37 @@ class VirtualGetResolver extends ASTFilter
 }
 
 
+class PropertyTransformer extends ASTFilter
+{
+    private var propertyAdapter:PropertyAdapter;
+
+    public function PropertyTransformer(propertyAdapter:PropertyAdapter)
+    {
+        this.propertyAdapter = propertyAdapter;
+    }
+
+    public override function filterGetRuntimePropNode(n:GetRuntimeProp):ASTNode
+    {
+        return new GetRuntimeProp(
+            n.object,
+            propertyAdapter.substitutePropertyName(n.object, n.prop)
+        );
+    }
+
+    public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
+    {
+        return new SetRuntimeProp(
+            n.object,
+            propertyAdapter.substitutePropertyName(n.object, n.prop),
+            n.child
+        );
+    }
+}
+
+
 class Max0SpanSetters extends ASTFilter
 {
-    override public function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
+    public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
     {
         if (n.prop == "width" || n.prop == "height")
         {

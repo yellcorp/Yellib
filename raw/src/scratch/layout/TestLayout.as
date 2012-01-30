@@ -2,6 +2,11 @@ package scratch.layout
 {
 import org.yellcorp.lib.layout.ConstraintType;
 import org.yellcorp.lib.layout.Layout;
+
+import flash.display.StageAlign;
+import flash.display.StageScaleMode;
+
+
 import org.yellcorp.lib.layout.properties.*;
 
 import flash.display.Graphics;
@@ -41,10 +46,13 @@ public class TestLayout extends Sprite
 
     private function onStage(event:Event):void
     {
+        stage.scaleMode = StageScaleMode.NO_SCALE;
+        stage.align = StageAlign.TOP_LEFT;
+
         layout = new Layout(true);
         layout.constrain(a, RIGHT, b, LEFT, ConstraintType.OFFSET);
         layout.constrain(a, HEIGHT, b, TOP, ConstraintType.OFFSET);
-        layout.constrain(a, LEFT, b, LEFT, ConstraintType.PROPORTIONAL);
+        layout.constrain(a, LEFT, stage, WIDTH, ConstraintType.PROPORTIONAL);
         layout.measure();
 //        layout.optimize();
         addEventListener(Event.ENTER_FRAME, onFrame);
