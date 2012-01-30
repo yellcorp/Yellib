@@ -189,16 +189,26 @@ const axisToSpan:Object = {
     y: "height"
 };
 
-function vpropToString(vprop:uint):String
+function vpropBitfieldToString(vprop:uint):String
 {
     switch (vprop)
     {
-    case NONE: return "NONE";
-    case MIN:  return "MIN";
-    case MID:  return "MID";
-    case MAX:  return "MAX";
-    case SPAN: return "SPAN";
-    default:   return "<INVALID>";
+    case NONE:     return "NONE";
+    case MIN:      return "MIN";
+    case MID:      return "MID";
+    case MAX:      return "MAX";
+    case SPAN:     return "SPAN";
+
+    case MIN_MID:  return "MIN |MID";
+    case MIN_MAX:  return "MIN | MAX";
+    case MIN_SPAN: return "MIN | SPAN";
+
+    case MID_MAX:  return "MID | MAX";
+    case MID_SPAN: return "MID | SPAN";
+
+    case MAX_SPAN: return "MAX | SPAN";
+
+    default:       return "<INVALID>";
     }
 }
 
@@ -1534,15 +1544,15 @@ class ASTDumper extends ASTFilter
 
     public override function filterGetVirtualPropNode(n:GetVirtualProp):ASTNode
     {
-        println("GetVirtualProp(" + getQualifiedClassName(n.object) + ", " + vpropToString(n.vprop) + ")");
+        println("GetVirtualProp(" + getQualifiedClassName(n.object) + ", " + vpropBitfieldToString(n.vprop) + ")");
         return n;
     }
 
     public override function filterSetVirtualPropsNode(n:SetVirtualProps):ASTNode
     {
         println("SetVirtualProps(" + getQualifiedClassName(n.object) +
-                ", 0=" + vpropToString(n.vprop0) +
-                ", 1=" + vpropToString(n.vprop1) + ")");
+                ", 0=" + vpropBitfieldToString(n.vprop0) +
+                ", 1=" + vpropBitfieldToString(n.vprop1) + ")");
         return n;
     }
 
