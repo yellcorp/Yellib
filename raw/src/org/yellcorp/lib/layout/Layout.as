@@ -87,6 +87,14 @@ public class Layout
         yAxis.optimize();
     }
 
+    public function dumpPrograms():String
+    {
+        var linebuf:Array = [ ];
+        xAxis.dumpPrograms(linebuf);
+        yAxis.dumpPrograms(linebuf);
+        return linebuf.join("\n");
+    }
+
     private function setPropertyConstrained(target:Object, property:String):void
     {
         var targetSet:Object = propertyConstraints[target];
@@ -158,6 +166,7 @@ import org.yellcorp.lib.layout.ConstraintType;
 import org.yellcorp.lib.layout.PropertyAdapter;
 
 import flash.utils.Dictionary;
+import flash.utils.getQualifiedClassName;
 
 
 const NONE:int = 0;
@@ -179,6 +188,21 @@ const axisToSpan:Object = {
     x: "width",
     y: "height"
 };
+
+function vpropToString(vprop:uint):String
+{
+    switch (vprop)
+    {
+    case NONE: return "NONE";
+    case MIN:  return "MIN";
+    case MID:  return "MID";
+    case MAX:  return "MAX";
+    case SPAN: return "SPAN";
+    default:   return "<INVALID>";
+    }
+}
+
+const DUMP_SEPARATOR:String = "--------------------";
 
 
 class SingleAxisLayout
@@ -299,6 +323,24 @@ class SingleAxisLayout
         measuredUpdateProgram = filterProgramCopy(updateProgram, new ReadOnlyEvaluator());
         filterProgramInPlace(measuredUpdateProgram, new ArithmeticConstFolder());
         filterProgramInPlace(measuredUpdateProgram, new ArithmeticOptimizer());
+    }
+
+    public function dumpPrograms(linebuf:Array):void
+    {
+        linebuf.push(DUMP_SEPARATOR, "Programs for " + _axis + " axis:");
+        var dumper:ASTDumper = new ASTDumper();
+
+        linebuf.push(DUMP_SEPARATOR, "virtualMeasureProgram:");
+        dumpAST(dumper, virtualMeasureProgram, linebuf);
+
+        linebuf.push(DUMP_SEPARATOR, "measureProgram:");
+        dumpAST(dumper, measureProgram, linebuf);
+
+        linebuf.push(DUMP_SEPARATOR, "virtualUpdateProgram:");
+        dumpAST(dumper, Vector.<ASTNode>(virtualUpdateProgram), linebuf);
+
+        linebuf.push(DUMP_SEPARATOR, "updateProgram:");
+        dumpAST(dumper, updateProgram, linebuf);
     }
 
     private function compileMeasureProgram():void
@@ -525,6 +567,20 @@ class SingleAxisLayout
         }
     }
 
+    private static function dumpAST(dumper:ASTDumper, program:Vector.<ASTNode>, out:Array):void
+    {
+        if (program)
+        {
+            dumper.clear();
+            filterProgramInPlace(program, dumper);
+            out.push.apply(out, dumper.lines);
+        }
+        else
+        {
+            out.push("null");
+        }
+    }
+
     private static function filterProgramInPlace(program:Vector.<ASTNode>, filter:ASTFilter):void
     {
         for (var i:int = 0; i < program.length; i++)
@@ -536,10 +592,12 @@ class SingleAxisLayout
     private static function filterProgramCopy(program:Vector.<ASTNode>, filter:ASTFilter):Vector.<ASTNode>
     {
         var copy:Vector.<ASTNode> = new Vector.<ASTNode>(program.length, true);
+        var deepCopier:DeepCopier = new DeepCopier();
         for (var i:int = 0; i < program.length; i++)
         {
-            copy[i] = filter.filter(program[i]);
+            copy[i] = deepCopier.filter(program[i]);
         }
+        filterProgramInPlace(copy, filter);
         return copy;
     }
 }
@@ -874,8 +932,8 @@ class SetVirtualProps implements ASTNode
     }
     public function filterChildren(filter:ASTFilter):void
     {
-        child0 = filter.filter(child0);
-        child1 = filter.filter(child1);
+        if (child0) child0 = filter.filter(child0);
+        if (child1) child1 = filter.filter(child1);
     }
 }
 
@@ -998,6 +1056,25 @@ class ASTFilter
 }
 
 
+class DeepCopier extends ASTFilter
+{
+    public override function filterAddNode(n:Add):ASTNode { return new Add(n.a, n.b); }
+    public override function filterSubtractNode(n:Subtract):ASTNode { return new Subtract(n.a, n.b); }
+    public override function filterMultiplyNode(n:Multiply):ASTNode { return new Multiply(n.a, n.b); }
+    public override function filterDivideNode(n:Divide):ASTNode { return new Divide(n.a, n.b); }
+    public override function filterRoundNode(n:Round):ASTNode { return new Round(n.child); }
+    public override function filterMax0Node(n:Max0):ASTNode { return new Max0(n.child); }
+    public override function filterGetRuntimePropNode(n:GetRuntimeProp):ASTNode { return new GetRuntimeProp(n.object, n.prop); }
+    public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode { return new SetRuntimeProp(n.object, n.prop, n.child); }
+    public override function filterGetVirtualPropNode(n:GetVirtualProp):ASTNode { return new GetVirtualProp(n.object, n.vprop); }
+    public override function filterSetVirtualPropsNode(n:SetVirtualProps):ASTNode { return new SetVirtualProps(n.object, n.vprop0, n.child0, n.vprop1, n.child1); }
+    public override function filterSetVectorNode(n:SetVector):ASTNode { return new SetVector(n.vector, n.index, n.child); }
+    public override function filterGetVectorNode(n:GetVector):ASTNode { return new GetVector(n.vector, n.index); }
+    public override function filterReadOnlyNode(n:ReadOnly):ASTNode { return new ReadOnly(n.child); }
+    public override function filterValueNode(n:Value):ASTNode { return new Value(n.value); }
+}
+
+
 class VirtualGetResolver extends ASTFilter
 {
     private var _axis:String;
@@ -1102,10 +1179,10 @@ class ReadOnlyEvaluator extends ASTFilter
 class ArithmeticConstFolder extends ASTFilter
 {
     private var _replacements:int;
-    public override function filter(root:ASTNode):ASTNode
+
+    public function clear():void
     {
         _replacements = 0;
-        return super.filter(root);
     }
     public function get replacements():int
     {
@@ -1172,10 +1249,10 @@ class ArithmeticConstFolder extends ASTFilter
 class ArithmeticOptimizer extends ASTFilter
 {
     private var _replacements:int;
-    public override function filter(root:ASTNode):ASTNode
+
+    public function clear():void
     {
         _replacements = 0;
-        return super.filter(root);
     }
     public function get replacements():int
     {
@@ -1263,6 +1340,119 @@ class ArithmeticOptimizer extends ASTFilter
             }
         }
 
+        return n;
+    }
+}
+
+
+class ASTDumper extends ASTFilter
+{
+    public var lines:Array = [ ];
+    private var indent:Array = [ ];
+
+    public function clear():void
+    {
+        lines = [ ];
+        indent = [ ];
+    }
+
+    protected function println(line:String):void
+    {
+        lines.push(indent.join("") + line);
+    }
+
+    public override function filter(root:ASTNode):ASTNode
+    {
+        var n:ASTNode = root.acceptFilter(this);
+        indent.push(" ");
+        n.filterChildren(this);
+        indent.pop();
+        return n;
+    }
+
+    public override function filterAddNode(n:Add):ASTNode
+    {
+        println("Add");
+        return n;
+    }
+
+    public override function filterSubtractNode(n:Subtract):ASTNode
+    {
+        println("Subtract");
+        return n;
+    }
+
+    public override function filterMultiplyNode(n:Multiply):ASTNode
+    {
+        println("Multiply");
+        return n;
+    }
+
+    public override function filterDivideNode(n:Divide):ASTNode
+    {
+        println("Divide");
+        return n;
+    }
+
+    public override function filterRoundNode(n:Round):ASTNode
+    {
+        println("Round");
+        return n;
+    }
+
+    public override function filterMax0Node(n:Max0):ASTNode
+    {
+        println("Max0");
+        return n;
+    }
+
+    public override function filterGetRuntimePropNode(n:GetRuntimeProp):ASTNode
+    {
+        println("GetRuntimeProp(" + getQualifiedClassName(n.object) + ", " + n.prop + ")");
+        return n;
+    }
+
+    public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
+    {
+        println("SetRuntimeProp(" + getQualifiedClassName(n.object) + ", " + n.prop + ")");
+        return n;
+    }
+
+    public override function filterGetVirtualPropNode(n:GetVirtualProp):ASTNode
+    {
+        println("GetVirtualProp(" + getQualifiedClassName(n.object) + ", " + vpropToString(n.vprop) + ")");
+        return n;
+    }
+
+    public override function filterSetVirtualPropsNode(n:SetVirtualProps):ASTNode
+    {
+        println("SetVirtualProps(" + getQualifiedClassName(n.object) +
+                ", 0=" + vpropToString(n.vprop0) +
+                ", 1=" + vpropToString(n.vprop1) + ")");
+        return n;
+    }
+
+    public override  function filterSetVectorNode(n:SetVector):ASTNode
+    {
+        println("SetVector(" + n.index + ")");
+        return n;
+    }
+
+    public override function filterGetVectorNode(n:GetVector):ASTNode
+    {
+        println("GetVector(" + n.index + ")");
+        return n;
+    }
+
+    public override function filterReadOnlyNode(n:ReadOnly):ASTNode
+    {
+        println("ReadOnly");
+        return n;
+    }
+
+    public override function filterValueNode(n:Value):ASTNode
+    {
+        println("Value(" + n.value + ")");
         return n;
     }
 }

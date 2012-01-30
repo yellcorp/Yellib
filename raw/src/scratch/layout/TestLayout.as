@@ -54,7 +54,8 @@ public class TestLayout extends Sprite
         layout.constrain(a, HEIGHT, b, TOP, ConstraintType.OFFSET);
         layout.constrain(a, LEFT, stage, WIDTH, ConstraintType.PROPORTIONAL);
         layout.measure();
-//        layout.optimize();
+        layout.optimize();
+        trace(layout.dumpPrograms());
         addEventListener(Event.ENTER_FRAME, onFrame);
     }
 
