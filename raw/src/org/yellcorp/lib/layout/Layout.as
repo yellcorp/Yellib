@@ -273,7 +273,7 @@ class SingleAxisLayout
 
         var regIndex:uint = regs.nextFreeIndex();
         var measureNode:ASTNode = nodeFactory.measure(target, targetVirtualProp, relative, relativeVirtualProp);
-        var storeNode:ASTNode = new SetVector(regs.regv, regIndex, measureNode);
+        var storeNode:ASTNode = new SetRegister(regs.regv, regIndex, measureNode);
         var calculateNode:ASTNode = nodeFactory.calculate(regIndex, relative, relativeVirtualProp);
 
         virtualMeasureProgram.push(storeNode);
@@ -653,7 +653,7 @@ class OffsetNodeFactory implements NodeFactory
     {
         return new Add(
             new GetVirtualProp(relativeObject, relativeProperty),
-            new ReadOnly(new GetVector(regv, registerIndex))
+            new ReadOnly(new GetRegister(regv, registerIndex))
         );
     }
 }
@@ -680,7 +680,7 @@ class ProportionalNodeFactory implements NodeFactory
     {
         return new Multiply(
             new GetVirtualProp(relativeObject, relativeProperty),
-            new ReadOnly(new GetVector(regv, registerIndex))
+            new ReadOnly(new GetRegister(regv, registerIndex))
         );
     }
 }
@@ -960,45 +960,45 @@ class ReadOnly implements ASTNode
 }
 
 
-class GetVector implements ASTNode
+class GetRegister implements ASTNode
 {
-    public var vector:Vector.<Number>;
+    public var regv:Vector.<Number>;
     public var index:uint;
-    public function GetVector(vector:Vector.<Number>, index:uint)
+    public function GetRegister(regv:Vector.<Number>, index:uint)
     {
-        this.vector = vector;
+        this.regv = regv;
         this.index = index;
     }
     public function eval():*
     {
-        return vector[index];
+        return regv[index];
     }
     public function acceptFilter(filter:ASTFilter):ASTNode
     {
-        return filter.filterGetVectorNode(this);
+        return filter.filterGetRegisterNode(this);
     }
     public function filterChildren(filter:ASTFilter):void { }
 }
 
 
-class SetVector implements ASTNode
+class SetRegister implements ASTNode
 {
-    public var vector:Vector.<Number>;
+    public var regv:Vector.<Number>;
     public var index:uint;
     public var child:ASTNode;
-    public function SetVector(vector:Vector.<Number>, index:uint, child:ASTNode)
+    public function SetRegister(regv:Vector.<Number>, index:uint, child:ASTNode)
     {
-        this.vector = vector;
+        this.regv = regv;
         this.index = index;
         this.child = child;
     }
     public function eval():*
     {
-        return vector[index] = child.eval();
+        return regv[index] = child.eval();
     }
     public function acceptFilter(filter:ASTFilter):ASTNode
     {
-        return filter.filterSetVectorNode(this);
+        return filter.filterSetRegisterNode(this);
     }
     public function filterChildren(filter:ASTFilter):void
     {
@@ -1049,8 +1049,8 @@ class ASTFilter
     public function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode { return n; }
     public function filterGetVirtualPropNode(n:GetVirtualProp):ASTNode { return n; }
     public function filterSetVirtualPropsNode(n:SetVirtualProps):ASTNode { return n; }
-    public function filterSetVectorNode(n:SetVector):ASTNode { return n; }
-    public function filterGetVectorNode(n:GetVector):ASTNode { return n; }
+    public function filterSetRegisterNode(n:SetRegister):ASTNode { return n; }
+    public function filterGetRegisterNode(n:GetRegister):ASTNode { return n; }
     public function filterReadOnlyNode(n:ReadOnly):ASTNode { return n; }
     public function filterValueNode(n:Value):ASTNode { return n; }
 }
@@ -1068,8 +1068,8 @@ class DeepCopier extends ASTFilter
     public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode { return new SetRuntimeProp(n.object, n.prop, n.child); }
     public override function filterGetVirtualPropNode(n:GetVirtualProp):ASTNode { return new GetVirtualProp(n.object, n.vprop); }
     public override function filterSetVirtualPropsNode(n:SetVirtualProps):ASTNode { return new SetVirtualProps(n.object, n.vprop0, n.child0, n.vprop1, n.child1); }
-    public override function filterSetVectorNode(n:SetVector):ASTNode { return new SetVector(n.vector, n.index, n.child); }
-    public override function filterGetVectorNode(n:GetVector):ASTNode { return new GetVector(n.vector, n.index); }
+    public override function filterSetRegisterNode(n:SetRegister):ASTNode { return new SetRegister(n.regv, n.index, n.child); }
+    public override function filterGetRegisterNode(n:GetRegister):ASTNode { return new GetRegister(n.regv, n.index); }
     public override function filterReadOnlyNode(n:ReadOnly):ASTNode { return new ReadOnly(n.child); }
     public override function filterValueNode(n:Value):ASTNode { return new Value(n.value); }
 }
@@ -1432,15 +1432,15 @@ class ASTDumper extends ASTFilter
         return n;
     }
 
-    public override  function filterSetVectorNode(n:SetVector):ASTNode
+    public override  function filterSetRegisterNode(n:SetRegister):ASTNode
     {
-        println("SetVector(" + n.index + ")");
+        println("SetRegister(" + n.index + ")");
         return n;
     }
 
-    public override function filterGetVectorNode(n:GetVector):ASTNode
+    public override function filterGetRegisterNode(n:GetRegister):ASTNode
     {
-        println("GetVector(" + n.index + ")");
+        println("GetRegister(" + n.index + ")");
         return n;
     }
 
