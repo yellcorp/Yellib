@@ -341,6 +341,9 @@ class SingleAxisLayout
 
         linebuf.push(DUMP_SEPARATOR, "updateProgram:");
         dumpAST(dumper, updateProgram, linebuf);
+
+        linebuf.push(DUMP_SEPARATOR, "measuredUpdateProgram:");
+        dumpAST(dumper, measuredUpdateProgram, linebuf);
     }
 
     private function compileMeasureProgram():void
