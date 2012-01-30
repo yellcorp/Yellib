@@ -702,6 +702,9 @@ interface ASTNode
 }
 
 
+/**
+ * Base class for binary mathematical operations
+ */
 class BinOp implements ASTNode
 {
     public var a:ASTNode;
@@ -727,6 +730,9 @@ class BinOp implements ASTNode
 }
 
 
+/**
+ * Returns a + b
+ */
 class Add extends BinOp
 {
     public function Add(a:ASTNode, b:ASTNode) { super(a, b); }
@@ -740,6 +746,10 @@ class Add extends BinOp
     }
 }
 
+
+/**
+ * Returns a - b
+ */
 class Subtract extends BinOp
 {
     public function Subtract(a:ASTNode, b:ASTNode) { super(a, b); }
@@ -754,6 +764,9 @@ class Subtract extends BinOp
 }
 
 
+/**
+ * Returns a * b
+ */
 class Multiply extends BinOp
 {
     public function Multiply(a:ASTNode, b:ASTNode) { super(a, b); }
@@ -768,6 +781,9 @@ class Multiply extends BinOp
 }
 
 
+/**
+ * Returns a / b
+ */
 class Divide extends BinOp
 {
     public function Divide(a:ASTNode, b:ASTNode) { super(a, b); }
@@ -782,6 +798,10 @@ class Divide extends BinOp
 }
 
 
+/**
+ * Rounds the value of a node to the nearest integer, with half-integer values
+ * rounding towards positive infinity.
+ */
 class Round implements ASTNode
 {
     public var child:ASTNode;
@@ -808,6 +828,10 @@ class Round implements ASTNode
 }
 
 
+/**
+ * Returns the value of a node, unless that value is less than 0, in which case
+ * returns 0.
+ */
 class Max0 implements ASTNode
 {
     public var child:ASTNode;
@@ -820,7 +844,7 @@ class Max0 implements ASTNode
     public function eval():*
     {
         var e:* = child.eval();
-        return e > 0 ? e : 0;
+        return e < 0 ? 0 : e;
     }
 
     public function acceptFilter(filter:ASTFilter):ASTNode
@@ -835,6 +859,9 @@ class Max0 implements ASTNode
 }
 
 
+/**
+ * Returns the value of an actual property on an object.
+ */
 class GetRuntimeProp implements ASTNode
 {
     public var object:Object;
@@ -856,6 +883,15 @@ class GetRuntimeProp implements ASTNode
 }
 
 
+/**
+ * Returns a virtual property of an object.  A virtual property is an
+ * intermediate abstraction that does not exist in the runtime, but will later
+ * be transformed into runtime terms by the VirtualGetResolver AST filter.
+ *
+ * Virtual property  |  X axis   |  Transformed into
+ * MID               |  HCENTER  |  object.x + object.width * 0.5
+ * MAX               |  RIGHT    |  object.x + object.width
+ */
 class GetVirtualProp implements ASTNode
 {
     public var object:Object;
@@ -877,6 +913,9 @@ class GetVirtualProp implements ASTNode
 }
 
 
+/**
+ * Sets an actual property on an object to the value of a node.
+ */
 class SetRuntimeProp implements ASTNode
 {
     public var object:Object;
@@ -903,6 +942,13 @@ class SetRuntimeProp implements ASTNode
 }
 
 
+/**
+ * Sets up to two virtual properties.  This is represented as a single node as
+ * both constraints must be known when generating SetRuntimeProp nodes.  When
+ * generating SetRuntimeProps, if only one property is given, the span
+ * (width/height) property of the target object should remain untouched unless
+ * specifically nominated.
+ */
 class SetVirtualProps implements ASTNode
 {
     public var object:Object;
@@ -941,6 +987,11 @@ class SetVirtualProps implements ASTNode
 }
 
 
+/**
+ * When evaluated, simply returns the result of its child node.  The existence
+ * of a ReadOnly node indicates this node can be replaced with its evaluated
+ * child node in the optimization phase.
+ */
 class ReadOnly implements ASTNode
 {
     public var child:ASTNode;
@@ -963,6 +1014,9 @@ class ReadOnly implements ASTNode
 }
 
 
+/**
+ * Returns the value of a register.
+ */
 class GetRegister implements ASTNode
 {
     public var regv:Vector.<Number>;
@@ -984,6 +1038,9 @@ class GetRegister implements ASTNode
 }
 
 
+/**
+ * Sets a register with the result of another node.
+ */
 class SetRegister implements ASTNode
 {
     public var regv:Vector.<Number>;
@@ -1010,6 +1067,9 @@ class SetRegister implements ASTNode
 }
 
 
+/**
+ * Stores a constant value.
+ */
 class Value implements ASTNode
 {
     public var value:*;
@@ -1078,6 +1138,9 @@ class DeepCopier extends ASTFilter
 }
 
 
+/**
+ * Resolves GetVirtualProp nodes into GetRuntimeProp nodes.
+ */
 class VirtualGetResolver extends ASTFilter
 {
     private var _axis:String;
@@ -1117,6 +1180,11 @@ class VirtualGetResolver extends ASTFilter
 }
 
 
+/**
+ * Uses an instance of PropertyAdapter to replace runtime property getters
+ * and setters with alternate property names.  This is motivated by the
+ * usefulness of transforming stage.width -> stage.stageWidth, etc.
+ */
 class PropertyTransformer extends ASTFilter
 {
     private var propertyAdapter:PropertyAdapter;
@@ -1145,6 +1213,12 @@ class PropertyTransformer extends ASTFilter
 }
 
 
+/**
+ * Inserts Max0 nodes between a SetRuntimeProp node and its value, if the
+ * SetRuntimeProp node writes to a 'width' or 'height' property.  This must be
+ * applied before PropertyTransformer as it has no concept of replaced property
+ * names.
+ */
 class Max0SpanSetters extends ASTFilter
 {
     public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
@@ -1161,6 +1235,9 @@ class Max0SpanSetters extends ASTFilter
 }
 
 
+/**
+ * Inserts Round nodes between a SetRuntimeProp node and its value
+ */
 class RoundSetters extends ASTFilter
 {
     public override function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
@@ -1170,6 +1247,9 @@ class RoundSetters extends ASTFilter
 }
 
 
+/**
+ * Replaces ReadOnly nodes with the evaluated value of their child node.
+ */
 class ReadOnlyEvaluator extends ASTFilter
 {
     public override function filterReadOnlyNode(n:ReadOnly):ASTNode
@@ -1179,6 +1259,9 @@ class ReadOnlyEvaluator extends ASTFilter
 }
 
 
+/**
+ * Evaluates an arithmetic node if all its children are Value nodes.
+ */
 class ArithmeticConstFolder extends ASTFilter
 {
     private var _replacements:int;
@@ -1249,6 +1332,16 @@ class ArithmeticConstFolder extends ASTFilter
 }
 
 
+/**
+ * Performs some simple transformations to eliminate unnecessary arithmetic
+ * operations:
+ *
+ * n +/- 0 or 0 +/- n  ->  n
+ * n * 0 or 0 * n  ->  0
+ * n * 1 or 1 * n  ->  n
+ * n / 1  ->  n
+ * 0 / n, n != 0  -> 0
+ */
 class ArithmeticOptimizer extends ASTFilter
 {
     private var _replacements:int;
@@ -1348,6 +1441,11 @@ class ArithmeticOptimizer extends ASTFilter
 }
 
 
+/**
+ * Accumulates a string representation of an AST and otherwise passes the
+ * AST unfiltered.  The result is an array of Strings, each representing a line
+ * of output.  For plaintext tracing, the lines array should be joined with "\n"
+ */
 class ASTDumper extends ASTFilter
 {
     public var lines:Array = [ ];
