@@ -220,14 +220,14 @@ class SingleAxisLayout
 
     private var registers:Vector.<Number>;
 
-    private var virtualMeasureProgram:Vector.<ASTNode>;
-    private var measureProgram:Vector.<ASTNode>;
+    private var virtualMeasureProgram:Program;
+    private var measureProgram:Program;
 
     private var virtualSettersByTarget:Dictionary;
-    private var virtualUpdateProgram:Vector.<SetVirtualProps>;
-    private var updateProgram:Vector.<ASTNode>;
+    private var virtualUpdateProgram:Program;
+    private var updateProgram:Program;
 
-    private var measuredUpdateProgram:Vector.<ASTNode>;
+    private var measuredUpdateProgram:Program;
 
     private var _nodeFactories:Object;
 
@@ -245,11 +245,11 @@ class SingleAxisLayout
         constrainCount = new Dictionary(true);
         registers = new Vector.<Number>();
 
-        virtualMeasureProgram = new Vector.<ASTNode>();
+        virtualMeasureProgram = new Program();
         measureProgram = null;
 
         virtualSettersByTarget = new Dictionary();
-        virtualUpdateProgram = new Vector.<SetVirtualProps>();
+        virtualUpdateProgram = new Program();
         updateProgram = null;
         measuredUpdateProgram = null;
     }
@@ -276,7 +276,7 @@ class SingleAxisLayout
         var storeNode:ASTNode = new SetRegister(registers, regIndex, measureNode);
         var calculateNode:ASTNode = nodeFactory.calculate(regIndex, relative, relativeVirtualProp);
 
-        virtualMeasureProgram.push(storeNode);
+        virtualMeasureProgram.nodes.push(storeNode);
         measureProgram = null;
 
         var existingSetter:SetVirtualProps = virtualSettersByTarget[target];
@@ -291,7 +291,7 @@ class SingleAxisLayout
         {
             virtualSettersByTarget[target] = existingSetter =
                 new SetVirtualProps(target, targetVirtualProp, calculateNode);
-            virtualUpdateProgram.push(existingSetter);
+            virtualUpdateProgram.nodes.push(existingSetter);
         }
         incrementConstraint(target);
     }
@@ -305,7 +305,7 @@ class SingleAxisLayout
     public function measure():void
     {
         if (!measureProgram) compileMeasureProgram();
-        run(measureProgram);
+        measureProgram.run();
         measuredUpdateProgram = null;
     }
 
@@ -313,17 +313,21 @@ class SingleAxisLayout
     {
         if (!measureProgram) measure();
         if (!updateProgram) compileUpdateProgram();
-        run(measuredUpdateProgram || updateProgram);
+
+        if (measuredUpdateProgram)
+            measuredUpdateProgram.run();
+        else
+            updateProgram.run();
     }
 
     public function optimize():void
     {
         if (!measureProgram) measure();
         if (!updateProgram) compileUpdateProgram();
-        measuredUpdateProgram = copyProgram(updateProgram);
-        filterProgram(measuredUpdateProgram, new ReadOnlyEvaluator());
-        filterProgram(measuredUpdateProgram, new ArithmeticConstFolder());
-        filterProgram(measuredUpdateProgram, new ArithmeticOptimizer());
+        measuredUpdateProgram = updateProgram.clone();
+        measuredUpdateProgram.filter(new ReadOnlyEvaluator());
+        measuredUpdateProgram.filter(new ArithmeticConstFolder());
+        measuredUpdateProgram.filter(new ArithmeticOptimizer());
     }
 
     public function dumpPrograms(linebuf:Array):void
@@ -338,7 +342,7 @@ class SingleAxisLayout
         dumpAST(dumper, measureProgram, linebuf);
 
         linebuf.push(DUMP_SEPARATOR, "virtualUpdateProgram:");
-        dumpAST(dumper, Vector.<ASTNode>(virtualUpdateProgram), linebuf);
+        dumpAST(dumper, virtualUpdateProgram, linebuf);
 
         linebuf.push(DUMP_SEPARATOR, "updateProgram:");
         dumpAST(dumper, updateProgram, linebuf);
@@ -349,28 +353,28 @@ class SingleAxisLayout
 
     private function compileMeasureProgram():void
     {
-        measureProgram = copyProgram(virtualMeasureProgram);
-        filterProgram(virtualMeasureProgram, virtualGetResolver);
-        filterProgram(measureProgram, propertyTransformer);
+        measureProgram = virtualMeasureProgram.clone();
+        measureProgram.filter(virtualGetResolver);
+        measureProgram.filter(propertyTransformer);
     }
 
     private function compileUpdateProgram():void
     {
         resolveVirtualSetters();
-        filterProgram(updateProgram, virtualGetResolver);
-        filterProgram(updateProgram, new Max0SpanSetters());
+        updateProgram.filter(virtualGetResolver);
+        updateProgram.filter(new Max0SpanSetters());
         if (rounding)
         {
-            filterProgram(updateProgram, new RoundSetters());
+            updateProgram.filter(new RoundSetters());
         }
-        filterProgram(updateProgram, propertyTransformer);
+        updateProgram.filter(propertyTransformer);
     }
 
     private function resolveVirtualSetters():void
     {
         var vset:SetVirtualProps;
-        updateProgram = new Vector.<ASTNode>();
-        for each (vset in virtualUpdateProgram)
+        updateProgram = new Program();
+        for each (vset in virtualUpdateProgram.nodes)
         {
             resolveVirtualSetter(vset);
         }
@@ -380,6 +384,7 @@ class SingleAxisLayout
     {
         var properties:int = vset.vprop0 | vset.vprop1;
         var target:Object = vset.object;
+        var programNodes:Vector.<ASTNode> = updateProgram.nodes;
 
         var a:ASTNode;
         var b:ASTNode;
@@ -399,14 +404,14 @@ class SingleAxisLayout
         {
         case MIN:
             // target.axis = a
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis, a)
             );
             break;
 
         case MID:
             // target.axis = a - target.span * .5
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis,
                     new Subtract(
                         a,
@@ -421,7 +426,7 @@ class SingleAxisLayout
 
         case MAX:
             // target.axis = a - object.span
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis,
                     new Subtract(
                         a,
@@ -433,7 +438,7 @@ class SingleAxisLayout
 
         case SPAN:
             // object.span = a
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, span, a)
             );
             break;
@@ -443,7 +448,7 @@ class SingleAxisLayout
             // b is mid
             // target.axis = a
             // target.span = (b - a) * 2
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis, a),
                 new SetRuntimeProp(target, span,
                     new Multiply(
@@ -459,7 +464,7 @@ class SingleAxisLayout
             // b is max
             // target.axis = a
             // target.span = b - a
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis, a),
                 new SetRuntimeProp(target, span,
                     new Subtract(b, a)
@@ -472,7 +477,7 @@ class SingleAxisLayout
             // b is span
             // target.axis = a
             // target.span = b
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis, a),
                 new SetRuntimeProp(target, span, b)
             );
@@ -483,7 +488,7 @@ class SingleAxisLayout
             // b is max
             // target.axis = (2 * a) - b
             // target.span = 2 * (b - a)
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis,
                     new Subtract(
                         new Multiply(
@@ -510,7 +515,7 @@ class SingleAxisLayout
             // b is span
             // target.axis = a - (b * .5)
             // target.span = b
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis,
                      new Subtract(
                         a,
@@ -529,7 +534,7 @@ class SingleAxisLayout
             // b is span
             // target.axis = a - b
             // target.span = b
-            updateProgram.push(
+            programNodes.push(
                 new SetRuntimeProp(target, _axis,
                     new Subtract(
                         a,
@@ -570,21 +575,12 @@ class SingleAxisLayout
         return f;
     }
 
-    private static function run(program:Vector.<ASTNode>):void
-    {
-        var node:ASTNode;
-        for each (node in program)
-        {
-            node.eval();
-        }
-    }
-
-    private static function dumpAST(dumper:ASTDumper, program:Vector.<ASTNode>, out:Array):void
+    private static function dumpAST(dumper:ASTDumper, program:Program, out:Array):void
     {
         if (program)
         {
             dumper.clear();
-            filterProgram(program, dumper);
+            program.filter(dumper);
             out.push.apply(out, dumper.lines);
         }
         else
@@ -592,24 +588,50 @@ class SingleAxisLayout
             out.push("null");
         }
     }
+}
 
-    private static function filterProgram(program:Vector.<ASTNode>, filter:ASTFilter):void
+
+class Program
+{
+    public var nodes:Vector.<ASTNode>;
+
+    public function Program(length:int = 0)
     {
-        for (var i:int = 0; i < program.length; i++)
+        if (length > 0)
         {
-            program[i] = filter.filter(program[i]);
+            nodes = new Vector.<ASTNode>(length, true);
+        }
+        else
+        {
+            nodes = new Vector.<ASTNode>();
         }
     }
 
-    private static function copyProgram(program:Vector.<ASTNode>):Vector.<ASTNode>
+    public function filter(astFilter:ASTFilter):void
     {
-        var copy:Vector.<ASTNode> = new Vector.<ASTNode>(program.length, true);
-        var deepCopier:DeepCopier = new DeepCopier();
-        for (var i:int = 0; i < program.length; i++)
+        for (var i:int = 0; i < nodes.length; i++)
         {
-            copy[i] = deepCopier.filter(program[i]);
+            nodes[i] = astFilter.filter(nodes[i]);
         }
-        return copy;
+    }
+
+    public function clone():Program
+    {
+        var c:Program = new Program(nodes.length);
+        var deepCopier:DeepCopier = new DeepCopier();
+        for (var i:int = 0; i < nodes.length; i++)
+        {
+            c.nodes[i] = deepCopier.filter(nodes[i]);
+        }
+        return c;
+    }
+
+    public function run():void
+    {
+        for each (var node:ASTNode in nodes)
+        {
+            node.eval();
+        }
     }
 }
 
