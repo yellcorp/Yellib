@@ -302,6 +302,7 @@ class SingleAxisLayout
     {
         resolveVirtualSetters();
         filterProgramInPlace(updateProgram, virtualGetResolver);
+        filterProgramInPlace(updateProgram, new Max0SpanSetters());
         if (rounding)
         {
             filterProgramInPlace(updateProgram, new RoundSetters());
@@ -737,6 +738,33 @@ class Round implements ASTNode
 }
 
 
+class Max0 implements ASTNode
+{
+    public var child:ASTNode;
+
+    public function Max0(child:ASTNode)
+    {
+        this.child = child;
+    }
+
+    public function eval():*
+    {
+        var e:* = child.eval();
+        return e > 0 ? e : 0;
+    }
+
+    public function acceptFilter(filter:ASTFilter):ASTNode
+    {
+        return filter.filterMax0Node(this);
+    }
+
+    public function filterChildren(filter:ASTFilter):void
+    {
+        child = filter.filter(child);
+    }
+}
+
+
 class GetRuntimeProp implements ASTNode
 {
     public var object:Object;
@@ -944,6 +972,7 @@ class ASTFilter
     public function filterMultiplyNode(n:Multiply):ASTNode { return n; }
     public function filterDivideNode(n:Divide):ASTNode { return n; }
     public function filterRoundNode(n:Round):ASTNode { return n; }
+    public function filterMax0Node(n:Max0):ASTNode { return n; }
     public function filterGetRuntimePropNode(n:GetRuntimeProp):ASTNode { return n; }
     public function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode { return n; }
     public function filterGetVirtualPropNode(n:GetVirtualProp):ASTNode { return n; }
@@ -990,6 +1019,22 @@ class VirtualGetResolver extends ASTFilter
             assert(false, "Unknown virtual property: " + n.vprop);
         }
         return null;
+    }
+}
+
+
+class Max0SpanSetters extends ASTFilter
+{
+    override public function filterSetRuntimePropNode(n:SetRuntimeProp):ASTNode
+    {
+        if (n.prop == "width" || n.prop == "height")
+        {
+            return new SetRuntimeProp(n.object, n.prop, new Max0(n.child));
+        }
+        else
+        {
+            return n;
+        }
     }
 }
 
