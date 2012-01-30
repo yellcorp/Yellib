@@ -218,7 +218,7 @@ class SingleAxisLayout
 
     private var constrainCount:Dictionary;
 
-    private var regs:Registers;
+    private var registers:Vector.<Number>;
 
     private var virtualMeasureProgram:Vector.<ASTNode>;
     private var measureProgram:Vector.<ASTNode>;
@@ -243,7 +243,7 @@ class SingleAxisLayout
         propertyTransformer = new PropertyTransformer(propertyAdapter);
 
         constrainCount = new Dictionary(true);
-        regs = new Registers();
+        registers = new Vector.<Number>();
 
         virtualMeasureProgram = new Vector.<ASTNode>();
         measureProgram = null;
@@ -271,9 +271,9 @@ class SingleAxisLayout
 
         var nodeFactory:NodeFactory = getNodeFactory(constraintType);
 
-        var regIndex:uint = regs.nextFreeIndex();
+        var regIndex:uint = allocateRegister();
         var measureNode:ASTNode = nodeFactory.measure(target, targetVirtualProp, relative, relativeVirtualProp);
-        var storeNode:ASTNode = new SetRegister(regs.regv, regIndex, measureNode);
+        var storeNode:ASTNode = new SetRegister(registers, regIndex, measureNode);
         var calculateNode:ASTNode = nodeFactory.calculate(regIndex, relative, relativeVirtualProp);
 
         virtualMeasureProgram.push(storeNode);
@@ -542,6 +542,12 @@ class SingleAxisLayout
         }
     }
 
+    private function allocateRegister():uint
+    {
+        registers.push(0);
+        return registers.length - 1;
+    }
+
     private function incrementConstraint(target:Object):void
     {
         var count:int = constrainCount[target];
@@ -553,8 +559,8 @@ class SingleAxisLayout
         if (!_nodeFactories)
         {
             var nf:Object = _nodeFactories = { };
-            nf[ConstraintType.OFFSET] = new OffsetNodeFactory(regs.regv);
-            nf[ConstraintType.PROPORTIONAL] = new ProportionalNodeFactory(regs.regv);
+            nf[ConstraintType.OFFSET] = new OffsetNodeFactory(registers);
+            nf[ConstraintType.PROPORTIONAL] = new ProportionalNodeFactory(registers);
         }
         var f:NodeFactory = _nodeFactories[constraintType];
         if (!f) throw new ArgumentError("Invalid constraint type: " + constraintType);
@@ -602,23 +608,6 @@ class SingleAxisLayout
         }
         filterProgramInPlace(copy, filter);
         return copy;
-    }
-}
-
-
-class Registers
-{
-    public var regv:Vector.<Number>;
-
-    public function Registers()
-    {
-        regv = new Vector.<Number>();
-    }
-
-    public function nextFreeIndex():uint
-    {
-        regv.push(0);
-        return regv.length - 1;
     }
 }
 
