@@ -25,7 +25,7 @@ public class TestLayout extends Sprite
     {
         super();
         addChild(a = makeBox( 50, 50, 100, 100, 0x993333));
-        addChild(b = makeBox(170, 50, 100, 100, 0x333399));
+        addChild(b = makeBox(150, 50, 100, 100, 0x333399));
         addEventListener(Event.ADDED_TO_STAGE, onStage);
     }
 
