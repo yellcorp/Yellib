@@ -1,4 +1,4 @@
 package org.yellcorp.lib.layout.properties
 {
-public const LEFT:String = "left";
+public const LEFT:String = "x";
 }
