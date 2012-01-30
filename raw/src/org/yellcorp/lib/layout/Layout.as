@@ -10,7 +10,7 @@ public class Layout
     private static var _propToAxis:Object;
     private static var _propToVirtualProp:Object;
 
-    private var propertyConstraints:*;
+    private var propertyConstraints:Dictionary;
 
     private var xAxis:SingleAxisLayout;
     private var yAxis:SingleAxisLayout;
@@ -242,7 +242,7 @@ class SingleAxisLayout
     {
         if (!canConstrain(target))
         {
-            throw new ArgumentError("Target cannot acceptFilter any more constraints in the " + _axis + " axis");
+            throw new ArgumentError("Target cannot accept any more constraints in the " + _axis + " axis");
         }
 
         var nodeFactory:NodeFactory = getNodeFactory(constraintType);
@@ -274,12 +274,8 @@ class SingleAxisLayout
 
     public function canConstrain(target:Object):Boolean
     {
-        var count:Number = constrainCount[target];
-
-        // doing it backwards like this means we return true for
-        // NaN as well, which constrainCount will be if we have
-        // no record at all for target
-        return !(count >= 2);
+        var count:int = constrainCount[target];
+        return count < 2;
     }
 
     public function measure():void
@@ -298,6 +294,7 @@ class SingleAxisLayout
 
     public function optimize():void
     {
+        if (!measureProgram) measure();
         if (!updateProgram) compileUpdateProgram();
         measuredUpdateProgram = filterProgramCopy(updateProgram, new ReadOnlyEvaluator());
         filterProgramInPlace(measuredUpdateProgram, new ArithmeticConstFolder());
@@ -502,8 +499,8 @@ class SingleAxisLayout
 
     private function incrementConstraint(target:Object):void
     {
-        var count:Number = constrainCount[target];
-        constrainCount[target] = isNaN(count) ? 1 : count + 1;
+        var count:int = constrainCount[target];
+        constrainCount[target] = count + 1;
     }
 
     private function getNodeFactory(constraintType:String):NodeFactory
@@ -848,18 +845,23 @@ class SetRuntimeProp implements ASTNode
 class SetVirtualProps implements ASTNode
 {
     public var object:Object;
+
     public var vprop0:uint;
-    public var vprop1:uint;
     public var child0:ASTNode;
+
+    public var vprop1:uint;
     public var child1:ASTNode;
+
     public function SetVirtualProps(object:Object,
             vprop0:uint, child0:ASTNode,
             vprop1:uint = 0, child1:ASTNode = null)
     {
         this.object = object;
+
         this.vprop0 = vprop0;
-        this.vprop1 = vprop1;
         this.child0 = child0;
+
+        this.vprop1 = vprop1;
         this.child1 = child1;
     }
     public function eval():*
