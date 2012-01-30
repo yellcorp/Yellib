@@ -1154,6 +1154,18 @@ class ArithmeticConstFolder extends ASTFilter
             return n;
         }
     }
+    public override function filterMax0Node(n:Max0):ASTNode
+    {
+        if (n.child is Value)
+        {
+            _replacements++;
+            return new Value(n.eval());
+        }
+        else
+        {
+            return n;
+        }
+    }
 }
 
 
