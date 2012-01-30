@@ -320,9 +320,10 @@ class SingleAxisLayout
     {
         if (!measureProgram) measure();
         if (!updateProgram) compileUpdateProgram();
-        measuredUpdateProgram = filterProgramCopy(updateProgram, new ReadOnlyEvaluator());
-        filterProgramInPlace(measuredUpdateProgram, new ArithmeticConstFolder());
-        filterProgramInPlace(measuredUpdateProgram, new ArithmeticOptimizer());
+        measuredUpdateProgram = copyProgram(updateProgram);
+        filterProgram(measuredUpdateProgram, new ReadOnlyEvaluator());
+        filterProgram(measuredUpdateProgram, new ArithmeticConstFolder());
+        filterProgram(measuredUpdateProgram, new ArithmeticOptimizer());
     }
 
     public function dumpPrograms(linebuf:Array):void
@@ -348,19 +349,21 @@ class SingleAxisLayout
 
     private function compileMeasureProgram():void
     {
-        measureProgram = filterProgramCopy(virtualMeasureProgram, virtualGetResolver);
+        measureProgram = copyProgram(virtualMeasureProgram);
+        filterProgram(virtualMeasureProgram, virtualGetResolver);
+        filterProgram(measureProgram, propertyTransformer);
     }
 
     private function compileUpdateProgram():void
     {
         resolveVirtualSetters();
-        filterProgramInPlace(updateProgram, virtualGetResolver);
-        filterProgramInPlace(updateProgram, new Max0SpanSetters());
+        filterProgram(updateProgram, virtualGetResolver);
+        filterProgram(updateProgram, new Max0SpanSetters());
         if (rounding)
         {
-            filterProgramInPlace(updateProgram, new RoundSetters());
+            filterProgram(updateProgram, new RoundSetters());
         }
-        filterProgramInPlace(updateProgram, propertyTransformer);
+        filterProgram(updateProgram, propertyTransformer);
     }
 
     private function resolveVirtualSetters():void
@@ -581,7 +584,7 @@ class SingleAxisLayout
         if (program)
         {
             dumper.clear();
-            filterProgramInPlace(program, dumper);
+            filterProgram(program, dumper);
             out.push.apply(out, dumper.lines);
         }
         else
@@ -590,7 +593,7 @@ class SingleAxisLayout
         }
     }
 
-    private static function filterProgramInPlace(program:Vector.<ASTNode>, filter:ASTFilter):void
+    private static function filterProgram(program:Vector.<ASTNode>, filter:ASTFilter):void
     {
         for (var i:int = 0; i < program.length; i++)
         {
@@ -598,7 +601,7 @@ class SingleAxisLayout
         }
     }
 
-    private static function filterProgramCopy(program:Vector.<ASTNode>, filter:ASTFilter):Vector.<ASTNode>
+    private static function copyProgram(program:Vector.<ASTNode>):Vector.<ASTNode>
     {
         var copy:Vector.<ASTNode> = new Vector.<ASTNode>(program.length, true);
         var deepCopier:DeepCopier = new DeepCopier();
@@ -606,7 +609,6 @@ class SingleAxisLayout
         {
             copy[i] = deepCopier.filter(program[i]);
         }
-        filterProgramInPlace(copy, filter);
         return copy;
     }
 }
