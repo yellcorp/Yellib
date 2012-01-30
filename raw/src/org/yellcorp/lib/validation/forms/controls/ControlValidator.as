@@ -1,8 +1,8 @@
-package org.yellcorp.lib.validate.controls
+package org.yellcorp.lib.validation.forms.controls
 {
 import org.yellcorp.lib.core.Disposable;
 import org.yellcorp.lib.error.AbstractCallError;
-import org.yellcorp.lib.validate.ValidationValue;
+import org.yellcorp.lib.validation.forms.ValidationValue;
 
 import flash.events.Event;
 import flash.events.EventDispatcher;

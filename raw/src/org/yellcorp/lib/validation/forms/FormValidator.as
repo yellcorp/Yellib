@@ -1,14 +1,14 @@
-package org.yellcorp.lib.validate
+package org.yellcorp.lib.validation.forms
 {
-import org.yellcorp.lib.validate.controls.ControlValidator;
-import org.yellcorp.lib.validate.controls.ValidateControlEvent;
+import org.yellcorp.lib.validation.forms.controls.ControlValidator;
+import org.yellcorp.lib.validation.forms.controls.ValidateControlEvent;
 
 import flash.events.EventDispatcher;
 import flash.utils.Dictionary;
 
 
-[Event(name="accepted", type="org.yellcorp.lib.validate.ValidateEvent")]
-[Event(name="rejected", type="org.yellcorp.lib.validate.ValidateEvent")]
+[Event(name="accepted", type="org.yellcorp.lib.validation.forms.ValidateEvent")]
+[Event(name="rejected", type="org.yellcorp.lib.validation.forms.ValidateEvent")]
 public class FormValidator extends EventDispatcher
 {
     private var validators:Array;

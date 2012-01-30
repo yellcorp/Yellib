@@ -1,4 +1,4 @@
-package org.yellcorp.lib.validate.controls
+package org.yellcorp.lib.validation.forms.controls
 {
 import flash.events.Event;
 import flash.events.FocusEvent;

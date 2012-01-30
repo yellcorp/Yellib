@@ -1,4 +1,4 @@
-package org.yellcorp.lib.validate
+package org.yellcorp.lib.validation.forms
 {
 import flash.events.Event;
 
