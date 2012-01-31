@@ -35,6 +35,8 @@ public class TextFieldBuilder
     private var _acceptsInput:Boolean = false;
     private var _useRichTextClipboard:Boolean;
 
+    private var _x:Number;
+    private var _y:Number;
     private var _width:Number;
     private var _height:Number;
 
@@ -187,6 +189,34 @@ public class TextFieldBuilder
     public function useRichTextClipboard(newUseRichTextClipboard:Boolean):TextFieldBuilder
     {
         _useRichTextClipboard = newUseRichTextClipboard;
+        return this;
+    }
+
+
+    public function x(newX:Number):TextFieldBuilder
+    {
+        _x = newX;
+        return this;
+    }
+
+
+    public function addX(newAddX:Number):TextFieldBuilder
+    {
+        _x = isFinite(_x) ? _x + newAddX : newAddX;
+        return this;
+    }
+
+
+    public function y(newY:Number):TextFieldBuilder
+    {
+        _y = newY;
+        return this;
+    }
+
+
+    public function addY(newAddY:Number):TextFieldBuilder
+    {
+        _y = isFinite(_y) ? _y + newAddY : newAddY;
         return this;
     }
 
@@ -437,11 +467,14 @@ public class TextFieldBuilder
         field.useRichTextClipboard = _useRichTextClipboard;
         field.mouseWheelEnabled = _mouseWheelEnabled;
 
-        if (isFinite(_width))
-            field.width = _width;
+        if (isFinite(_x)) field.x = _x;
+        if (isFinite(_y)) field.y = _y;
+        if (isFinite(_width)) field.width = _width;
 
         if (isFinite(_height))
+        {
             field.height = _height;
+        }
         else
         {
             field.text = "M";
