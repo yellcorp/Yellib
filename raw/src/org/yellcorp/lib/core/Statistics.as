@@ -1,5 +1,8 @@
 package org.yellcorp.lib.core
 {
+import flash.geom.Point;
+
+
 /**
  * Functions for basic statistical calculations.
  */
@@ -98,6 +101,57 @@ public class Statistics
     public static function standardDeviation(values:Array, weights:Array = null):Number
     {
         return Math.sqrt(variance(values, weights));
+    }
+
+    /**
+     * Calculates the parameters of a least-squares regression line through a
+     * set of points.
+     *
+     * @param xValues  An Array or Vector.<Number> of x (independent) sample
+     *                 values.
+     * @param yValues  An Array or Vector.<Number> of y (dependent) sample
+     *                 values. Must have the same number of elements as xValues.
+     * @param out      An optional existing object in which to store the
+     *                 result. If it is provided, it must have settable x and y
+     *                 properties.  If none is provided, a Point will be
+     *                 constructed.
+     * @return  The result stored in the object passed in out, or a new Point if
+     *          out is not provided.  The x property will contain m, the
+     *          factor of x representing the slope of a line.  The y property
+     *          will contain b, the y-axis intercept.
+     */
+    public static function linearRegression(xValues:*, yValues:*, out:* = null):*
+    {
+        if (xValues.length != yValues.length)
+        {
+            throw new ArgumentError("Arrays must be of equal length");
+        }
+        if (!out) out = new Point();
+
+        var sumx:Number = 0;
+        var sumy:Number = 0;
+        var sumxx:Number = 0;
+        var sumxy:Number = 0;
+
+        var n:Number = xValues.length;
+        var x:Number;
+        var y:Number;
+
+        for (var i:int = 0; i < n; i++)
+        {
+            x = xValues[i];  y = yValues[i];
+            sumx += x;
+            sumy += y;
+            sumxx += x * x;
+            sumxy += x * y;
+        }
+
+        var m:Number = (n * sumxy - sumx * sumy) / (n * sumxx - sumx * sumx);
+
+        out.x = m;
+        out.y = (sumy - m * sumx) / n;
+
+        return out;
     }
 }
 }
