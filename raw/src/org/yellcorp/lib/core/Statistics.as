@@ -40,9 +40,9 @@ public class Statistics
      * Returns the arithmetic mean (average) of numbers in an Array. An
      * optional weighting array can be provided.
      *
-     * @param values  An array of numbers to average.
-     * @param weights An array of weights. If not provided, all elements in
-     *                the <code>values</code> are considered equally
+     * @param values  An Array or Vector.&lt;Number&gt; of values to average.
+     * @param weights An Array or Vector.&lt;Number&gt; of weights. If not provided,
+     *                all elements in <code>values</code> are considered equally
      *                weighted. If provided, it must have the same number
      *                of elements as <code>values</code>.
      *
@@ -50,7 +50,7 @@ public class Statistics
      * @throws ArgumentError If a weights array is passed and it does not
      *                have the same number of elements as the values array.
      */
-    public static function mean(values:Array, weights:Array = null):Number
+    public static function mean(values:*, weights:* = null):Number
     {
         var valueSum:Number = 0;
         var weightSum:Number = 0;
@@ -83,7 +83,7 @@ public class Statistics
         }
     }
 
-    public static function variance(values:Array, weights:Array = null):Number
+    public static function variance(values:*, weights:* = null):Number
     {
         var valueMean:Number = mean(values, weights);
         var meanDiff:Number;
@@ -98,7 +98,7 @@ public class Statistics
         return mean(diffSquared, weights);
     }
 
-    public static function standardDeviation(values:Array, weights:Array = null):Number
+    public static function standardDeviation(values:*, weights:* = null):Number
     {
         return Math.sqrt(variance(values, weights));
     }
@@ -107,9 +107,9 @@ public class Statistics
      * Calculates the parameters of a least-squares regression line through a
      * set of points.
      *
-     * @param xValues  An Array or Vector.<Number> of x (independent) sample
+     * @param xValues  An Array or Vector.&lt;Number&gt; of x (independent) sample
      *                 values.
-     * @param yValues  An Array or Vector.<Number> of y (dependent) sample
+     * @param yValues  An Array or Vector.&lt;Number&gt; of y (dependent) sample
      *                 values. Must have the same number of elements as xValues.
      * @param out      An optional existing object in which to store the
      *                 result. If it is provided, it must have settable x and y
