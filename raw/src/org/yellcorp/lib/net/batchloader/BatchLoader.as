@@ -329,12 +329,11 @@ public class BatchLoader extends EventDispatcher
             throw new ArgumentError("id already exists: " + id);
         }
 
+        // this overrides the estimatedBytesTotal parameter to keep
+        // progress property from possibly jumping around
         if (idToEstimation.hasOwnProperty(id))
         {
-            if (estimatedBytesTotal == 0)
-            {
-                estimatedBytesTotal = idToEstimation[id];
-            }
+            estimatedBytesTotal = idToEstimation[id];
             delete idToEstimation[id];
         }
 
