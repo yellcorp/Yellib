@@ -110,11 +110,19 @@ public class BitmapLoader extends EventDispatcher
 
         _width = loader.contentLoaderInfo.width;
         _height = loader.contentLoaderInfo.height;
-        renderedImage = new BitmapData(_width, _height, true, 0);
-        renderedImage.draw(loader);
-        setImage(renderedImage);
-        dispatchEvent(event);
 
+        try {
+            renderedImage = new BitmapData(_width, _height, true, 0);
+            renderedImage.draw(loader);
+            setImage(renderedImage);
+            dispatchEvent(event);
+        }
+        catch (ae:ArgumentError)
+        {
+            dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR, false, false,
+                "The loaded image exceeds the maximum dimensions for BitmapData"));
+            setImage(null);
+        }
         displayLoader.unload();
     }
 
