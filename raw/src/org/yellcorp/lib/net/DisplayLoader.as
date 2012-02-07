@@ -1,8 +1,5 @@
-package org.yellcorp.lib.bitmap
+package org.yellcorp.lib.net
 {
-import org.yellcorp.lib.net.LoaderContextFactory;
-
-import flash.display.BitmapData;
 import flash.display.Loader;
 import flash.display.LoaderInfo;
 import flash.events.ErrorEvent;
@@ -24,7 +21,7 @@ import flash.system.LoaderContext;
 [Event(name="progress", type="flash.events.ProgressEvent")]
 [Event(name="complete", type="flash.events.Event")]
 [Event(name="open", type="flash.events.Event")]
-public class BitmapLoader extends EventDispatcher
+public class DisplayLoader extends EventDispatcher
 {
     public var loaderContextFactory:LoaderContextFactory;
 
@@ -33,13 +30,9 @@ public class BitmapLoader extends EventDispatcher
     private var _currentRequest:URLRequest;
     private var _connectionOpen:Boolean;
     private var _httpStatusHistory:Array;
-    private var imageDecoder:Loader;
+    private var byteDecoder:Loader;
 
-    private var image:BitmapData;
-    private var _width:int;
-    private var _height:int;
-
-    public function BitmapLoader(request:URLRequest = null, loaderContextFactory:LoaderContextFactory = null)
+    public function DisplayLoader(request:URLRequest = null, loaderContextFactory:LoaderContextFactory = null)
     {
         super();
         this.loaderContextFactory = loaderContextFactory;
@@ -72,19 +65,9 @@ public class BitmapLoader extends EventDispatcher
         return _httpStatusHistory[_httpStatusHistory.length - 1];
     }
 
-    public function get width():int
-    {
-        return _width;
-    }
-
-    public function get height():int
-    {
-        return _height;
-    }
-
     public function load(request:URLRequest):void
     {
-        clear();
+        unload();
         _currentRequest = request;
         _connectionOpen = true;
 
@@ -93,18 +76,21 @@ public class BitmapLoader extends EventDispatcher
 
     public function dispose():void
     {
-        clear();
+        unload();
         removeByteLoadListeners(byteLoader);
         byteLoader = null;
     }
 
-    public function clear():void
+    public function unload():void
     {
         close();
         _currentRequest = null;
-        setImage(null);
         _httpStatusHistory = [ ];
-        _width = _height = -1;
+        if (byteDecoder)
+        {
+            unloadLoader(byteDecoder);
+            byteDecoder = null;
+        }
     }
 
     public function close():void
@@ -116,9 +102,18 @@ public class BitmapLoader extends EventDispatcher
         _connectionOpen = false;
     }
 
-    public function copyBitmapData():BitmapData
+    public function removeDisplay():Loader
     {
-        return image ? image.clone() : null;
+        if (byteDecoder)
+        {
+            var result:Loader = byteDecoder;
+            byteDecoder = null;
+            return result;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     private function onByteLoadStatus(event:HTTPStatusEvent):void
@@ -131,11 +126,11 @@ public class BitmapLoader extends EventDispatcher
     {
         _connectionOpen = false;
 
-        imageDecoder = new Loader();
+        byteDecoder = new Loader();
         var loaderContext:LoaderContext = createContext(_currentRequest);
-        addImageDecodeListeners(imageDecoder);
+        addDecoderListeners(byteDecoder);
 
-        imageDecoder.loadBytes(byteLoader.data, loaderContext);
+        byteDecoder.loadBytes(byteLoader.data, loaderContext);
     }
 
     private function onByteLoadError(event:ErrorEvent):void
@@ -144,45 +139,29 @@ public class BitmapLoader extends EventDispatcher
         dispatchEvent(event);
     }
 
-    private function onImageDecodeComplete(event:Event):void
+    private function onDecodeComplete(event:Event):void
     {
         var target:Loader = LoaderInfo(event.target).loader;
-        var renderedImage:BitmapData;
 
-        removeImageDecodeListeners(target);
-        if (target === imageDecoder)
-        {
-            _width = target.contentLoaderInfo.width;
-            _height = target.contentLoaderInfo.height;
-            renderedImage = new BitmapData(_width, _height, true, 0);
-            renderedImage.draw(target);
-            setImage(renderedImage);
-            dispatchEvent(event);
-        }
-
-        try {
-            target['unloadAndStop']();
-        }
-        catch (re:ReferenceError)
-        {
-            target.unload();
-        }
-    }
-
-    private function onImageDecodeError(event:IOErrorEvent):void
-    {
-        var target:Loader = LoaderInfo(event.target).loader;
-        removeImageDecodeListeners(target);
-        if (target === imageDecoder)
+        removeDecoderListeners(target);
+        if (target === byteDecoder)
         {
             dispatchEvent(event);
         }
+        else
+        {
+            unloadLoader(target);
+        }
     }
 
-    private function setImage(newImage:BitmapData):void
+    private function onDecodeError(event:IOErrorEvent):void
     {
-        if (image) image.dispose();
-        image = newImage;
+        var target:Loader = LoaderInfo(event.target).loader;
+        removeDecoderListeners(target);
+        if (target === byteDecoder)
+        {
+            dispatchEvent(event);
+        }
     }
 
     private function createContext(forRequest:URLRequest):LoaderContext
@@ -210,18 +189,29 @@ public class BitmapLoader extends EventDispatcher
         target.removeEventListener(HTTPStatusEvent.HTTP_STATUS, onByteLoadStatus);
     }
 
-    private function addImageDecodeListeners(target:Loader):void
+    private function addDecoderListeners(target:Loader):void
     {
         var cli:LoaderInfo = target.contentLoaderInfo;
-        cli.addEventListener(Event.COMPLETE, onImageDecodeComplete);
-        cli.addEventListener(IOErrorEvent.IO_ERROR, onImageDecodeError);
+        cli.addEventListener(Event.COMPLETE, onDecodeComplete);
+        cli.addEventListener(IOErrorEvent.IO_ERROR, onDecodeError);
     }
 
-    private function removeImageDecodeListeners(target:Loader):void
+    private function removeDecoderListeners(target:Loader):void
     {
         var cli:LoaderInfo = target.contentLoaderInfo;
-        cli.addEventListener(Event.COMPLETE, onImageDecodeComplete);
-        cli.addEventListener(IOErrorEvent.IO_ERROR, onImageDecodeError);
+        cli.addEventListener(Event.COMPLETE, onDecodeComplete);
+        cli.addEventListener(IOErrorEvent.IO_ERROR, onDecodeError);
+    }
+
+    private static function unloadLoader(target:Loader):void
+    {
+        try {
+            target['unloadAndStop']();
+        }
+        catch (re:ReferenceError)
+        {
+            target.unload();
+        }
     }
 }
 }
