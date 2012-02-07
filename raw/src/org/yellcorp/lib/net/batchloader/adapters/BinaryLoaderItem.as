@@ -4,14 +4,20 @@ import org.yellcorp.lib.net.batchloader.adapters.base.BaseURLLoaderItem;
 
 import flash.net.URLLoaderDataFormat;
 import flash.net.URLRequest;
+import flash.utils.ByteArray;
 
 
-public class BinaryLoader extends BaseURLLoaderItem
+public class BinaryLoaderItem extends BaseURLLoaderItem
 {
-    public function BinaryLoader(request:URLRequest)
+    public function BinaryLoaderItem(request:URLRequest)
     {
         super(request);
         urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+    }
+
+    public function get bytes():ByteArray
+    {
+        return urlLoader.data;
     }
 }
 }

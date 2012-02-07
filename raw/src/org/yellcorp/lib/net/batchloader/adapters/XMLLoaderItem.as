@@ -8,9 +8,9 @@ import org.yellcorp.lib.net.batchloader.adapters.base.BaseURLLoaderItem;
 import flash.net.URLRequest;
 
 
-public class XMLLoader extends BaseURLLoaderItem
+public class XMLLoaderItem extends BaseURLLoaderItem
 {
-    public function XMLLoader(request:URLRequest)
+    public function XMLLoaderItem(request:URLRequest)
     {
         super(request, new URLXMLLoader());
         urlLoader.dataFormat = URLXMLLoaderDataFormat.XML;
@@ -21,6 +21,11 @@ public class XMLLoader extends BaseURLLoaderItem
     {
         urlLoader.removeEventListener(XMLParseErrorEvent.XML_PARSE_ERROR, onError);
         super.dispose();
+    }
+
+    public function get xml():XML
+    {
+        return urlLoader.data;
     }
 }
 }

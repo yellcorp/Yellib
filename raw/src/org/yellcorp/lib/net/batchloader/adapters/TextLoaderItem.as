@@ -6,12 +6,17 @@ import flash.net.URLLoaderDataFormat;
 import flash.net.URLRequest;
 
 
-public class TextLoader extends BaseURLLoaderItem
+public class TextLoaderItem extends BaseURLLoaderItem
 {
-    public function TextLoader(request:URLRequest)
+    public function TextLoaderItem(request:URLRequest)
     {
         super(request);
         urlLoader.dataFormat = URLLoaderDataFormat.TEXT;
+    }
+
+    public function get text():String
+    {
+        return urlLoader.data;
     }
 }
 }

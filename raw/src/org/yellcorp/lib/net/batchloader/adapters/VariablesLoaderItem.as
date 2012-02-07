@@ -4,14 +4,20 @@ import org.yellcorp.lib.net.batchloader.adapters.base.BaseURLLoaderItem;
 
 import flash.net.URLLoaderDataFormat;
 import flash.net.URLRequest;
+import flash.net.URLVariables;
 
 
-public class VariablesLoader extends BaseURLLoaderItem
+public class VariablesLoaderItem extends BaseURLLoaderItem
 {
-    public function VariablesLoader(request:URLRequest)
+    public function VariablesLoaderItem(request:URLRequest)
     {
         super(request);
         urlLoader.dataFormat = URLLoaderDataFormat.VARIABLES;
+    }
+
+    public function get variables():URLVariables
+    {
+        return urlLoader.data;
     }
 }
 }

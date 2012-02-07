@@ -102,7 +102,7 @@ public class DisplayLoader extends EventDispatcher
         _connectionOpen = false;
     }
 
-    public function removeDisplay():Loader
+    public function removeDisplayObject():Loader
     {
         if (byteDecoder)
         {

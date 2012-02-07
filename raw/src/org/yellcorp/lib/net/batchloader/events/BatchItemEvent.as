@@ -1,5 +1,7 @@
 package org.yellcorp.lib.net.batchloader.events
 {
+import org.yellcorp.lib.net.batchloader.adapters.BatchLoaderItem;
+
 import flash.events.Event;
 
 
@@ -7,19 +9,22 @@ public class BatchItemEvent extends Event
 {
     public static const ITEM_LOAD_START:String = "itemLoadStart";
     public static const ITEM_COMPLETE:String = "itemComplete";
-    public static const STATUS_CHANGE:String = "statusChange";
 
     private var _id:String;
+    private var _item:BatchLoaderItem;
 
-    public function BatchItemEvent(type:String, id:String, bubbles:Boolean = false, cancelable:Boolean = false)
+    public function BatchItemEvent(type:String,
+        id:String = null, item:BatchLoaderItem = null,
+        bubbles:Boolean = false, cancelable:Boolean = false)
     {
         super(type, bubbles, cancelable);
         _id = id;
+        _item = item;
     }
 
     public override function clone():Event
     {
-        return new BatchItemEvent(type, _id, bubbles, cancelable);
+        return new BatchItemEvent(type, _id, _item, bubbles, cancelable);
     }
 
     public override function toString():String
@@ -30,6 +35,11 @@ public class BatchItemEvent extends Event
     public function get id():String
     {
         return _id;
+    }
+
+    public function get item():BatchLoaderItem
+    {
+        return _item;
     }
 }
 }

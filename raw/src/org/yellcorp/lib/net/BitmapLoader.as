@@ -106,7 +106,7 @@ public class BitmapLoader extends EventDispatcher
     {
         var renderedImage:BitmapData;
 
-        var loader:Loader = displayLoader.removeDisplay();
+        var loader:Loader = displayLoader.removeDisplayObject();
 
         _width = loader.contentLoaderInfo.width;
         _height = loader.contentLoaderInfo.height;

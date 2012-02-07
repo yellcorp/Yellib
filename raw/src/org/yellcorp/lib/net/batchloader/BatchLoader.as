@@ -12,19 +12,22 @@ import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.HTTPStatusEvent;
 import flash.events.ProgressEvent;
+import flash.net.URLRequest;
 import flash.utils.Dictionary;
 
 
 [Event(name="batchProgress", type="org.yellcorp.lib.net.batchloader.events.BatchLoaderProgressEvent")]
-[Event(name="itemError",     type="org.yellcorp.lib.net.batchloader.events.BatchItemErrorEvent")]
 [Event(name="itemComplete",  type="org.yellcorp.lib.net.batchloader.events.BatchItemEvent")]
+[Event(name="itemError",     type="org.yellcorp.lib.net.batchloader.events.BatchItemErrorEvent")]
 [Event(name="itemLoadStart", type="org.yellcorp.lib.net.batchloader.events.BatchItemEvent")]
+[Event(name="queueComplete", type="org.yellcorp.lib.net.batchloader.events.BatchLoaderEvent")]
 [Event(name="queueStart",    type="org.yellcorp.lib.net.batchloader.events.BatchLoaderEvent")]
-[Event(name="queueEmpty",    type="org.yellcorp.lib.net.batchloader.events.BatchLoaderEvent")]
 // TODO: critical items
 
 public class BatchLoader extends EventDispatcher
 {
+    public var loaderItemFactory:BatchLoaderItemFactory;
+
     private var _order:String;
     private var _concurrent:uint = 1;
 
@@ -40,9 +43,11 @@ public class BatchLoader extends EventDispatcher
     private var zeroPoint:int;
     private var _zeroWhenTotalKnown:Boolean;
 
-    private var _wasComplete:Boolean;
+    private var _wasComplete:Boolean = true;
 
-    public function BatchLoader(concurrent:uint = 1, order:String = null)
+    public function BatchLoader(concurrent:uint = 1,
+        order:String = BatchLoaderOrder.FIFO,
+        loaderItemFactory:BatchLoaderItemFactory = null)
     {
         super();
 
@@ -53,6 +58,7 @@ public class BatchLoader extends EventDispatcher
 
         waitingQueue = [ ];
 
+        this.loaderItemFactory = loaderItemFactory;
         this.order = order;
         this.concurrent = concurrent;
     }
@@ -229,15 +235,10 @@ public class BatchLoader extends EventDispatcher
 
     public function set order(new_order:String):void
     {
-        if (!new_order)
-        {
-            new_order = BatchLoaderOrder.FIFO;
-        }
-        else if (new_order != BatchLoaderOrder.FIFO && new_order != BatchLoaderOrder.LIFO)
+        if (new_order != BatchLoaderOrder.FIFO && new_order != BatchLoaderOrder.LIFO)
         {
             throw new ArgumentError("Invalid value for order: " + new_order);
         }
-
         if (_order !== new_order)
         {
             _order = new_order;
@@ -350,6 +351,13 @@ public class BatchLoader extends EventDispatcher
         fillQueue();
     }
 
+
+    public function addRequest(id:String, request:URLRequest, estimatedBytesTotal:uint = 0):void
+    {
+        addItem(id, getLoaderItemFactory().createItem(request), estimatedBytesTotal);
+    }
+
+
     public function get active():Boolean
     {
         return _active;
@@ -377,7 +385,7 @@ public class BatchLoader extends EventDispatcher
     {
         for each (var item:BatchLoaderItem in getItemsByState(ItemState.ERROR))
         {
-            getMetadata(item).state = ItemState.WAITING;
+            getMetadata(item).reset();
             requeueItem(item);
         }
         fillQueue();
@@ -472,6 +480,7 @@ public class BatchLoader extends EventDispatcher
     private function startItem(item:BatchLoaderItem):void
     {
         try {
+            getMetadata(item).state = ItemState.OPEN;
             listenItem(item);
             item.start();
         }
@@ -483,15 +492,15 @@ public class BatchLoader extends EventDispatcher
 
     private function handleItemStart(item:BatchLoaderItem):void
     {
-        dispatchEvent(new BatchItemEvent(BatchItemEvent.ITEM_LOAD_START, getItemId(item)));
-        getMetadata(item).state = ItemState.OPEN;
+        dispatchItemEvent(BatchItemEvent.ITEM_LOAD_START, item);
+        getMetadata(item).startHandled = true;
     }
 
     private function onItemProgress(event:ProgressEvent):void
     {
         var item:BatchLoaderItem = BatchLoaderItem(event.target);
 
-        if (getMetadata(item).state != ItemState.OPEN)
+        if (!getMetadata(item).startHandled)
         {
             handleItemStart(item);
         }
@@ -502,7 +511,12 @@ public class BatchLoader extends EventDispatcher
 
     private function handleItemComplete(item:BatchLoaderItem):void
     {
-        dispatchEvent(new BatchItemEvent(BatchItemEvent.ITEM_COMPLETE, getItemId(item)));
+        if (!getMetadata(item).startHandled)
+        {
+            handleItemStart(item);
+        }
+        getMetadata(item).state = ItemState.COMPLETE;
+        dispatchItemEvent(BatchItemEvent.ITEM_COMPLETE, item);
         dispatchProgress();
         fillQueue();
     }
@@ -510,14 +524,26 @@ public class BatchLoader extends EventDispatcher
     private function handleItemError(item:BatchLoaderItem, error:*):void
     {
         // TODO: check if it was critical
-        dispatchEvent(new BatchItemErrorEvent(BatchItemErrorEvent.ITEM_ERROR, getItemId(item), error));
+        getMetadata(item).state = ItemState.ERROR;
+        dispatchItemErrorEvent(error, item);
         fillQueue();
+    }
+
+    private function dispatchItemEvent(type:String, item:BatchLoaderItem):void
+    {
+        dispatchEvent(new BatchItemEvent(type, getItemId(item), item));
+    }
+
+    private function dispatchItemErrorEvent(error:*, item:BatchLoaderItem):void
+    {
+        dispatchEvent(new BatchItemErrorEvent(BatchItemErrorEvent.ITEM_ERROR, error, getItemId(item), item));
     }
 
     private function onItemHttpStatus(event:HTTPStatusEvent):void
     {
         var item:BatchLoaderItem = BatchLoaderItem(event.target);
-        getMetadata(item).httpStatusHistory.push(event.status);
+        var m:ItemMetadata = getMetadata(item);
+        m.httpStatusHistory.push(event.status);
     }
 
     private function onItemOpen(event:Event):void
@@ -528,6 +554,11 @@ public class BatchLoader extends EventDispatcher
     private function onItemComplete(event:Event):void
     {
         handleItemComplete(BatchLoaderItem(event.target));
+    }
+
+    private function onItemError(event:BatchItemErrorEvent):void
+    {
+        handleItemError(BatchLoaderItem(event.target), event.error);
     }
 
     private function dispatchProgress():void
@@ -548,6 +579,7 @@ public class BatchLoader extends EventDispatcher
         item.addEventListener(HTTPStatusEvent.HTTP_STATUS, onItemHttpStatus);
         item.addEventListener(Event.COMPLETE, onItemComplete);
         item.addEventListener(Event.OPEN, onItemOpen);
+        item.addEventListener(BatchItemErrorEvent.ITEM_ERROR, onItemError);
     }
 
     private function unlistenItem(item:BatchLoaderItem):void
@@ -609,6 +641,23 @@ public class BatchLoader extends EventDispatcher
         }
         return items;
     }
+
+
+    private function getLoaderItemFactory():BatchLoaderItemFactory
+    {
+        return loaderItemFactory || defaultLoaderItemFactory;
+    }
+
+
+    private static var _defaultLoaderItemFactory:BatchLoaderItemFactory;
+    private static function get defaultLoaderItemFactory():BatchLoaderItemFactory
+    {
+        if (!_defaultLoaderItemFactory)
+        {
+            _defaultLoaderItemFactory = new DefaultItemFactory();
+        }
+        return _defaultLoaderItemFactory;
+    }
 }
 }
 
@@ -630,9 +679,17 @@ class ItemMetadata
     public var bytesLoaded:uint;
     public var bytesTotal:uint;
 
+    public var startHandled:Boolean;
+
     public function ItemMetadata()
     {
+        reset();
+    }
+
+    public function reset():void
+    {
         state = ItemState.WAITING;
+        httpStatusHistory = [ ];
     }
 
     public function get weightedBytesLoaded():Number
