@@ -7,6 +7,7 @@ public class BatchItemEvent extends Event
 {
     public static const ITEM_LOAD_START:String = "itemLoadStart";
     public static const ITEM_COMPLETE:String = "itemComplete";
+    public static const STATUS_CHANGE:String = "statusChange";
 
     private var _id:String;
 

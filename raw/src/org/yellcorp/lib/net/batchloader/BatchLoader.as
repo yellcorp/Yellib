@@ -1,19 +1,17 @@
 package org.yellcorp.lib.net.batchloader
 {
 import org.yellcorp.lib.core.MapUtil;
-import org.yellcorp.lib.core.Set;
 import org.yellcorp.lib.error.assert;
-import org.yellcorp.lib.net.batchloader.adapters.BatchLoaderAdapter;
+import org.yellcorp.lib.net.batchloader.adapters.BatchLoaderItem;
 import org.yellcorp.lib.net.batchloader.events.BatchItemErrorEvent;
 import org.yellcorp.lib.net.batchloader.events.BatchItemEvent;
 import org.yellcorp.lib.net.batchloader.events.BatchLoaderEvent;
 import org.yellcorp.lib.net.batchloader.events.BatchLoaderProgressEvent;
-import org.yellcorp.lib.net.batchloader.priv.LoaderChannel;
-import org.yellcorp.lib.net.batchloader.priv.LoaderMetadata;
-import org.yellcorp.lib.net.batchloader.priv.LoaderState;
-import org.yellcorp.lib.net.batchloader.priv.bl_internal;
 
+import flash.events.Event;
 import flash.events.EventDispatcher;
+import flash.events.HTTPStatusEvent;
+import flash.events.ProgressEvent;
 import flash.utils.Dictionary;
 
 
@@ -23,50 +21,204 @@ import flash.utils.Dictionary;
 [Event(name="itemLoadStart", type="org.yellcorp.lib.net.batchloader.events.BatchItemEvent")]
 [Event(name="queueStart",    type="org.yellcorp.lib.net.batchloader.events.BatchLoaderEvent")]
 [Event(name="queueEmpty",    type="org.yellcorp.lib.net.batchloader.events.BatchLoaderEvent")]
+// TODO: critical items
+
 public class BatchLoader extends EventDispatcher
 {
     private var _order:String;
     private var _concurrent:uint = 1;
 
-    private var queue:Array;
+    private var idToItemLookup:Object;
+    private var itemToIdLookup:Dictionary;
+    private var itemToMetadataLookup:Dictionary;
+    private var idToEstimation:Object;
 
-    private var idToLoaderLookup:Object;
-    private var loaderToIdLookup:Dictionary;
-    private var loaderToMetadataLookup:Dictionary;
+    private var waitingQueue:Array;
 
-    private var openLoaders:Set;
-    private var completedLoaders:Set;
-    private var errorLoaders:Set;
-    private var reservations:Object = [ ];
+    private var _active:Boolean;
 
-    private var zeroPoint:Number = 0;
-    private var zeroOnNextProgressEvent:Boolean;
+    private var zeroPoint:int;
+    private var _zeroWhenTotalKnown:Boolean;
 
-    private var _running:Boolean;
-    private var queueEmptyDispatched:Boolean = true;
+    private var _wasComplete:Boolean;
 
-
-    public function BatchLoader(order:String = null)
+    public function BatchLoader(concurrent:uint = 1, order:String = null)
     {
         super();
 
+        idToItemLookup = { };
+        itemToIdLookup = new Dictionary(true);
+        itemToMetadataLookup = new Dictionary(true);
+        idToEstimation = { };
+
+        waitingQueue = [ ];
+
         this.order = order;
-
-        idToLoaderLookup = { };
-        loaderToIdLookup = new Dictionary(true);
-        loaderToMetadataLookup = new Dictionary(true);
-
-        openLoaders = new Set();
-        completedLoaders = new Set();
-        errorLoaders = new Set();
-
-        queue = [ ];
+        this.concurrent = concurrent;
     }
-
 
     public function dispose():void
     {
-        // TODO: BatchLoader.dispose()
+        active = false;
+        for each (var item:BatchLoaderItem in idToItemLookup)
+        {
+            unlistenItem(item);
+            item.dispose();
+        }
+        idToItemLookup = null;
+        itemToIdLookup = null;
+        itemToMetadataLookup = null;
+        idToEstimation = null;
+        waitingQueue = null;
+    }
+
+    // LOADER COUNTS
+
+    /**
+     * The number of queued items waiting to be loaded.
+     */
+    public function get queueCount():uint
+    {
+        return waitingQueue.length;
+    }
+
+
+    /**
+     * The number of items currently loading.
+     */
+    public function get openCount():uint
+    {
+        return countItemsByState(ItemState.OPEN);
+    }
+
+
+    /**
+     * The number of successfully loaded items.
+     */
+    public function get completeCount():uint
+    {
+        return countItemsByState(ItemState.COMPLETE);
+    }
+
+    /**
+     * The number of unsuccessfully loaded items.
+     */
+    public function get errorCount():uint
+    {
+        return countItemsByState(ItemState.ERROR);
+    }
+
+    /**
+     * The number of future size estimations made.
+     */
+    public function get estimationCount():uint
+    {
+        return MapUtil.count(idToEstimation);
+    }
+
+    /**
+     * The number of items waiting to complete loading. This is equal to
+     * queueCount + openCount.
+     */
+    public function get waitingCount():uint
+    {
+        return queueCount + openCount;
+    }
+
+
+    /**
+     * The number of ids waiting to be resolved into a loaded item. This is
+     * equal to queueCount + openCount + estimationCount.
+     */
+    public function get unresolvedCount():uint
+    {
+        return waitingCount + estimationCount;
+    }
+
+
+    /**
+     * Whether all ids have been resolved without errors.
+     */
+    public function get isComplete():Boolean
+    {
+        return unresolvedCount == 0 && errorCount == 0;
+    }
+
+
+    /**
+     * The total number of bytes loaded since the BatchLoader was
+     * instantiated.
+     */
+    public function get bytesLoaded():Number
+    {
+        var loaded:Number = 0;
+        for each (var metadata:ItemMetadata in itemToMetadataLookup)
+        {
+            loaded += metadata.bytesLoaded;
+        }
+        return loaded;
+    }
+
+    /**
+     * The total number of bytes requested since the BatchLoader was
+     * instantiated. If the bytesTotal of any individual item is unknown,
+     * NaN is returned.
+     */
+    public function get bytesTotal():Number
+    {
+        var total:Number = 0;
+        for each (var metadata:ItemMetadata in itemToMetadataLookup)
+        {
+            if (metadata.bytesTotal > 0)
+            {
+                total += metadata.bytesTotal;
+            }
+            else
+            {
+                return NaN;
+            }
+        }
+        return total;
+    }
+
+
+    /**
+     * A weighted progress factor between 0 and 1. UI that reflects a
+     * percentage, progress bar, or similar indicator should use this value
+     * instead of bytesLoaded/bytesTotal. It accounts for reservations,
+     * size estimations, and the zero point.
+     */
+    public function get progress():Number
+    {
+        var loaded:Number = 0;
+        var total:Number = 0;
+
+        for each (var metadata:ItemMetadata in itemToMetadataLookup)
+        {
+            loaded += metadata.weightedBytesLoaded;
+            total += metadata.weightedBytesTotal;
+        }
+
+        for each (var reserveSize:uint in idToEstimation)
+        {
+            total += reserveSize;
+        }
+
+        if (loaded == 0)
+        {
+            return 0;
+        }
+        else if (loaded >= total)
+        {
+            return 1;
+        }
+        else
+        {
+            var p:Number = (loaded - zeroPoint) / (total - zeroPoint);
+            if (p > 1) return 1;
+            else if (p < 0) return 0;
+            else return p;
+        }
     }
 
 
@@ -89,10 +241,9 @@ public class BatchLoader extends EventDispatcher
         if (_order !== new_order)
         {
             _order = new_order;
-            shift();
+            fillQueue();
         }
     }
-
 
     public function get concurrent():uint
     {
@@ -102,171 +253,12 @@ public class BatchLoader extends EventDispatcher
     public function set concurrent(concurrent:uint):void
     {
         _concurrent = concurrent;
-        shift();
+        fillQueue();
     }
 
 
     /**
-     * The number of items waiting in the load queue.
-     */
-    public function get queueCount():uint
-    {
-        return queue.length;
-    }
-
-
-    /**
-     * The number of items currently loading.
-     */
-    public function get openCount():uint
-    {
-        return openLoaders.length;
-    }
-
-
-    /**
-     * The number of reserved ids.
-     */
-    public function get reserveCount():uint
-    {
-        return MapUtil.count(reservations);
-    }
-
-
-    /**
-     * The number of unresolved loads. This is equal to
-     * queueCount + openCount + reserveCount.
-     */
-    public function get unresolvedCount():uint
-    {
-        return queueCount + openCount + reserveCount;
-    }
-
-
-    /**
-     * The number of items that have successfully completed loading.
-     */
-    public function get completeCount():uint
-    {
-        return completedLoaders.length;
-    }
-
-
-    /**
-     * The number of items which have resulted in errors.
-     */
-    public function get errorCount():uint
-    {
-        return errorLoaders.length;
-    }
-
-
-    /**
-     * The total number of bytes loaded since the BatchLoader was
-     * instantiated.
-     */
-    public function get bytesLoaded():Number
-    {
-        var loaded:Number = 0;
-        for each (var metadata:LoaderMetadata in loaderToMetadataLookup)
-        {
-            loaded += metadata.bytesLoaded;
-        }
-        return loaded;
-    }
-
-
-    /**
-     * The total number of bytes requested since the BatchLoader was
-     * instantiated. If the bytesTotal of any individual item is unknown,
-     * NaN is returned.
-     */
-    public function get bytesTotal():Number
-    {
-        var total:Number = 0;
-        for each (var metadata:LoaderMetadata in loaderToMetadataLookup)
-        {
-            if (metadata.bytesTotal > 0)
-            {
-                total += metadata.bytesTotal;
-            }
-            else
-            {
-                return Number.NaN;
-            }
-        }
-        return total;
-    }
-
-
-    /**
-     * A weighted progress factor between 0 and 1. UI that reflects a
-     * percentage, progress bar, or similar indicator should use this value
-     * instead of bytesLoaded/bytesTotal. It accounts for reservations,
-     * size estimations, and the zero point.
-     */
-    public function get progress():Number
-    {
-        var loaded:Number = 0;
-        var total:Number = 0;
-
-        for each (var metadata:LoaderMetadata in loaderToMetadataLookup)
-        {
-            loaded += metadata.weightedBytesLoaded;
-            total += metadata.weightedBytesTotal;
-        }
-
-        for each (var reserveSize:uint in reservations)
-        {
-            total += reserveSize;
-        }
-
-        if (loaded == 0)
-        {
-            return 0;
-        }
-        else if (loaded >= total)
-        {
-            return 1;
-        }
-        else
-        {
-            return (loaded - zeroPoint) / (total - zeroPoint);
-        }
-    }
-
-
-    /**
-     * Whether the BatchLoader is processing its load queue.
-     */
-    public function get running():Boolean
-    {
-        return _running;
-    }
-
-
-    /**
-     * Start processing the load queue.
-     */
-    public function run():void
-    {
-        _running = true;
-        shift();
-    }
-
-
-    /**
-     * Stop processing the load queue. This does not cancel current loads,
-     * but does prevent subsequent ones from starting.
-     */
-    public function pause():void
-    {
-        _running = false;
-    }
-
-
-    /**
-     * Determines whether the BatchLoader is managing a LoaderAdapter with
+     * Determines whether the BatchLoader is managing a BatchLoaderItem with
      * a given id.
      *
      * @param id The id to test.
@@ -275,56 +267,49 @@ public class BatchLoader extends EventDispatcher
      */
     public function hasId(id:String):Boolean
     {
-        return idToLoaderLookup.hasOwnProperty(id);
+        return idToItemLookup.hasOwnProperty(id);
     }
 
 
     /**
      * Determines whether the BatchLoader is managing an instance of a
-     * LoaderAdapter.
+     * BatchLoaderItem.
      *
      * @param item The instance to test.
-     * @return <code>true</code> if the MultiLoader is managing
+     * @return <code>true</code> if the BatchLoader is managing
      *      <code>item</code>. <code>false</code> if not, or if
      *      <code>item</code> is <code>null</code> or
      *      <code>undefined</code>.
      */
-    public function hasItem(loader:BatchLoaderAdapter):Boolean
+    public function hasItem(item:BatchLoaderItem):Boolean
     {
-        if (loader)
-        {
-            return Boolean(loaderToIdLookup[loader]);
-        }
-        else
-        {
-            return false;
-        }
+        return item && itemToIdLookup[item];
     }
 
 
     /**
-     * Returns a LoaderAdapter associated with a given id, if it exists.
+     * Returns a BatchLoaderItem associated with a given id, if it exists.
      *
      * @param id The id of the item to return.
      * @return The item with the specified id, or <code>null</code> if there
      *      is no such item.
      */
-    public function getItemById(id:String):BatchLoaderAdapter
+    public function getItemById(id:String):BatchLoaderItem
     {
-        return hasId(id) ? idToLoaderLookup[id] : null;
+        return hasId(id) ? idToItemLookup[id] : null;
     }
 
 
     /**
-     * Returns the id associated with a managed LoaderAdapter instance.
+     * Returns the id associated with a managed BatchLoaderItem instance.
      *
      * @param item The item to identify.
      * @return The id by which the item is known, or <code>null</code> if
-     *      the item is not present in the MultiLoader.
+     *      the item is not present in the BatchLoader.
      */
-    public function getLoaderId(loader:BatchLoaderAdapter):String
+    public function getItemId(item:BatchLoaderItem):String
     {
-        return hasItem(loader) ? loaderToIdLookup[loader] : null;
+        return hasItem(item) ? itemToIdLookup[item] : null;
     }
 
 
@@ -333,57 +318,100 @@ public class BatchLoader extends EventDispatcher
      * for later retrieval.
      *
      * @param id A string id by which to associate the item.
-     * @param loader The LoaderAdapter to add.
+     * @param loader The BatchLoaderItem to add.
      * @throws ArgumentError if the specified id is already used.
      */
-    public function addLoader(id:String, loader:BatchLoaderAdapter, estimatedBytesTotal:uint = 0):void
+    public function addItem(id:String, item:BatchLoaderItem, estimatedBytesTotal:uint = 0):void
     {
-        if (idToLoaderLookup.hasOwnProperty(id))
+        if (idToItemLookup.hasOwnProperty(id))
         {
             throw new ArgumentError("id already exists: " + id);
         }
 
-        if (reservations.hasOwnProperty(id))
+        if (idToEstimation.hasOwnProperty(id))
         {
-            estimatedBytesTotal = reservations[id];
-            delete reservations[id];
+            if (estimatedBytesTotal == 0)
+            {
+                estimatedBytesTotal = idToEstimation[id];
+            }
+            delete idToEstimation[id];
         }
 
-        var metadata:LoaderMetadata = new LoaderMetadata();
+        var metadata:ItemMetadata = new ItemMetadata();
         metadata.estimatedBytesTotal = estimatedBytesTotal;
-        metadata.state = LoaderState.WAITING;
 
-        idToLoaderLookup[id] = loader;
-        loaderToIdLookup[loader] = id;
-        loaderToMetadataLookup[loader] = metadata;
+        idToItemLookup[id] = item;
+        itemToIdLookup[item] = id;
+        itemToMetadataLookup[item] = metadata;
 
-        queue.push(loader);
-        shift();
+        waitingQueue.push(item);
+        listenItem(item);
+
+        fillQueue();
     }
 
+    public function get active():Boolean
+    {
+        return _active;
+    }
+
+    public function set active(new_active:Boolean):void
+    {
+        if (_active !== new_active)
+        {
+            _active = new_active;
+            if (_active) fillQueue();
+        }
+    }
+
+    public function stop():void
+    {
+        active = false;
+        // TODO: stop open loads and move them back into queue
+    }
 
     /**
-     * Creates an advance reservation, which records that the given id will
-     * load in future with the specified estimated size.  This is intended
-     * to facilitate a progress UI when the caller knows a load will be
-     * required but isn't ready to add a LoaderAdapter.
-     *
-     * @param id A string id by which to associate the item.
-     * @param loader The LoaderAdapter to add.
-     * @throws ArgumentError if the specified id is already used.
+     * Returns items in an error state to the queue.
      */
-    public function reserve(id:String, estimatedBytes:uint):void
+    public function retryErrors():void
     {
-        reservations[id] = estimatedBytes;
-        shift();
+        for each (var item:BatchLoaderItem in getItemsByState(ItemState.ERROR))
+        {
+            getMetadata(item).state = ItemState.WAITING;
+            requeueItem(item);
+        }
+        fillQueue();
     }
 
+    /**
+     * Creates an advance estimation, which records that the given id will
+     * load in future with the specified estimated size.  This is intended
+     * to facilitate a progress UI when the caller knows a load will be
+     * required but isn't ready to add a BatchLoaderItem.
+     */
+    public function estimate(id:String, estimatedBytes:uint):void
+    {
+        idToEstimation[id] = estimatedBytes;
+        fillQueue();
+    }
 
+    /**
+     * Remove all advance estimations.
+     */
+    public function clearEstimations():void
+    {
+        idToEstimation = { };
+        fillQueue();
+    }
+
+    /**
+     * Sets the current loading progress as the zero point.
+     */
     public function zero():void
     {
         var loaded:Number = 0;
 
-        for each (var metadata:LoaderMetadata in loaderToMetadataLookup)
+        for each (var metadata:ItemMetadata in itemToMetadataLookup)
         {
             loaded += metadata.weightedBytesLoaded;
         }
@@ -398,127 +426,251 @@ public class BatchLoader extends EventDispatcher
         }
     }
 
-
-    private function shift():void
+    /**
+     * Once the queue's total size is known, set the loading progress as the
+     * zero point. This can be used to ensure UI elements that report progress
+     * start from 0.
+     */
+    public function zeroWhenTotalKnown():void
     {
-        if (!_running)
-        {
-            return;
-        }
+        _zeroWhenTotalKnown = true;
+    }
 
-        if (!queueEmptyDispatched && unresolvedCount == 0)
-        {
-            queueEmptyDispatched = true;
-            dispatchEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_EMPTY));
-        }
+    private function fillQueue():void
+    {
+        if (!_active) return;
 
-        while (queue.length > 0 && openLoaders.length < _concurrent)
+        if (canFillQueue())
         {
-            if (queueEmptyDispatched)
+            while (canFillQueue())
             {
-                queueEmptyDispatched = false;
-                dispatchEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_START));
+                startItem(getNextItem());
             }
-            startLoader(getNextItem());
         }
+        checkDispatchCompleteState();
+    }
+
+    private function checkDispatchCompleteState():void
+    {
+        if (isComplete && !_wasComplete)
+        {
+            dispatchEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_COMPLETE));
+        }
+        else if (!isComplete && _wasComplete)
+        {
+            dispatchEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_START));
+        }
+        _wasComplete = isComplete;
+    }
+
+    private function canFillQueue():Boolean
+    {
+        return waitingQueue.length > 0  &&  openCount < _concurrent;
     }
 
 
-    private function startLoader(loader:BatchLoaderAdapter):void
+    private function startItem(item:BatchLoaderItem):void
     {
         try {
-            loader.start(new LoaderChannel(this, loader));
+            listenItem(item);
+            item.start();
         }
         catch (e:Error)
         {
-            getMetadata(loader).state = LoaderState.ERROR;
-            errorLoaders.add(loader);
-            dispatchEvent(new BatchItemErrorEvent(BatchItemErrorEvent.ITEM_ERROR, getLoaderId(loader), e));
-            return;
+            handleItemError(item, e);
         }
-
-        getMetadata(loader).state = LoaderState.OPEN;
-        openLoaders.add(loader);
-
-        dispatchEvent(new BatchItemEvent(BatchItemEvent.ITEM_LOAD_START, getLoaderId(loader)));
     }
 
+    private function handleItemStart(item:BatchLoaderItem):void
+    {
+        dispatchEvent(new BatchItemEvent(BatchItemEvent.ITEM_LOAD_START, getItemId(item)));
+        getMetadata(item).state = ItemState.OPEN;
+    }
+
+    private function onItemProgress(event:ProgressEvent):void
+    {
+        var item:BatchLoaderItem = BatchLoaderItem(event.target);
+
+        if (getMetadata(item).state != ItemState.OPEN)
+        {
+            handleItemStart(item);
+        }
+        getMetadata(item).bytesLoaded = event.bytesLoaded;
+        getMetadata(item).bytesTotal = event.bytesTotal;
+        dispatchProgress();
+    }
+
+    private function handleItemComplete(item:BatchLoaderItem):void
+    {
+        dispatchEvent(new BatchItemEvent(BatchItemEvent.ITEM_COMPLETE, getItemId(item)));
+        dispatchProgress();
+        fillQueue();
+    }
+
+    private function handleItemError(item:BatchLoaderItem, error:*):void
+    {
+        // TODO: check if it was critical
+        dispatchEvent(new BatchItemErrorEvent(BatchItemErrorEvent.ITEM_ERROR, getItemId(item), error));
+        fillQueue();
+    }
+
+    private function onItemHttpStatus(event:HTTPStatusEvent):void
+    {
+        var item:BatchLoaderItem = BatchLoaderItem(event.target);
+        getMetadata(item).httpStatusHistory.push(event.status);
+    }
+
+    private function onItemOpen(event:Event):void
+    {
+        handleItemStart(BatchLoaderItem(event.target));
+    }
+
+    private function onItemComplete(event:Event):void
+    {
+        handleItemComplete(BatchLoaderItem(event.target));
+    }
 
     private function dispatchProgress():void
     {
-        if (zeroOnNextProgressEvent)
+        if (_zeroWhenTotalKnown && isFinite(bytesTotal))
         {
             zero();
-            zeroOnNextProgressEvent = false;
+            _zeroWhenTotalKnown = false;
         }
-
         dispatchEvent(new BatchLoaderProgressEvent(
                 BatchLoaderProgressEvent.BATCH_PROGRESS,
                 bytesLoaded, bytesTotal, progress));
     }
 
-
-    private function getMetadata(loader:BatchLoaderAdapter):LoaderMetadata
+    private function listenItem(item:BatchLoaderItem):void
     {
-        var meta:LoaderMetadata = loaderToMetadataLookup[loader];
-        assert(meta != null, "No metadata for loader " + loader);
+        item.addEventListener(ProgressEvent.PROGRESS, onItemProgress);
+        item.addEventListener(HTTPStatusEvent.HTTP_STATUS, onItemHttpStatus);
+        item.addEventListener(Event.COMPLETE, onItemComplete);
+        item.addEventListener(Event.OPEN, onItemOpen);
+    }
+
+    private function unlistenItem(item:BatchLoaderItem):void
+    {
+        item.removeEventListener(ProgressEvent.PROGRESS, onItemProgress);
+        item.removeEventListener(HTTPStatusEvent.HTTP_STATUS, onItemHttpStatus);
+        item.removeEventListener(Event.COMPLETE, onItemComplete);
+        item.removeEventListener(Event.OPEN, onItemOpen);
+    }
+
+
+    private function getMetadata(item:BatchLoaderItem):ItemMetadata
+    {
+        var meta:ItemMetadata = itemToMetadataLookup[item];
+        assert(meta != null, "No metadata for item " + item);
         return meta;
     }
 
 
-    private function getNextItem():BatchLoaderAdapter
+    private function getNextItem():BatchLoaderItem
     {
-        return _order == BatchLoaderOrder.LIFO ? queue.pop() : queue.shift();
+        return _order == BatchLoaderOrder.LIFO ? waitingQueue.pop() : waitingQueue.shift();
     }
 
 
-    /**
-     * @private
-     */
-    bl_internal function loaderComplete(loader:BatchLoaderAdapter):void
+    private function requeueItem(item:BatchLoaderItem):void
     {
-        getMetadata(loader).state == LoaderState.COMPLETE;
-        openLoaders.remove(loader);
-        completedLoaders.add(loader);
-
-        dispatchEvent(new BatchItemEvent(BatchItemEvent.ITEM_COMPLETE, getLoaderId(loader)));
-        dispatchProgress();
-
-        shift();
-    }
-
-    /**
-     * @private
-     */
-    bl_internal function loaderStatus(loader:BatchLoaderAdapter, statusCode:int):void
-    {
-        getMetadata(loader).httpStatusHistory.push(statusCode);
+        if (_order == BatchLoaderOrder.LIFO)
+        {
+            waitingQueue.push(item);
+        }
+        else
+        {
+            waitingQueue.unshift(item);
+        }
     }
 
 
-    /**
-     * @private
-     */
-    bl_internal function loaderProgress(loader:BatchLoaderAdapter, bytesLoaded:uint, bytesTotal:uint):void
+    private function countItemsByState(state:String):uint
     {
-        getMetadata(loader).bytesLoaded = bytesLoaded;
-        getMetadata(loader).bytesTotal = bytesTotal;
-        dispatchProgress();
+        var c:uint = 0;
+        for each (var metadata:ItemMetadata in itemToMetadataLookup)
+        {
+            if (metadata.state == state) c++;
+        }
+        return c;
     }
 
 
-    /**
-     * @private
-     */
-    bl_internal function loaderError(loader:BatchLoaderAdapter, error:*):void
+    private function getItemsByState(state:String):Array
     {
-        getMetadata(loader).state == LoaderState.ERROR;
-        openLoaders.remove(loader);
-        errorLoaders.add(loader);
-
-        dispatchEvent(new BatchItemErrorEvent(BatchItemErrorEvent.ITEM_ERROR, getLoaderId(loader), error));
-
-        shift();
+        var items:Array = [ ];
+        for each (var item:BatchLoaderItem in idToItemLookup)
+        {
+            if (getMetadata(item).state == state)
+            {
+                items.push(item);
+            }
+        }
+        return items;
     }
 }
+}
+
+
+class ItemState
+{
+    public static const WAITING:String = "waiting";
+    public static const OPEN:String = "open";
+    public static const COMPLETE:String = "complete";
+    public static const ERROR:String = "error";
+}
+
+
+class ItemMetadata
+{
+    public var state:String;
+    public var estimatedBytesTotal:uint;
+    public var httpStatusHistory:Array;
+    public var bytesLoaded:uint;
+    public var bytesTotal:uint;
+
+    public function ItemMetadata()
+    {
+        state = ItemState.WAITING;
+    }
+
+    public function get weightedBytesLoaded():Number
+    {
+        switch (state)
+        {
+        case ItemState.WAITING:
+        case ItemState.ERROR:
+            return 0;
+
+        case ItemState.COMPLETE:
+            return weightedBytesTotal;
+
+        default:
+            if (bytesLoaded == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return (bytesLoaded * weightedBytesTotal) / bytesTotal;
+            }
+        }
+    }
+
+    public function get weightedBytesTotal():Number
+    {
+        if (estimatedBytesTotal > 0)
+        {
+            return estimatedBytesTotal;
+        }
+        else if (bytesTotal > 0)
+        {
+            return bytesTotal;
+        }
+        else
+        {
+            return Number.NaN;
+        }
+    }
 }

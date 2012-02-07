@@ -6,7 +6,7 @@ import flash.events.Event;
 public class BatchLoaderEvent extends Event
 {
     public static const QUEUE_START:String = "queueStart";
-    public static const QUEUE_EMPTY:String = "queueEmpty";
+    public static const QUEUE_COMPLETE:String = "queueComplete";
 
     public function BatchLoaderEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false)
     {
