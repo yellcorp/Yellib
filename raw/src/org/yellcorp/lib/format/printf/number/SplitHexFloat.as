@@ -1,8 +1,8 @@
 package org.yellcorp.lib.format.printf.number
 {
-import org.yellcorp.lib.binary.NumberInfo;
 import org.yellcorp.lib.core.StringUtil;
 import org.yellcorp.lib.format.printf.options.HexFloatFormatOptions;
+import org.yellcorp.lib.number.NumberInfo;
 
 
 /**

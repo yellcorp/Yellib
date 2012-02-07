@@ -2,7 +2,7 @@ package test.yellcorp.lib.binary
 {
 import asunit.framework.TestCase;
 
-import org.yellcorp.lib.binary.NumberInfo;
+import org.yellcorp.lib.number.NumberInfo;
 
 
 public class NumberInfoTest extends TestCase

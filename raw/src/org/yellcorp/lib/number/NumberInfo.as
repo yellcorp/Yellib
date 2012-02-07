@@ -1,4 +1,4 @@
-package org.yellcorp.lib.binary
+package org.yellcorp.lib.number
 {
 import org.yellcorp.lib.core.StringBuilder;
 
