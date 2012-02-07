@@ -50,7 +50,7 @@ public class BaseNetworkLoaderItem extends EventDispatcher
 
     public function start():void
     {
-        if (loadCompleted)
+        if (isFullyLoaded() || loadCompleted)
         {
             setTimeout(onComplete, 1, null);
         }
@@ -74,6 +74,11 @@ public class BaseNetworkLoaderItem extends EventDispatcher
             close();
             loadOpen = false;
         }
+    }
+
+    protected function isFullyLoaded():Boolean
+    {
+        return false;
     }
 
     protected function load():void
