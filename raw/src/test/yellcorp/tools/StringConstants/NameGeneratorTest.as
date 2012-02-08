@@ -51,6 +51,7 @@ public class NameGeneratorTest extends TestCase
         assertEquals("SPACE_SEPARATED", StringConstants.generateName("Space separated"));
         assertEquals("FACEBOOK_COM", StringConstants.generateName("facebook.com"));
         assertEquals("O_AUTH_INIT", StringConstants.generateName("OAuth.init"));
+        assertEquals("_1_NUMBER_AT_START", StringConstants.generateName("1numberAtStart"));
     }
 }
 }
