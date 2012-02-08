@@ -45,6 +45,8 @@ public class BatchLoader extends EventDispatcher
 
     private var _wasComplete:Boolean = true;
 
+    private var autoItemID:int = 0;
+
     public function BatchLoader(concurrent:uint = 1,
         order:String = BatchLoaderOrder.FIFO,
         loaderItemFactory:BatchLoaderItemFactory = null)
@@ -318,12 +320,18 @@ public class BatchLoader extends EventDispatcher
      * Adds an item to the BatchLoader queue, and associates it with an id
      * for later retrieval.
      *
-     * @param id A string id by which to associate the item.
+     * @param id A string id by which to associate the item. If null, a unique
+     *           id will be generated.
      * @param loader The BatchLoaderItem to add.
      * @throws ArgumentError if the specified id is already used.
      */
     public function addItem(id:String, item:BatchLoaderItem, estimatedBytesTotal:uint = 0):void
     {
+        if (id === null)
+        {
+            id = nextItemID();
+        }
+
         if (idToItemLookup.hasOwnProperty(id))
         {
             throw new ArgumentError("id already exists: " + id);
@@ -350,7 +358,23 @@ public class BatchLoader extends EventDispatcher
         fillQueue();
     }
 
+    private function nextItemID():String
+    {
+        return "$" + (autoItemID++);
+    }
 
+
+    /**
+     * Adds a request to the BatchLoader queue, and associates it with an id
+     * for later retrieval.  The request is turned into a BatchLoaderItem using
+     * the current loaderItemFactory.
+     *
+     * @param id A string id by which to associate the item. If null, a unique
+     *           id will be generated.
+     * @param request The URLRequest to add.
+     * @throws ArgumentError if the specified id is already used.
+     * @return The BatchLoaderItem that was created and added under the specified id.
+     */
     public function addRequest(id:String, request:URLRequest, estimatedBytesTotal:uint = 0):BatchLoaderItem
     {
         var item:BatchLoaderItem = getLoaderItemFactory().createItem(request);
