@@ -351,9 +351,11 @@ public class BatchLoader extends EventDispatcher
     }
 
 
-    public function addRequest(id:String, request:URLRequest, estimatedBytesTotal:uint = 0):void
+    public function addRequest(id:String, request:URLRequest, estimatedBytesTotal:uint = 0):BatchLoaderItem
     {
-        addItem(id, getLoaderItemFactory().createItem(request), estimatedBytesTotal);
+        var item:BatchLoaderItem = getLoaderItemFactory().createItem(request);
+        addItem(id, item, estimatedBytesTotal);
+        return item;
     }
 
 
