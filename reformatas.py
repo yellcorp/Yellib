@@ -7,7 +7,7 @@ import shutil
 import os
 
 
-import_stmt = re.compile(r"(\s*)import\s+([A-Za-z$_][A-Za-z0-9$_.]*);")
+import_stmt = re.compile(r"(\s*)import\s+([A-Za-z$_][A-Za-z0-9$_.]*(?:\.\*)?);")
 
 def order_imports_like_fdt(a, b):
 	if a.startswith("flash."):
