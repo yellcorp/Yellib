@@ -584,7 +584,7 @@ public class BatchLoader extends EventDispatcher
 
     private function onItemError(event:BatchItemErrorEvent):void
     {
-        handleItemError(BatchLoaderItem(event.target), event.error);
+        handleItemError(BatchLoaderItem(event.target), event.cause);
     }
 
     private function dispatchProgress():void
