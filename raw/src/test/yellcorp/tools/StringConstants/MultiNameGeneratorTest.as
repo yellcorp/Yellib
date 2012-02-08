@@ -5,8 +5,6 @@ import asunit.framework.TestCase;
 
 import org.yellcorp.tools.StringConstants;
 
-import flash.utils.Dictionary;
-
 
 public class MultiNameGeneratorTest extends TestCase
 {
@@ -38,7 +36,6 @@ public class MultiNameGeneratorTest extends TestCase
 
     public static function assertEqualsMaps(a:*, b:*):void
     {
-        var allKeys:Dictionary;
         var k:*;
 
         if (a === b)
@@ -47,16 +44,25 @@ public class MultiNameGeneratorTest extends TestCase
         }
         else
         {
-            allKeys = new Dictionary();
-            for (k in a)  {  allKeys[a] = true;  }
-            for (k in b)  {  allKeys[b] = true;  }
-
-            for (k in allKeys)
+            for (k in a)
             {
-                Assert.assertEquals(a[k], b[k]);
+                assertEqualsMapKeys(a, b, k);
+            }
+
+            for (k in b)
+            {
+                assertEqualsMapKeys(b, a, k);
             }
         }
     }
-}
 
+    private static function assertEqualsMapKeys(a:*, b:*, k:*):void
+    {
+        if (a[k] !== b[k])
+        {
+            Assert.fail("Key <" + k + "> not equal. " +
+                "Expected:<" + a[k] + "> but was:<" + b[k] + ">");
+        }
+    }
+}
 }
