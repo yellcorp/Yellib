@@ -14,7 +14,7 @@ public class IndirectErrorEvent extends ErrorEvent
     public function IndirectErrorEvent(type:String, cause:*, bubbles:Boolean = false, cancelable:Boolean = false, text:String = null)
     {
         _cause = cause;
-        super(type, bubbles, cancelable, text || ChainUtil.extractErrorText(_cause));
+        super(type, bubbles, cancelable, text || ErrorChainUtil.extractErrorText(_cause));
     }
 
     public function get cause():*
@@ -24,7 +24,7 @@ public class IndirectErrorEvent extends ErrorEvent
 
     public function getChain():Array
     {
-        return ChainUtil.getErrorChain(this);
+        return ErrorChainUtil.getErrorChain(this);
     }
 
     public override function clone():Event

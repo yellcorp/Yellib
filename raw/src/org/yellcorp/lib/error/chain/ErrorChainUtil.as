@@ -7,8 +7,13 @@ import flash.events.TextEvent;
 import flash.utils.getQualifiedClassName;
 
 
-public class ChainUtil
+public class ErrorChainUtil
 {
+    public static function causeToString(cause:*):String
+    {
+        return "[" + getQualifiedClassName(cause) + "] " + extractErrorText(cause);
+    }
+    
     public static function extractErrorText(errorObject:*):String
     {
         if (!errorObject)
@@ -63,6 +68,10 @@ public class ChainUtil
             else if (errorObject is IndirectErrorEvent)
             {
                 errorObject = IndirectErrorEvent(errorObject).cause;
+            }
+            else if (errorObject is AsyncErrorEvent)
+            {
+                errorObject = AsyncErrorEvent(errorObject).error;
             }
             else
             {

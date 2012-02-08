@@ -7,7 +7,7 @@ public class IndirectError extends Error
     public function IndirectError(cause:*, message:* = "", id:* = 0)
     {
         _cause = cause;
-        super(message || ChainUtil.extractErrorText(_cause), id);
+        super(message || ErrorChainUtil.extractErrorText(_cause), id);
         name = "IndirectError";
     }
 
@@ -18,7 +18,7 @@ public class IndirectError extends Error
 
     public function getChain():Array
     {
-        return ChainUtil.getErrorChain(this);
+        return ErrorChainUtil.getErrorChain(this);
     }
 }
 }
