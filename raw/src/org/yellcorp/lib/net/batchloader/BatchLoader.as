@@ -417,6 +417,7 @@ public class BatchLoader extends EventDispatcher
     public function zero():void
     {
         var loaded:Number = 0;
+        _zeroWhenTotalKnown = false;
 
         for each (var metadata:ItemMetadata in itemToMetadataLookup)
         {
@@ -565,7 +566,6 @@ public class BatchLoader extends EventDispatcher
         if (_zeroWhenTotalKnown && isFinite(bytesTotal))
         {
             zero();
-            _zeroWhenTotalKnown = false;
         }
         dispatchEvent(new BatchLoaderProgressEvent(
                 BatchLoaderProgressEvent.BATCH_PROGRESS,
