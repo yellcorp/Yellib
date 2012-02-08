@@ -9,71 +9,83 @@ import org.yellcorp.lib.core.StringUtil;
  */
 public class StringLiteral
 {
-    private static const escapeChars:RegExp = new RegExp(
-        "[" +
-            // Cc "Other, control"
-            // c0 control codes
-            "\\x00-\\x1f" +
-
-            // backslash
-            "\\\\" +
-
-            // DEL and c1 control codes
-            "\\x7f-\\x9f" +
-
-            // Cf "Other, format"
-            "\u00ad" +
-            "\u0600-\u0603" +
-            "\u06dd" +
-            "\u070f" +
-            "\u17b4" +
-            "\u17b5" +
-            "\u200b-\u200f" +
-            "\u202a-\u202e" +
-
-            "\u2060-\u2063" +
-
-            // U+2064 Invisible Plus
-
-            // Doesn't match - including this char in both this
-            // expression and the test against it causes the test
-            // to fail.
-
-            // Unique in the 2060-2064 range as it was introduced in
-            // Unicode version 5.1.0
-
-            // So probably too new
-
-            //"\u2064" +
-
-            "\u206a-\u206f" +
-            "\ufeff" +
-            "\ufff9-\ufffb" +
-
-            // Zl "Seperator, Line"
-            "\u2028" +
-
-            // Zp "Seperator, Paragraph"
-            "\u2029" +
-
-            // Cs "Other, Surrogate"
-            // Can't be matched - these characters are seen by the
-            // regex parser as ? (question mark 0x3F)
-            //"\ud800-\udfff" +
-
-            // BMP Private Use Area
-            "\ue000-\uf8ff" +
-        "]", "g");
-
-    private static const standardSequences:Array = [ ];
-
+    private static var _escapeChars:RegExp;
+    private static function get escapeChars():RegExp
     {
-        standardSequences[0x08] = "\\b";
-        standardSequences[0x09] = "\\t";
-        standardSequences[0x0a] = "\\n";
-        standardSequences[0x0c] = "\\f";
-        standardSequences[0x0d] = "\\r";
-        standardSequences[0x5c] = "\\\\";
+        if (!_escapeChars)
+        {
+            _escapeChars = new RegExp(
+            "[" +
+                // Cc "Other, control"
+                // c0 control codes
+                "\\x00-\\x1f" +
+
+                // backslash
+                "\\\\" +
+
+                // DEL and c1 control codes
+                "\\x7f-\\x9f" +
+
+                // Cf "Other, format"
+                "\u00ad" +
+                "\u0600-\u0603" +
+                "\u06dd" +
+                "\u070f" +
+                "\u17b4" +
+                "\u17b5" +
+                "\u200b-\u200f" +
+                "\u202a-\u202e" +
+
+                "\u2060-\u2063" +
+
+                // U+2064 Invisible Plus
+
+                // Doesn't match - including this char in both this
+                // expression and the test against it causes the test
+                // to fail.
+
+                // Unique in the 2060-2064 range as it was introduced in
+                // Unicode version 5.1.0
+
+                // So probably too new
+
+                //"\u2064" +
+
+                "\u206a-\u206f" +
+                "\ufeff" +
+                "\ufff9-\ufffb" +
+
+                // Zl "Seperator, Line"
+                "\u2028" +
+
+                // Zp "Seperator, Paragraph"
+                "\u2029" +
+
+                // Cs "Other, Surrogate"
+                // These are UTF-16 surrogates and can't be matched.
+                //"\ud800-\udfff" +
+
+                // BMP Private Use Area
+                "\ue000-\uf8ff" +
+            "]", "g");
+        }
+        return _escapeChars;
+    }
+
+    private static var _standardSequences:Object;
+    private static function get standardSequences():Object
+    {
+        if (!_standardSequences)
+        {
+            _standardSequences = { };
+            _standardSequences["\b"] = "\\b";
+            _standardSequences["\t"] = "\\t";
+            _standardSequences["\n"] = "\\n";
+            _standardSequences["\f"] = "\\f";
+            _standardSequences["\r"] = "\\r";
+            _standardSequences["\\"] = "\\\\";
+        }
+        return _standardSequences;
     }
 
     /**
@@ -112,14 +124,13 @@ public class StringLiteral
      */
     public static function getEscapeSequence(char:String, ... ignored):String
     {
-        var code:uint = char.charCodeAt(0);
-        var sequence:String = standardSequences[code];
+        var sequence:String = standardSequences[char];
 
         if (!sequence)
         {
-            sequence = "\\u" + StringUtil.padLeft(code.toString(16), 4, "0");
+            sequence = "\\u" + StringUtil.padLeft(
+                char.charCodeAt(0).toString(16), 4, "0");
         }
-
         return sequence;
     }
 }
