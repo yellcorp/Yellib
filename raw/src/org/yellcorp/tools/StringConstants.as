@@ -56,7 +56,7 @@ public class StringConstants
         for each (var v:String in values)
         {
             name = generateName(v);
-            count = counters[name] = 1 + counters[name];
+            count = counters[name] = 1 + int(counters[name]);
             if (count > 1)
             {
                 name += count;
