@@ -14,6 +14,7 @@ import flash.events.HTTPStatusEvent;
 import flash.events.ProgressEvent;
 import flash.net.URLRequest;
 import flash.utils.Dictionary;
+import flash.utils.setTimeout;
 
 
 [Event(name="batchProgress", type="org.yellcorp.lib.net.batchloader.events.BatchLoaderProgressEvent")]
@@ -47,6 +48,9 @@ public class BatchLoader extends EventDispatcher
 
     private var autoItemID:int = 0;
 
+    private var eventQueue:Array;
+    private var eventQueueWaiting:Boolean;
+
     public function BatchLoader(concurrent:uint = 1,
         order:String = BatchLoaderOrder.FIFO,
         loaderItemFactory:BatchLoaderItemFactory = null)
@@ -59,6 +63,7 @@ public class BatchLoader extends EventDispatcher
         idToEstimation = { };
 
         waitingQueue = [ ];
+        eventQueue = [ ];
 
         this.loaderItemFactory = loaderItemFactory;
         this.order = order;
@@ -488,11 +493,11 @@ public class BatchLoader extends EventDispatcher
     {
         if (isComplete && !_wasComplete)
         {
-            dispatchEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_COMPLETE));
+            queueEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_COMPLETE));
         }
         else if (!isComplete && _wasComplete)
         {
-            dispatchEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_START));
+            queueEvent(new BatchLoaderEvent(BatchLoaderEvent.QUEUE_START));
         }
         _wasComplete = isComplete;
     }
@@ -557,12 +562,12 @@ public class BatchLoader extends EventDispatcher
 
     private function dispatchItemEvent(type:String, item:BatchLoaderItem):void
     {
-        dispatchEvent(new BatchItemEvent(type, getItemId(item), item));
+        queueEvent(new BatchItemEvent(type, getItemId(item), item));
     }
 
     private function dispatchItemErrorEvent(error:*, item:BatchLoaderItem):void
     {
-        dispatchEvent(new BatchItemErrorEvent(BatchItemErrorEvent.ITEM_ERROR, error, getItemId(item), item));
+        queueEvent(new BatchItemErrorEvent(BatchItemErrorEvent.ITEM_ERROR, error, getItemId(item), item));
     }
 
     private function onItemHttpStatus(event:HTTPStatusEvent):void
@@ -593,7 +598,7 @@ public class BatchLoader extends EventDispatcher
         {
             zero();
         }
-        dispatchEvent(new BatchLoaderProgressEvent(
+        queueEvent(new BatchLoaderProgressEvent(
                 BatchLoaderProgressEvent.BATCH_PROGRESS,
                 bytesLoaded, bytesTotal, progress));
     }
@@ -671,6 +676,38 @@ public class BatchLoader extends EventDispatcher
     private function getLoaderItemFactory():BatchLoaderItemFactory
     {
         return loaderItemFactory || defaultLoaderItemFactory;
+    }
+
+
+    private function queueEvent(event:Event):void
+    {
+        eventQueue.push(event);
+        if (!eventQueueWaiting)
+        {
+            eventQueueWaiting = true;
+            setTimeout(flushEventQueue, 1);
+        }
+    }
+
+    private function flushEventQueue():void
+    {
+        eventQueueWaiting = false;
+        var lastEventType:String;
+        while (eventQueue.length > 0)
+        {
+            var event:Event = eventQueue.shift();
+
+            // now that events are going into a queue, we dispatch the contents
+            // of the queue on the one event loop.  we can reduce spam if we
+            // squash multiple consecutive BATCH_PROGRESS events, as it may
+            // trigger ui redraws
+            if (!(event.type == BatchLoaderProgressEvent.BATCH_PROGRESS &&
+                  event.type == lastEventType))
+            {
+                dispatchEvent(event);
+            }
+            lastEventType = event.type;
+        }
     }
 
 
