@@ -35,10 +35,13 @@ public class RectUtil
         rect:Rectangle, out:Rectangle = null):Rectangle
     {
         if (!out) out = new Rectangle();
+
+        var r:Number = rect.right, b:Number = rect.bottom;
+
         out.x = Math.floor(rect.x);
         out.y = Math.floor(rect.y);
-        out.width = Math.ceil(rect.right) - out.x;
-        out.height = Math.ceil(rect.bottom) - out.y;
+        out.width = Math.ceil(r) - out.x;
+        out.height = Math.ceil(b) - out.y;
         return out;
     }
 
@@ -46,10 +49,13 @@ public class RectUtil
         rect:Rectangle, out:Rectangle = null):Rectangle
     {
         if (!out) out = new Rectangle();
+
+        var r:Number = rect.right, b:Number = rect.bottom;
+
         out.x = Math.ceil(rect.x);
         out.y = Math.ceil(rect.y);
-        out.width = Math.floor(rect.right) - out.x;
-        out.height = Math.floor(rect.bottom) - out.y;
+        out.width = Math.floor(r) - out.x;
+        out.height = Math.floor(b) - out.y;
         return out;
     }
 
