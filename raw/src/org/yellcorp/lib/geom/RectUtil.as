@@ -5,8 +5,24 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 
 
+/**
+ * Utility functions for manipulating rectangle-like objects, being any object
+ * that has numeric x, y, width and height properties.  DisplayObjects can be
+ * used, with the assumption that their registration points are in the top-left
+ * corner, and their width and height values are reliable.
+ */
 public class RectUtil
 {
+    /**
+     * Multiplies each coordinate in a rectangle by a scalar value.
+     *
+     * @param rect    The rectangle-like object to scale.
+     * @param factor  The number to multiply by.
+     * @param out     An optional instance to store the result in.  If not
+     *                provided, a new Rectangle is created.
+     *
+     * @return  The object containing the multiplied rectangle.
+     */
     public static function multiply(
         rect:Object, factor:Number, out:Object = null):Object
     {
@@ -18,6 +34,27 @@ public class RectUtil
         return out;
     }
 
+
+    /**
+     * Applies a non-skew linear transformation to each coordinate in a
+     * rectangle.  This is equivalent to transforming a rectangle by a Matrix,
+     * with the restriction that its <code>b</code> and <code>c</code>
+     * properties are fixed at zero.
+     *
+     * @param rect     The rectangle-like object to transform.
+     * @param xFactor  The number to multiply the x and width by.  This is
+     *                 equivalent to a Matrix's <code>a</code> property.
+     * @param yFactor  The number to multiply the y and height by.  This is
+     *                 equivalent to a Matrix's <code>d</code> property.
+     * @param xOffset  The number to add to the resultant x.  This is
+     *                 equivalent to a Matrix's <code>tx</code> property.
+     * @param yOffset  The number to add to the resultant y.  This is
+     *                 equivalent to a Matrix's <code>ty</code> property.
+     * @param out      An optional instance to store the result in.  If not
+     *                 provided, a new Rectangle is created.
+     *
+     * @return  The object containing the transformed rectangle.
+     */
     public static function transform(
         rect:Object,
         xFactor:Number, yFactor:Number,
@@ -191,6 +228,17 @@ public class RectUtil
     }
 
 
+    /**
+     * Rounds each coordinate of a rectangle to the next integer away from its
+     * center.  The result is the smallest rectangle with integral coordinates
+     * that can entirely contain the input rectangle.
+     *
+     * @param rect    The rectangle-like object to round.
+     * @param out     An optional instance to store the result in.  If not
+     *                provided, a new Rectangle is created.
+     *
+     * @return  The object containing the rectangle with integral coordinates.
+     */
     public static function roundOut(
         rect:Object, out:Object = null):Object
     {
@@ -205,6 +253,18 @@ public class RectUtil
         return out;
     }
 
+
+    /**
+     * Rounds each coordinate of a rectangle to the next integer toward its
+     * center.  The result is the largest rectangle with integral coordinates
+     * that can fit entirely within the input rectangle.
+     *
+     * @param rect    The rectangle-like object to round.
+     * @param out     An optional instance to store the result in.  If not
+     *                provided, a new Rectangle is created.
+     *
+     * @return  The object containing the rectangle with integral coordinates.
+     */
     public static function roundIn(
         rect:Object, out:Object = null):Object
     {
@@ -219,6 +279,18 @@ public class RectUtil
         return out;
     }
 
+
+    /**
+     * Maps a point from one rectangle space to another.
+     *
+     * @param point   The input point.
+     * @param source  The source rectangle space.
+     * @param target  The target rectangle space.
+     * @param out     An optional instance to store the result in.  If not
+     *                provided, a new Point is created.
+     *
+     * @return  The object containing the mapped point.
+     */
     public static function mapPoint(point:Object,
         source:Object, target:Object, out:Object = null):Object
     {
@@ -228,6 +300,18 @@ public class RectUtil
         return out;
     }
 
+
+    /**
+     * Maps a rectangle from one rectangle space to another.
+     *
+     * @param rect    The input rectangle.
+     * @param source  The source rectangle space.
+     * @param target  The target rectangle space.
+     * @param out     An optional instance to store the result in.  If not
+     *                provided, a new Rectangle is created.
+     *
+     * @return  The object containing the mapped rectangle.
+     */
     public static function mapRect(
         rect:Object, source:Object, target:Object, out:Object = null):Object
     {
@@ -239,6 +323,18 @@ public class RectUtil
         return out;
     }
 
+
+    /**
+     * Restricts the range of a point's x and y coordinates so the point falls
+     * with a given rectangle.
+     *
+     * @param point  The point to limit.
+     * @param rect   The rectangular limit.
+     * @param out    An optional instance to store the result in.  If not
+     *               provided, a new Point is created.
+     *
+     * @return  The object containing the clamped point.
+     */
     public static function clampPoint(
         point:Object, rect:Object, out:Object = null):Object
     {
@@ -256,6 +352,21 @@ public class RectUtil
     }
 
 
+    /**
+     * Returns a point in a rectangle, given an x and y coordinate in the range
+     * (0, 0) representing the rectangle's top-left corner, to (1, 1)
+     * representing the bottom-right.
+     *
+     * @param rect   The input rectangle.
+     * @param xParam The X parameter, with 0 representing the rectangle's left,
+     *               1 the right.
+     * @param yParam The Y parameter, with 0 representing the rectangle's top,
+     *               1 the bottom.
+     * @param out    An optional instance to store the result in.  If not
+     *               provided, a new Point is created.
+     *
+     * @return  The object containing the point.
+     */
     public static function getNormalizedPoint(
         rect:Object, xParam:Number, yParam:Number, out:Object = null):Object
     {
@@ -266,6 +377,17 @@ public class RectUtil
     }
 
 
+    /**
+     * Scales a rectangle to have a specified area, maintaining its aspect
+     * ratio.
+     *
+     * @param rect  The rectangle to scale.
+     * @param area  The desired area.
+     * @param out   An optional instance to store the result in.  If not
+     *              provided, a new Rectangle is created.
+     *
+     * @return  The object containing the rectangle with the desired area.
+     */
     public static function scaleToArea(
         rect:Object, area:Number, out:Object = null):Object
     {
