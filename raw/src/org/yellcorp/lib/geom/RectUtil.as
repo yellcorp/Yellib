@@ -244,7 +244,8 @@ public class RectUtil
     {
         if (!out) out = new Rectangle();
 
-        var r:Number = rect.right, b:Number = rect.bottom;
+        var r:Number = rect.x + rect.width;
+        var b:Number = rect.y + rect.height;
 
         out.x = Math.floor(rect.x);
         out.y = Math.floor(rect.y);
@@ -270,7 +271,8 @@ public class RectUtil
     {
         if (!out) out = new Rectangle();
 
-        var r:Number = rect.right, b:Number = rect.bottom;
+        var r:Number = rect.x + rect.width;
+        var b:Number = rect.y + rect.height;
 
         out.x = Math.ceil(rect.x);
         out.y = Math.ceil(rect.y);
@@ -318,8 +320,8 @@ public class RectUtil
         if (!out) out = new Rectangle();
         out.x = target.x + target.width * (rect.x - source.x) / source.width;
         out.y = target.y + target.height * (rect.y - source.y) / source.height;
-        out.width = target.width * (rect.right - source.x) / source.width;
-        out.height = target.height * (rect.bottom - source.y) / source.height;
+        out.width = target.width * (rect.x + rect.width - source.x) / source.width;
+        out.height = target.height * (rect.y + rect.height - source.y) / source.height;
         return out;
     }
 
@@ -340,12 +342,12 @@ public class RectUtil
     {
         if (!out) out = new Point();
 
-        if (point.x < rect.left)  {  out.x = rect.left;  }
-        else if (point.x > rect.right)  {  out.x = rect.right;  }
+        if (point.x < rect.x)  {  out.x = rect.x;  }
+        else if (point.x > rect.x + rect.width)  {  out.x = rect.x + rect.width;  }
         else  {  out.x = point.x;  }
 
         if (point.y < rect.top)  {  out.y = rect.top;  }
-        else if (point.y > rect.bottom)  {  out.y = rect.bottom;  }
+        else if (point.y > rect.y + rect.height)  {  out.y = rect.y + rect.height;  }
         else  {  out.y = point.y;  }
 
         return out;
