@@ -255,6 +255,17 @@ public class RectUtil
         return out;
     }
 
+
+    public static function getNormalizedPoint(
+        rect:Object, xParam:Number, yParam:Number, out:Object = null):Object
+    {
+        if (!out) out = new Point();
+        out.x = rect.x + xParam * rect.width;
+        out.y = rect.y + yParam * rect.height;
+        return out;
+    }
+
+
     public static function scaleToArea(
         rect:Object, area:Number, out:Object = null):Object
     {
