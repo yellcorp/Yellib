@@ -8,7 +8,7 @@ import flash.geom.Rectangle;
 public class RectUtil
 {
     public static function multiply(
-        rect:Rectangle, factor:Number, out:Rectangle = null):Rectangle
+        rect:Object, factor:Number, out:Object = null):Object
     {
         if (!out) out = new Rectangle();
         out.x = rect.x * factor;
@@ -19,10 +19,10 @@ public class RectUtil
     }
 
     public static function transform(
-        rect:Rectangle,
+        rect:Object,
         xFactor:Number, yFactor:Number,
         xOffset:Number, yOffset:Number,
-        out:Rectangle = null):Rectangle
+        out:Object = null):Object
     {
         if (!out) out = new Rectangle();
         out.x = rect.x * xFactor + xOffset;
@@ -192,7 +192,7 @@ public class RectUtil
 
 
     public static function roundOut(
-        rect:Rectangle, out:Rectangle = null):Rectangle
+        rect:Object, out:Object = null):Object
     {
         if (!out) out = new Rectangle();
 
@@ -206,7 +206,7 @@ public class RectUtil
     }
 
     public static function roundIn(
-        rect:Rectangle, out:Rectangle = null):Rectangle
+        rect:Object, out:Object = null):Object
     {
         if (!out) out = new Rectangle();
 
@@ -219,32 +219,28 @@ public class RectUtil
         return out;
     }
 
-    public static function mapPoint(
-        point:Point,
-        from:Rectangle, to:Rectangle,
-        out:Rectangle = null):Rectangle
+    public static function mapPoint(point:Object,
+        source:Object, target:Object, out:Object = null):Object
     {
         if (!out) out = new Rectangle();
-        out.x = to.x + to.width * (point.x - from.x) / from.width;
-        out.y = to.y + to.height * (point.y - from.y) / from.height;
+        out.x = target.x + target.width * (point.x - source.x) / source.width;
+        out.y = target.y + target.height * (point.y - source.y) / source.height;
         return out;
     }
 
     public static function mapRect(
-        rect:Rectangle,
-        from:Rectangle, to:Rectangle,
-        out:Rectangle = null):Rectangle
+        rect:Object, source:Object, target:Object, out:Object = null):Object
     {
         if (!out) out = new Rectangle();
-        out.x = to.x + to.width * (rect.x - from.x) / from.width;
-        out.y = to.y + to.height * (rect.y - from.y) / from.height;
-        out.width = to.width * (rect.right - from.x) / from.width;
-        out.height = to.height * (rect.bottom - from.y) / from.height;
+        out.x = target.x + target.width * (rect.x - source.x) / source.width;
+        out.y = target.y + target.height * (rect.y - source.y) / source.height;
+        out.width = target.width * (rect.right - source.x) / source.width;
+        out.height = target.height * (rect.bottom - source.y) / source.height;
         return out;
     }
 
     public static function clampPoint(
-        point:Point, rect:Rectangle, out:Point = null):Point
+        point:Object, rect:Object, out:Object = null):Object
     {
         if (!out) out = new Point();
 
@@ -259,8 +255,8 @@ public class RectUtil
         return out;
     }
 
-    public static function setArea(
-        rect:Rectangle, area:Number, out:Rectangle = null):Rectangle
+    public static function scaleToArea(
+        rect:Object, area:Number, out:Object = null):Object
     {
         if (!out) out = new Rectangle();
         var areaRatio:Number = Math.sqrt(area / (rect.width * rect.height));
