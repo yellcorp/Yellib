@@ -38,7 +38,7 @@ public class BitmapDataPool implements Disposable
      * @param width The width of the bitmap image in pixels.
      * @param height The height of the bitmap image in pixels.
      * @param transparent <code>true</code> if transparency support (alpha
-     *        channel) is required.  @default true
+     *        channel) is required.
      *
      * @return A new or pooled <code>BitmapData</code> object.
      *
@@ -79,7 +79,7 @@ public class BitmapDataPool implements Disposable
      * <p>Should be called when an instance of this class is no longer
      * being used.  After this method is called, <code>getBitmapData()</code>
      * will return objects that behave like regular <code>BitmapData</code>
-     * instances.
+     * instances.</p>
      */
     public function dispose():void
     {

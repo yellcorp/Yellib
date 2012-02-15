@@ -26,7 +26,7 @@ public class RegExpUtil
     {
         return literalString.replace(REGEX_METACHARS, "\\$1");
     }
-    
+
     private static const RE_PROP_TO_FLAG:Object = {
         global:     'g',  g: 'g',
         ignorecase: 'i',  i: 'i',
@@ -34,22 +34,22 @@ public class RegExpUtil
         dotall:     's',  s: 's',
         extended:   'x',  x: 'x'
     };
-    
+
     /**
      * Returns a copy of a RegExp with its flags modified.
-     * 
+     *
      * @param source         The RegExp from which to create a modified copy.
      * @param newFlagValues  A dynamic object mapping RegExp flags to their
-     *                       new value of <code>true</code> or 
-     *                       <code>false</code>.  Flags can be expressed as 
+     *                       new value of <code>true</code> or
+     *                       <code>false</code>.  Flags can be expressed as
      *                       letters (g, i, s, m or x) or their respective
-     *                       RegExp property name (global, ignoreCase, 
+     *                       RegExp property name (global, ignoreCase,
      *                       multiline, dotall, or extended).  Flag names are
-     *                       case-insensitive.  Flags that are not specified 
-     *                       will take their value from the 
-     *                       <code>source</source> RegExp.  If a flag is 
-     *                       specified more than once (for example, specifying 
-     *                       both i and ignoreCase), the value for that flag is 
+     *                       case-insensitive.  Flags that are not specified
+     *                       will take their value from the
+     *                       <code>source</code> RegExp.  If a flag is
+     *                       specified more than once (for example, specifying
+     *                       both i and ignoreCase), the value for that flag is
      *                       not defined.
      * @return A copy of the original RegExp with the new flag values.
      */
@@ -57,7 +57,7 @@ public class RegExpUtil
     {
         var property:String;
         var flag:String;
-        
+
         var newFlags:Object = {
             g: source.global,
             i: source.ignoreCase,
@@ -65,25 +65,25 @@ public class RegExpUtil
             s: source.dotall,
             x: source.extended
         };
-        
+
         if (newFlagValues)
         {
-	        for (property in newFlagValues)
-	        {
+            for (property in newFlagValues)
+            {
                 flag = RE_PROP_TO_FLAG[property.toLowerCase()];
                 if (flag)
                 {
-	            	newFlags[flag] = newFlagValues[property];
+                    newFlags[flag] = newFlagValues[property];
                 }
-	        }
+            }
         }
-        
+
         var newFlagString:String = "";
         for (flag in newFlags)
         {
             if (newFlags[flag]) newFlagString += flag;
         }
-        
+
         return new RegExp(source.source, newFlagString);
     }
 }

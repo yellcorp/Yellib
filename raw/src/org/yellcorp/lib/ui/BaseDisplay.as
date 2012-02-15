@@ -25,7 +25,7 @@ import flash.utils.getQualifiedClassName;
  *       which identifiers have been invalidated, updates the display that
  *       corresponds to each one, then calls <code>validate()</code> for
  *       each one.</li>
- * </ui>
+ * </ul>
  */
 public class BaseDisplay extends Sprite
 {
