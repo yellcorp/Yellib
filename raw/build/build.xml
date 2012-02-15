@@ -15,8 +15,7 @@
 
 
 	<target name="documentation" description="Generate documentation">
-		<java jar="${flex_sdk}/lib/asdoc.jar" fork="true" dir="${flex_sdk}/frameworks">
-			<arg value="-source-path+=${FL_AS3}" />
+		<java jar="${local.flex}/lib/asdoc.jar" fork="true" dir="${local.flex}/frameworks">
 			<arg value="-source-path+=${src}" />
 			<arg value="-doc-sources" />
 			<arg value="${include}" />
@@ -48,8 +47,7 @@
 
 
 	<target name="compile" depends="version">
-		<java jar="${flex_sdk}/lib/compc.jar" fork="true" dir="${flex_sdk}/frameworks">
-			<arg value="-source-path+=${FL_AS3}" />
+		<java jar="${local.flex}/lib/compc.jar" fork="true" dir="${local.flex}/frameworks">
 			<arg value="-source-path+=${src}" />
 			<arg value="-debug=${debug}" />
 			<arg value="-optimize=${optimize}" />
