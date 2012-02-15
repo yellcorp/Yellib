@@ -24,7 +24,7 @@ public class RectUtil
      * @return  The object containing the multiplied rectangle.
      */
     public static function multiply(
-        rect:Object, factor:Number, out:Object = null):Object
+        rect:*, factor:Number, out:* = null):*
     {
         if (!out) out = new Rectangle();
         out.x = rect.x * factor;
@@ -56,10 +56,10 @@ public class RectUtil
      * @return  The object containing the transformed rectangle.
      */
     public static function transform(
-        rect:Object,
+        rect:*,
         xFactor:Number, yFactor:Number,
         xOffset:Number, yOffset:Number,
-        out:Object = null):Object
+        out:* = null):*
     {
         if (!out) out = new Rectangle();
         out.x = rect.x * xFactor + xOffset;
@@ -97,12 +97,12 @@ public class RectUtil
      * @return  The object containing the result of fitting <code>source</code>
      *          to <code>target</code>.
      */
-    public static function fit(source:Object, target:Object,
+    public static function fit(source:*, target:*,
                                    fitMode:String,
                                    xAlign:Number = 0.5,
                                    yAlign:Number = 0.5,
                                    rounding:Boolean = false,
-                                   out:Object = null):Object
+                                   out:* = null):*
     {
         // copy values to guard against aliasing
         var sw:Number = source.width, sh:Number = source.height;
@@ -184,9 +184,9 @@ public class RectUtil
      *          rectangle.
      */
     public static function align(
-        source:Object, sourceNormX:Number, sourceNormY:Number,
-        target:Object, targetNormX:Number, targetNormY:Number,
-        out:Object = null):Object
+        source:*, sourceNormX:Number, sourceNormY:Number,
+        target:*, targetNormX:Number, targetNormY:Number,
+        out:* = null):*
     {
         if (!out) out = new Rectangle();
         out.x = target.x + targetNormX * target.width - sourceNormX * source.width;
@@ -211,14 +211,14 @@ public class RectUtil
      * @return  The object containing the calculated Matrix.
      */
     public static function getTransform(
-        source:Object, target:Object,
+        source:*, target:*,
         out:Matrix = null):Matrix
     {
         if (source.width == 0 || source.height == 0) return null;
         if (!out) out = new Matrix();
 
-        out.tx = target.left - source.left;
-        out.ty = target.top - source.top;
+        out.tx = target.x - source.x;
+        out.ty = target.y - source.y;
         out.a = target.width / source.width;
         out.b =
         out.c = 0;
@@ -240,7 +240,7 @@ public class RectUtil
      * @return  The object containing the rectangle with integral coordinates.
      */
     public static function roundOut(
-        rect:Object, out:Object = null):Object
+        rect:*, out:* = null):*
     {
         if (!out) out = new Rectangle();
 
@@ -267,7 +267,7 @@ public class RectUtil
      * @return  The object containing the rectangle with integral coordinates.
      */
     public static function roundIn(
-        rect:Object, out:Object = null):Object
+        rect:*, out:* = null):*
     {
         if (!out) out = new Rectangle();
 
@@ -293,8 +293,8 @@ public class RectUtil
      *
      * @return  The object containing the mapped point.
      */
-    public static function mapPoint(point:Object,
-        source:Object, target:Object, out:Object = null):Object
+    public static function mapPoint(point:*,
+        source:*, target:*, out:* = null):*
     {
         if (!out) out = new Rectangle();
         out.x = target.x + target.width * (point.x - source.x) / source.width;
@@ -315,7 +315,7 @@ public class RectUtil
      * @return  The object containing the mapped rectangle.
      */
     public static function mapRect(
-        rect:Object, source:Object, target:Object, out:Object = null):Object
+        rect:*, source:*, target:*, out:* = null):*
     {
         if (!out) out = new Rectangle();
         out.x = target.x + target.width * (rect.x - source.x) / source.width;
@@ -338,7 +338,7 @@ public class RectUtil
      * @return  The object containing the clamped point.
      */
     public static function clampPoint(
-        point:Object, rect:Object, out:Object = null):Object
+        point:*, rect:*, out:* = null):*
     {
         if (!out) out = new Point();
 
@@ -346,7 +346,7 @@ public class RectUtil
         else if (point.x > rect.x + rect.width)  {  out.x = rect.x + rect.width;  }
         else  {  out.x = point.x;  }
 
-        if (point.y < rect.top)  {  out.y = rect.top;  }
+        if (point.y < rect.y)  {  out.y = rect.y;  }
         else if (point.y > rect.y + rect.height)  {  out.y = rect.y + rect.height;  }
         else  {  out.y = point.y;  }
 
@@ -370,7 +370,7 @@ public class RectUtil
      * @return  The object containing the point.
      */
     public static function getNormalizedPoint(
-        rect:Object, xParam:Number, yParam:Number, out:Object = null):Object
+        rect:*, xParam:Number, yParam:Number, out:* = null):*
     {
         if (!out) out = new Point();
         out.x = rect.x + xParam * rect.width;
@@ -391,7 +391,7 @@ public class RectUtil
      * @return  The object containing the rectangle with the desired area.
      */
     public static function scaleToArea(
-        rect:Object, area:Number, out:Object = null):Object
+        rect:*, area:Number, out:* = null):*
     {
         if (!out) out = new Rectangle();
         var areaRatio:Number = Math.sqrt(area / (rect.width * rect.height));
