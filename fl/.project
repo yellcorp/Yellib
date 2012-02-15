@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>yellib-raw</name>
+	<name>yellib-fl</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -14,4 +14,11 @@
 	<natures>
 		<nature>com.powerflasher.fdt.core.FlashNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>FL_AS3</name>
+			<type>2</type>
+			<locationURI>FL_AS3</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
