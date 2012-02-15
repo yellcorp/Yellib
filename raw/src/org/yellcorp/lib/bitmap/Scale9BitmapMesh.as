@@ -30,7 +30,7 @@ public class Scale9BitmapMesh extends Sprite
     private static const CORNER_PATCHES:uint = 0;
     private static const NO_CENTER_COLUMN:uint = 1;
     private static const NO_CENTER_ROW:uint = 2;
-    private static const ALL:uint = 2;
+    private static const ALL:uint = 3;
 
     private static var _indicesAll:Vector.<int>;
     private static var _indicesNoCenterRow:Vector.<int>;
@@ -165,8 +165,8 @@ public class Scale9BitmapMesh extends Sprite
 
     private function recalcVertsLinear():void
     {
-        verts[6]  = verts[30] = _width;
-        verts[25] = verts[26] = _height;
+        verts[6]  = verts[30] = _width - 1;
+        verts[25] = verts[31] = _height - 1;
         vertsNeedRecalc = false;
     }
 
@@ -223,42 +223,44 @@ public class Scale9BitmapMesh extends Sprite
 
     private function recalcUVs():void
     {
-        verts[2] = verts[10] = verts[18] = verts[26] = _scale9Grid.x / _bitmapData.width;
-        verts[4] = verts[12] = verts[20] = verts[28] = _scale9Grid.right / _bitmapData.width;
-        verts[9] = verts[11] = verts[13] = verts[15] = _scale9Grid.y / _bitmapData.height;
-        verts[17] = verts[19] = verts[21] = verts[23] = _scale9Grid.bottom / _bitmapData.height;
+        uvs[2] = uvs[10] = uvs[18] = uvs[26] = _scale9Grid.x / _bitmapData.width;
+        uvs[4] = uvs[12] = uvs[20] = uvs[28] = _scale9Grid.right / _bitmapData.width;
+        uvs[9] = uvs[11] = uvs[13] = uvs[15] = _scale9Grid.y / _bitmapData.height;
+        uvs[17] = uvs[19] = uvs[21] = uvs[23] = _scale9Grid.bottom / _bitmapData.height;
     }
 
     private function recalcVertsScale9():void
     {
-        if (_width - _scale9Grid.width > _scale9Grid.x)
+        var rightStripStart:Number = _width - 1 - _bitmapData.width + _scale9Grid.right;
+        if (rightStripStart > _scale9Grid.x)
         {
             drawIndexSet = CENTER_COLUMN;
             verts[2] = verts[10] = verts[18] = verts[26] = _scale9Grid.x;
-            verts[4] = verts[12] = verts[20] = verts[28] = _width - _scale9Grid.width;
+            verts[4] = verts[12] = verts[20] = verts[28] = rightStripStart;
         }
         else
         {
             drawIndexSet = 0;
             verts[2] = verts[10] = verts[18] = verts[26] =
             verts[4] = verts[12] = verts[20] = verts[28] =
-                _width * _scale9Grid.x / (_bitmapData.width - _scale9Grid.right);
+                _width * _scale9Grid.x / (_bitmapData.width - _scale9Grid.width);
         }
-        verts[6] = verts[14] = verts[22] = verts[30] = _width;
+        verts[6] = verts[14] = verts[22] = verts[30] = _width - 1;
 
-        if (_height - _scale9Grid.height > _scale9Grid.y)
+        var bottomStripStart:Number = _height - 1 - _bitmapData.height + _scale9Grid.bottom;
+        if (bottomStripStart > _scale9Grid.y)
         {
             drawIndexSet |= CENTER_ROW;
             verts[9] = verts[11] = verts[13] = verts[15] = _scale9Grid.y;
-            verts[17] = verts[19] = verts[21] = verts[23] = _height - _scale9Grid.height;
+            verts[17] = verts[19] = verts[21] = verts[23] = bottomStripStart;
         }
         else
         {
             verts[9] = verts[11] = verts[13] = verts[15] =
             verts[17] = verts[19] = verts[21] = verts[23] =
-                _height * _scale9Grid.y / (_bitmapData.height - _scale9Grid.bottom);
+                _height * _scale9Grid.y / (_bitmapData.height - _scale9Grid.height);
         }
-        verts[25] = verts[27] = verts[29] = verts[31] = _height;
+        verts[25] = verts[27] = verts[29] = verts[31] = _height - 1;
     }
 
     private function invalidate():void
