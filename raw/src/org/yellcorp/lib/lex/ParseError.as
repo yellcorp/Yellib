@@ -1,4 +1,4 @@
-package org.yellcorp.lib.serial.error
+package org.yellcorp.lib.lex
 {
 public class ParseError extends Error
 {

@@ -1,12 +1,70 @@
-package org.yellcorp.lib.serial
+package org.yellcorp.lib.lex
 {
-import org.yellcorp.lib.serial.error.ParseError;
-
-
 public class ParseUtil
 {
-    public static const HEX_INTEGER:RegExp =
-        /^(?:0x|#)([0-9a-f]+)$/i ;
+    /**
+     * Returns a RegExp that will match a numeric literal.
+     *
+     * The RegExp returned is a transcription of the ECMA-262 ToNumber grammar,
+     * without the allowance for leading or trailing whitespace.  It is up to
+     * the caller to trim the string they are matching against if necessary.
+     *
+     * This function returns a new instance of the same RegExp each time, so
+     * a caller can (and should) keep a reference to it if they will be using
+     * it repeatedly.
+     */
+    public static function getNumberPattern():RegExp
+    {
+        return new RegExp(
+            "^(?:"  +
+                "[+-]?"  +
+                "(?:"  +
+                    "Infinity"  +
+                    "|"  +
+                    "(?:"  +
+                        "\\d+\\.\\d*"  +
+                        "|"  +
+                        "\\.\\d+"  +
+                        "|"  +
+                        "\\d+"  +
+                    ")"  +
+                    "(?:"  +
+                        "e[+-]?\\d+"  +
+                    ")?"  +
+                ")"  +
+                "|"  +
+                "0x[0-9a-f]+"  +
+            ")$",
+            "i"
+        );
+    }
+
+    /**
+     * Returns a RegExp that will match a hexadecimal literal.
+     *
+     * The RegExp returned is case-insensitive, and allows a prefix of
+     * '0x', '0X', or '#'.  It has one named capturing group, 'digits', that
+     * will contain the digits of a successful match, without any prefix.
+     */
+    public static function getHexIntegerPattern():RegExp
+    {
+        return new RegExp(
+            "^"  +
+                "(?:"  +
+                    "0x"  +
+                    "|"  +
+                    "#"  +
+                ")"  +
+                "(?P<digits>"  +
+                    "[0-9a-f]+"  +
+                ")"  +
+            "$",
+            "i"
+        );
+    }
+
+    // keep a copy for ourselves
+    private static const HEX_INTEGER:RegExp = getHexIntegerPattern();
 
     public static function parseBoolean(value:*):Boolean
     {
@@ -14,9 +72,13 @@ public class ParseUtil
 
         if (value === undefined || value === null ||
             value is Number || value is int || value is uint ||
-            value is Boolean || value is Array)
+            value is Boolean)
         {
             return Boolean(value);
+        }
+        else if (value is Array || value is Vector)
+        {
+            return value.length > 0;
         }
         else
         {
@@ -97,7 +159,7 @@ public class ParseUtil
             hexMatch = HEX_INTEGER.exec(value);
             if (hexMatch)
             {
-                result = parseInt(hexMatch[1], 16);
+                result = parseInt(hexMatch.digits, 16);
             }
             else
             {
