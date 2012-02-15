@@ -167,6 +167,7 @@ public class Set extends Proxy
             break;
         }
         delete dict[item];
+        _length--;
         return item;
     }
 
