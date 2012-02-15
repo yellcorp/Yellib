@@ -37,6 +37,26 @@ public class Statistics
     }
 
     /**
+     * Returns the sum of values in an <code>Array</code>.
+     *
+     * @param values An array or vector of Numbers, ints, or uints
+     * @return The sum.
+     */
+    public static function sum(values:*):Number
+    {
+        if (!values || values.length == 0)
+        {
+            return 0;
+        }
+        var acc:Number = values[0];
+        for (var i:int = 1; i < values.length; i++)
+        {
+            acc += values[i];
+        }
+        return acc;
+    }
+
+    /**
      * Returns the arithmetic mean (average) of numbers in an Array. An
      * optional weighting array can be provided.
      *
