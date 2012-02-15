@@ -108,8 +108,8 @@ public class Scale9BitmapMesh extends Sprite
 
     public function set bitmapData(new_bitmapData:BitmapData):void
     {
-        uvsNeedRecalc = vertsNeedRecalc = !bitmapsSameSize(_bitmapData, new_bitmapData);
         _bitmapData = new_bitmapData;
+        scale9Grid = _scale9Grid;
         invalidate();
     }
 
@@ -120,7 +120,9 @@ public class Scale9BitmapMesh extends Sprite
 
     public override function set scale9Grid(innerRectangle:Rectangle):void
     {
-        _scale9Grid = innerRectangle;
+        _scale9Grid = innerRectangle && _bitmapData ?
+              clampRect(innerRectangle, _bitmapData.rect)
+            : innerRectangle;
         uvsNeedRecalc = vertsNeedRecalc = true;
         invalidate();
     }
@@ -385,9 +387,21 @@ public class Scale9BitmapMesh extends Sprite
         return _indicesCorners;
     }
 
-    private static function bitmapsSameSize(a:BitmapData, b:BitmapData):Boolean
+    private static function clampRect(rect:Rectangle, outer:Rectangle):Rectangle
     {
-        return a && b && a.width == b.width && a.height == b.height;
+        var newLeft:Number = clamp(rect.left, outer.left, outer.right);
+        var newRight:Number = clamp(rect.right, outer.left, outer.right);
+        var newTop:Number = clamp(rect.top, outer.top, outer.bottom);
+        var newBottom:Number = clamp(rect.bottom, outer.top, outer.bottom);
+
+        return new Rectangle(newLeft, newTop, newRight - newLeft, newBottom - newTop);
+    }
+
+    private static function clamp(v:Number, min:Number, max:Number):Number
+    {
+        return v < min ? min :
+               v > max ? max :
+                         v;
     }
 }
 }
