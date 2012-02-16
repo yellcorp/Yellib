@@ -156,33 +156,18 @@ public class Scale9BitmapMesh extends Sprite
 
     private function drawLinear():void
     {
-        if (vertsNeedRecalc)
-        {
-            recalcVertsLinear();
-        }
+        if (uvsNeedRecalc) recalcUVs();
+        if (vertsNeedRecalc) recalcVertsLinear();
+
         graphics.beginBitmapFill(_bitmapData, null, false, _smoothing);
         graphics.drawTriangles(verts, indicesCorners, uvs);
         graphics.endFill();
     }
 
-    private function recalcVertsLinear():void
-    {
-        verts[6]  = verts[30] = _width - 1;
-        verts[25] = verts[31] = _height - 1;
-        vertsNeedRecalc = false;
-    }
-
     private function drawScale9():void
     {
-        if (uvsNeedRecalc)
-        {
-            recalcUVs();
-        }
-
-        if (vertsNeedRecalc)
-        {
-            recalcVertsScale9();
-        }
+        if (uvsNeedRecalc) recalcUVs();
+        if (vertsNeedRecalc) recalcVertsScale9();
 
         var indices:Vector.<int>;
 
@@ -225,10 +210,43 @@ public class Scale9BitmapMesh extends Sprite
 
     private function recalcUVs():void
     {
-        uvs[2] = uvs[10] = uvs[18] = uvs[26] = _scale9Grid.x / _bitmapData.width;
-        uvs[4] = uvs[12] = uvs[20] = uvs[28] = _scale9Grid.right / _bitmapData.width;
-        uvs[9] = uvs[11] = uvs[13] = uvs[15] = _scale9Grid.y / _bitmapData.height;
-        uvs[17] = uvs[19] = uvs[21] = uvs[23] = _scale9Grid.bottom / _bitmapData.height;
+        // to get an MxN rectangle to display a pixel-perfect texture requires
+        // mapping the range [ 0, M ] to [ 0, (M+1)/M ]
+
+        // this means that a pixel at (X,Y) must have the following UV:
+        //    U = (X/M) * (M+1)/M
+        //    V = (Y/N) * (N+1)/N
+
+        // or alternately:
+        //    U = X * (M+1)/(M*M)
+        //    V = Y * (N+1)/(N*N)
+
+        // that's what's happening here to make sure the non-scaled corners
+        // are rendered pixel-perfectly
+
+        var uFactor:Number = (_bitmapData.width + 1) / (_bitmapData.width * _bitmapData.width);
+        var vFactor:Number = (_bitmapData.height + 1) / (_bitmapData.height * _bitmapData.height);
+
+        // rightmost column
+        uvs[ 6] = uvs[14] = uvs[22] = uvs[30] = _bitmapData.width * uFactor;
+
+        // bottom row
+        uvs[25] = uvs[27] = uvs[29] = uvs[31] = _bitmapData.height * vFactor;
+
+        if (_scale9Grid)
+        {
+            // column 1
+            uvs[ 2] = uvs[10] = uvs[18] = uvs[26] = _scale9Grid.x * uFactor;
+
+            // column 2
+            uvs[ 4] = uvs[12] = uvs[20] = uvs[28] = (_scale9Grid.right - 1) * uFactor;
+
+            // row 1
+            uvs[ 9] = uvs[11] = uvs[13] = uvs[15] = _scale9Grid.y * vFactor;
+
+            // row 2
+            uvs[17] = uvs[19] = uvs[21] = uvs[23] = (_scale9Grid.bottom - 1) * vFactor;
+        }
     }
 
     private function recalcVertsScale9():void
@@ -247,7 +265,7 @@ public class Scale9BitmapMesh extends Sprite
             verts[4] = verts[12] = verts[20] = verts[28] =
                 _width * _scale9Grid.x / (_bitmapData.width - _scale9Grid.width);
         }
-        verts[6] = verts[14] = verts[22] = verts[30] = _width - 1;
+        verts[6] = verts[14] = verts[22] = verts[30] = _width;
 
         var bottomStripStart:Number = _height - 1 - _bitmapData.height + _scale9Grid.bottom;
         if (bottomStripStart > _scale9Grid.y)
@@ -262,7 +280,14 @@ public class Scale9BitmapMesh extends Sprite
             verts[17] = verts[19] = verts[21] = verts[23] =
                 _height * _scale9Grid.y / (_bitmapData.height - _scale9Grid.height);
         }
-        verts[25] = verts[27] = verts[29] = verts[31] = _height - 1;
+        verts[25] = verts[27] = verts[29] = verts[31] = _height;
+    }
+
+    private function recalcVertsLinear():void
+    {
+        verts[6]  = verts[30] = _width;
+        verts[25] = verts[31] = _height;
+        vertsNeedRecalc = false;
     }
 
     private function invalidate():void

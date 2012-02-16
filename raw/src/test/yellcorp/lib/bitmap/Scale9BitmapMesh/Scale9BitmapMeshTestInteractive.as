@@ -14,6 +14,12 @@ import flash.geom.Rectangle;
 public class Scale9BitmapMeshTestInteractive extends Sprite
 {
     [Embed(source="/../rsrc/embed/Scale9BitmapMeshTest/testgrid.png")]
+    /**
+     * This image has an inverted outline in its centre. The scale9grid is, by
+     * default, set to cover the image within that outline, but not including
+     * it.  This means when changing the size of the scale9 bitmap, this outline
+     * should always have a thickness of one pixel
+     */
     private var testgrid:Class;
 
     private var imageDisplay:Bitmap;
@@ -30,15 +36,15 @@ public class Scale9BitmapMeshTestInteractive extends Sprite
         image = imageDisplay.bitmapData;
 
         addChild(imageDisplay);
-        source = new RectangleControl(image.width * .5, image.height * .5, 1, 0xFFFFFFFF, 0);
+        source = new RectangleControl(63, 63, 1, 0xFFFFFFFF, 0);
         source.filters = [ new GlowFilter(0, 1, 4, 4, 1, 2) ];
-        source.x = image.width * .25;
-        source.y = image.height * .25;
+        source.x = 32;
+        source.y = 32;
 
         addChild(source);
 
         targetLayer = new Sprite();
-        targetLayer.x = 320;
+        targetLayer.x = image.width;
         addChild(targetLayer);
         scale9Demo = new Scale9BitmapMesh(image, new Rectangle(source.x, source.y, source.width, source.height), true);
         targetLayer.addChild(scale9Demo);
@@ -47,6 +53,8 @@ public class Scale9BitmapMeshTestInteractive extends Sprite
 
         source.addEventListener(Event.CHANGE, onSourceChange);
         target.addEventListener(Event.CHANGE, onTargetChange);
+
+        onTargetChange(null);
     }
 
     private function onSourceChange(event:Event):void
