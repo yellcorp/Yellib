@@ -1,6 +1,6 @@
 package org.yellcorp.lib.debug.console
 {
-import org.yellcorp.lib.core.MathUtil;
+import org.yellcorp.lib.core.math.clamp;
 
 
 public class InputHistory
@@ -34,7 +34,7 @@ public class InputHistory
         {
             buffer = input.getInput();
         }
-        historyIndex = MathUtil.clamp(historyIndex + direction, 0, history.length);
+        historyIndex = clamp(historyIndex + direction, 0, history.length);
         if (historyIndex == history.length)
         {
             input.setInput(buffer);

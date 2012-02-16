@@ -1,6 +1,6 @@
 package org.yellcorp.lib.debug.console
 {
-import org.yellcorp.lib.core.MathUtil;
+import org.yellcorp.lib.core.math.positiveMod;
 
 
 public class InputCompleter
@@ -35,7 +35,7 @@ public class InputCompleter
         {
             input.setInput(originalInput);
         }
-        currentCandidate = MathUtil.positiveMod(currentCandidate + direction, candidates.length + 1);
+        currentCandidate = positiveMod(currentCandidate + direction, candidates.length + 1);
     }
 
     private function refreshCandidates():void
