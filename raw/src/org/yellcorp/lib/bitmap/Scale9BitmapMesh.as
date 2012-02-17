@@ -5,6 +5,7 @@ import org.yellcorp.lib.error.assert;
 import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.events.Event;
+import flash.geom.Point;
 import flash.geom.Rectangle;
 
 
@@ -427,6 +428,72 @@ public class Scale9BitmapMesh extends Sprite
         return v < min ? min :
                v > max ? max :
                          v;
+    }
+
+    private static const ZERO_POINT:Point = new Point();
+    /**
+     * Creates a Scale9BitmapMesh from a specially formatted BitmapData.
+     *
+     * The visible part of the BitmapData is extracted by removing the
+     * right-most column of pixels, and the bottom row of pixels.  These removed
+     * spans are then used as guides for deriving the Scale9 rectangle.  The
+     * left and right edges of the Scale9 rectangle are taken from the left- and
+     * right-most non-transparent pixels in the guide row.  The top and bottom
+     * edges are taken from the top and bottom non-transparent pixels in the
+     * guide column.
+     *
+     * @param guidedBitmapData
+     * The formatted BitmapData, containing the visible image and guide rows.
+     *
+     * @param smoothing
+     * Whether to create the new Scale9BitmapMesh with smoothing enabled.
+     */
+    public static function createFromGuideBitmap(
+        guidedBitmapData:BitmapData, smoothing:Boolean = false):Scale9BitmapMesh
+    {
+        var rect:Rectangle = new Rectangle(0, 0, guidedBitmapData.width - 1, guidedBitmapData.height - 1);
+
+        var viewBitmap:BitmapData = copySubImage(guidedBitmapData, rect);
+
+        rect.x = guidedBitmapData.width - 1;
+        rect.width = 1;
+        var rowArea:Rectangle = getNonTransparentBounds(guidedBitmapData, rect);
+
+        rect.x = 0;
+        rect.width = guidedBitmapData.width - 1;
+        rect.y = guidedBitmapData.height - 1;
+        rect.height = 1;
+        var columnArea:Rectangle = getNonTransparentBounds(guidedBitmapData, rect);
+
+        var innerRectangle:Rectangle =
+            new Rectangle(columnArea.x, rowArea.y, columnArea.width, rowArea.height);
+
+        return new Scale9BitmapMesh(viewBitmap, innerRectangle, smoothing);
+    }
+
+    private static function getNonTransparentBounds(
+        sourceImage:BitmapData, rect:Rectangle):Rectangle
+    {
+        return getColorBoundsSubRect(sourceImage, rect, 0xFF000000, 0, false);
+    }
+
+    private static function getColorBoundsSubRect(
+        sourceImage:BitmapData, rect:Rectangle,
+        mask:uint, color:uint, findColor:Boolean = true):Rectangle
+    {
+        var subImage:BitmapData = copySubImage(sourceImage, rect);
+        var bounds:Rectangle = subImage.getColorBoundsRect(mask, color, findColor);
+        bounds.x += rect.x;
+        bounds.y += rect.y;
+        subImage.dispose();
+        return bounds;
+    }
+
+    private static function copySubImage(source:BitmapData, rect:Rectangle):BitmapData
+    {
+        var subImage:BitmapData = new BitmapData(rect.width, rect.height, source.transparent, 0);
+        subImage.copyPixels(source, rect, ZERO_POINT);
+        return subImage;
     }
 }
 }
