@@ -14,6 +14,75 @@ import flash.geom.Rectangle;
 public class RectUtil
 {
     /**
+     * Sets the x, y, width and height properties on an object.
+     *
+     * @param target
+     * The object on which to set the values.
+     *
+     * @param x       The new value for the x property.
+     * @param y       The new value for the y property.
+     * @param width   The new value for the width property.
+     * @param height  The new value for the height property.
+     */
+    public static function setValues(target:*, x:Number, y:Number, width:Number, height:Number):void
+    {
+        target.x = x;
+        target.y = y;
+        target.width = width;
+        target.height = height;
+    }
+
+
+    /**
+     * Sets the x, y, width and height properties on an object by specifying
+     * the desired left, top, right and bottom edge coordinates.
+     *
+     * @param target
+     * The object on which to set the values.
+     *
+     * @param left    The desired left edge coordinate. The target's x property
+     *                is set to this value.
+     * @param top     The desired top edge coordinate. The target's y property
+     *                is set to this value.
+     * @param right   The desired right edge coordinate. The target's width
+     *                property is set to this value minus left.
+     * @param bottom  The desired bottom edge coordinate. The target's height
+     *                property is set to this value minus top.
+     */
+    public static function setEdges(target:*, left:Number, top:Number, right:Number, bottom:Number):void
+    {
+        target.x = left;
+        target.y = top;
+        target.width = right - left;
+        target.height = bottom - top;
+    }
+
+
+    /**
+     * Copies the x, y, width and height properties from one object to another.
+     *
+     * @param source
+     * The object providing the values to copy.
+     *
+     * @param target
+     * The object receiving the copied values. If no object is passed, a new
+     * Rectangle is created.
+     *
+     * @return
+     * The object containing the copied values of source.
+     */
+    public static function copy(source:*, target:* = null):*
+    {
+        if (!target) target = new Rectangle();
+        target.x = source.x;
+        target.y = source.y;
+        target.width = source.width;
+        target.height = source.height;
+        return target;
+    }
+
+
+    /**
      * Multiplies each coordinate in a rectangle by a scalar value.
      *
      * @param rect
